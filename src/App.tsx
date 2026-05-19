@@ -46,86 +46,50 @@ import { MetaData, PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData,
 const supabase = createClient();
 
 // Access Control Component
+import { AccessCard } from './components/AccessUI';
+// ...
+
 const AccessScreen = ({ onAccess }: { onAccess: (group: string, name: string) => void }) => {
   const [selectedGroup, setSelectedGroup] = useState('Group 1');
   const [name, setName] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      alert("Please enter your name to proceed.");
-      return;
-    }
+    if (!name.trim()) return alert("Please enter your name.");
     onAccess(selectedGroup, name);
   };
 
   const groups = Array.from({ length: 11 }, (_, i) => `Group ${i + 1}`);
 
   return (
-    <div className="min-h-screen bg-white flex overflow-hidden font-sans">
-        {/* Left Side - Visual */}
-        <div className="hidden lg:flex flex-1 bg-slate-900 items-center justify-center p-12 relative">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-            <div className="text-white space-y-8 max-w-lg z-10 text-center">
-                <img 
-                    src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-                    alt="SDP Suite Logo" 
-                    className="w-48 h-48 mx-auto object-contain drop-shadow-2xl"
+    <div className="min-h-screen bg-white flex items-center justify-center p-6 font-sans">
+        <AccessCard title="Student Access" description="Verify your session details to enter your team's workspace.">
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Full Name"
+                    className="w-full px-6 py-4 border border-slate-200 rounded-full text-center text-sm outline-none focus:border-brand-blue transition-all"
                 />
-                <h1 className="text-6xl font-extrabold tracking-tighter">SDP Suite<span className="text-brand-blue">.</span></h1>
-                <p className="text-slate-400 text-lg leading-relaxed">Advanced academic collaboration interface. Real-time workspace synchronization for student teams.</p>
-            </div>
-        </div>
-
-        {/* Right Side - Form */}
-        <div className="flex-1 flex items-center justify-center p-8">
-            <div className="w-full max-w-md space-y-8">
-                <div className="space-y-2">
-                    <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">Student Access</h2>
-                    <p className="text-slate-500 font-medium">Verify your session details to enter your team's workspace.</p>
-                </div>
-                
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="relative">
-                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Full Name"
-                            className="w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-lg font-bold outline-none focus:border-brand-blue focus:bg-white transition-all shadow-sm"
-                        />
-                    </div>
-                    <div className="relative">
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={20} />
-                        <select
-                            value={selectedGroup}
-                            onChange={(e) => setSelectedGroup(e.target.value)}
-                            className="w-full pl-4 pr-12 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-lg font-bold outline-none focus:border-brand-blue focus:bg-white transition-all shadow-sm appearance-none cursor-pointer"
-                        >
-                            {groups.map(g => (
-                            <option key={g} value={g}>{g}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <button
-                        type="submit"
-                        className="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-lg shadow-slate-200"
+                <div className="relative">
+                    <select
+                        value={selectedGroup}
+                        onChange={(e) => setSelectedGroup(e.target.value)}
+                        className="w-full px-6 py-4 border border-slate-200 rounded-full text-center text-sm outline-none focus:border-brand-blue transition-all appearance-none cursor-pointer"
                     >
-                        Access Workspace <ArrowRight size={18}/>
-                    </button>
-                </form>
-
-                <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-slate-300 pt-8">
-                    <div className="h-px flex-1 bg-slate-100"></div>
-                    Secured by SDP
-                    <div className="h-px flex-1 bg-slate-100"></div>
+                        {groups.map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 </div>
-                <div className="text-center">
-                    <a href="/professor-dashboard" className="text-[10px] text-slate-300 hover:text-slate-500 uppercase tracking-widest">Faculty Access</a>
-                </div>
+                <button type="submit" className="w-full py-4 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                    Access Workspace <ArrowRight size={16}/>
+                </button>
+            </form>
+            <div className="text-center pt-4">
+                <a href="/professor-dashboard" className="text-[10px] text-slate-400 hover:text-slate-600 uppercase tracking-widest">Faculty Admin</a>
             </div>
-        </div>
+        </AccessCard>
     </div>
   );
 };
