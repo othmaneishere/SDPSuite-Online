@@ -47,14 +47,31 @@ export default function ProfessorDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex h-screen overflow-hidden">
+      {/* Sidebar - Group List */}
       <div className="w-64 bg-white border-r p-4 overflow-y-auto">
-        <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4 px-2">Groups</h2>
-        {groups.map(g => (
-            <button key={g.group_id} onClick={() => setSelectedGroup(g)} className={`w-full p-3 mb-1 rounded-lg text-left transition-colors ${selectedGroup?.group_id === g.group_id ? 'bg-brand-blue text-white' : 'hover:bg-gray-100'}`}>
-                <p className="font-bold text-sm">{g.group_id}</p>
-            </button>
-        ))}
+        <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4 px-2">All Groups</h2>
+        {Array.from({ length: 11 }, (_, i) => `Group ${i + 1}`).map(groupName => {
+            const groupData = groups.find(g => g.group_id === groupName);
+            const lastUpdated = groupData ? new Date(groupData.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No data';
+            
+            return (
+                <button 
+                    key={groupName} 
+                    onClick={() => setSelectedGroup(groupData || { group_id: groupName })} 
+                    className={cn(
+                        "w-full p-3 mb-1 rounded-lg text-left transition-colors flex items-center justify-between",
+                        selectedGroup?.group_id === groupName ? 'bg-brand-blue text-white' : 'hover:bg-gray-100'
+                    )}
+                >
+                    <span className="font-bold text-sm">{groupName}</span>
+                    <span className={cn("text-[10px] font-mono", selectedGroup?.group_id === groupName ? "text-white/70" : "text-gray-400")}>
+                        {lastUpdated}
+                    </span>
+                </button>
+            );
+        })}
       </div>
+      
       <div className="flex-1 overflow-y-auto p-8">
         {selectedGroup ? (
             <div className="space-y-6">
