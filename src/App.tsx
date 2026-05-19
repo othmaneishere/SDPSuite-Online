@@ -1452,20 +1452,17 @@ function AppContent() {
                         <VRIOAnalysisTable data={vrioAnalysisData} setData={setVrioAnalysisData} notes={vrioNotes} setNotes={setVrioNotes} />
                       </div>
                     ) : activeTab === 'TOWS' ? (
-                      <TOWSWorksheet data={towsData} setData={setTowsData} meta={meta} setMeta={setMeta} />
+                      <div className="space-y-12">
+                        <TOWSWorksheet data={towsData} setData={setTowsData} meta={meta} setMeta={setMeta} />
+                        <ProjectMetadataFooter meta={meta} setMeta={setMeta} activeUsers={activeUsers} />
+                      </div>
                     ) : (
                       <PortersFiveForces data={portersData} setData={setPortersData} activeForce={activeForce} setActiveForce={setActiveForce} />
                     )}
                   </motion.div>
                   </AnimatePresence>
 
-
-          {/* Footer Info */}
-          <div className="mt-12 pt-8 border-t border-gray-100 flex justify-between items-end">
-            <div className="text-[10px] text-gray-400 font-medium">
-              1/1
-            </div>
-          </div>
+                  {activeTab !== 'TOWS' && <ProjectMetadataFooter meta={meta} setMeta={setMeta} activeUsers={activeUsers} />}
           
           {/* Watermark-like info for screen only */}
           {!isExporting && (
