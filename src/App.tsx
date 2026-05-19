@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, FormEvent, Component, ErrorInfo, ReactNode } from 'react';
+import ProfessorDashboard from './ProfessorDashboard';
 
 // Error Boundary Component for stability
 class ErrorBoundary extends (Component as any) {
@@ -532,6 +533,10 @@ export default function App() {
 }
 
 function AppContent() {
+  if (window.location.pathname === '/professor-dashboard') {
+    return <ProfessorDashboard />;
+  }
+
   const [isAuthorized, setIsAuthorized] = useState(() => {
     return localStorage.getItem('sdp_authorized') === 'true';
   });
