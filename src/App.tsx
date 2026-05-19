@@ -1576,11 +1576,9 @@ const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatrixData;
   const getBgColor = (scoreValue: string | number) => {
     const score = parseInt(String(scoreValue));
     if (isNaN(score)) return 'bg-white';
-    if (score === 2) return 'bg-[#C6E0B4]'; // Very positive
-    if (score === 1) return 'bg-[#E2EFDA]'; // Positive
-    if (score === 0) return 'bg-[#FFF2CC]'; // Neutral
-    if (score === -1) return 'bg-[#FCE4D6]'; // Negative
-    if (score === -2) return 'bg-[#F4B084]'; // Very negative
+    if (score >= 1) return 'bg-[#C6E0B4]'; // Positive / Very positive (Unified Green)
+    if (score === 0) return 'bg-[#FFF2CC]'; // Neutral (Yellow)
+    if (score <= -1) return 'bg-[#F4B084]'; // Negative / Very negative (Unified Red/Orange)
     return 'bg-white';
   };
 
@@ -1761,24 +1759,16 @@ const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatrixData;
       <div className="mt-12 flex gap-12 items-start">
         <div className="flex flex-col w-64 border border-black text-xs font-bold shadow-sm">
           <div className="grid grid-cols-[1fr_60px] border-b border-black bg-[#F4B084]">
-            <span className="p-2 px-4 text-red-900 text-shadow-sm">Very negative</span>
-            <span className="p-2 text-center border-l border-black">-2</span>
-          </div>
-          <div className="grid grid-cols-[1fr_60px] border-b border-black bg-[#FCE4D6]">
-            <span className="p-2 px-4 text-[#843C0C]">Negative</span>
-            <span className="p-2 text-center border-l border-black">-1</span>
+            <span className="p-2 px-4 text-red-900 text-shadow-sm italic">Negative / Very Negative</span>
+            <span className="p-2 text-center border-l border-black">-1 / -2</span>
           </div>
           <div className="grid grid-cols-[1fr_60px] border-b border-black bg-[#FFF2CC]">
             <span className="p-2 px-4 text-yellow-800">Neutral</span>
             <span className="p-2 text-center border-l border-black">0</span>
           </div>
-          <div className="grid grid-cols-[1fr_60px] border-b border-black bg-[#E2EFDA]">
-            <span className="p-2 px-4 text-[#385623]">Positive</span>
-            <span className="p-2 text-center border-l border-black">1</span>
-          </div>
           <div className="grid grid-cols-[1fr_60px] bg-[#C6E0B4]">
-            <span className="p-2 px-4 text-green-900">Very positive</span>
-            <span className="p-2 text-center border-l border-black">2</span>
+            <span className="p-2 px-4 text-green-900 italic">Positive / Very Positive</span>
+            <span className="p-2 text-center border-l border-black">+1 / +2</span>
           </div>
         </div>
       </div>
