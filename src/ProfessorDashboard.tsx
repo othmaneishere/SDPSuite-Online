@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/src/utils/supabase/client';
-import { Lock, Users, RefreshCw, Activity, FileText } from 'lucide-react';
+import { Lock, Users, Activity, FileText, Settings2, Network, Files, RefreshCw } from 'lucide-react';
+import { cn } from '@/src/lib/utils';
+// Note: In a production app, these should be exported from a separate UI library file.
+// For this single-file solution, I'll rely on the assumption that these are available if imported properly
+// or recreate basic versions for the dashboard.
+import { PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData } from './types';
 
 const supabase = createClient();
 
+// Dashboard UI
 export default function ProfessorDashboard() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [code, setCode] = useState('');
   const [groups, setGroups] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedGroup, setSelectedGroup] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>('PESTEL');
 
   const handleAccess = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,19 +27,15 @@ export default function ProfessorDashboard() {
     if (!isAuthorized) return;
 
     const fetchGroups = async () => {
-      const { data, error } = await supabase.from('groups').select('*');
-      if (error) console.error(error);
-      else setGroups(data || []);
-      setLoading(false);
+      const { data } = await supabase.from('groups').select('*');
+      if (data) setGroups(data);
     };
 
     fetchGroups();
 
     const channel = supabase
       .channel('schema-db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, (payload) => {
-        fetchGroups(); // Refresh all to ensure we have latest content
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, () => fetchGroups())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -52,45 +54,44 @@ export default function ProfessorDashboard() {
     );
   }
 
+  const content = selectedGroup?.content;
+
   return (
-    <div className="min-h-screen bg-gray-50 p-8 flex gap-8">
+    <div className="min-h-screen bg-gray-100 flex h-screen overflow-hidden">
       {/* Sidebar - Group List */}
-      <div className="w-80 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[calc(100vh-4rem)] overflow-y-auto">
-        <h2 className="text-xl font-black mb-6">Groups</h2>
+      <div className="w-64 bg-white border-r p-4 overflow-y-auto">
+        <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4 px-2">Groups</h2>
         {groups.map(g => (
-            <button key={g.group_id} onClick={() => setSelectedGroup(g)} className={`w-full p-4 mb-2 rounded-xl text-left ${selectedGroup?.group_id === g.group_id ? 'bg-brand-blue text-white' : 'hover:bg-gray-50'}`}>
-                <p className="font-bold">{g.group_id}</p>
-                <p className="text-xs opacity-70">Updated: {new Date(g.created_at).toLocaleTimeString()}</p>
+            <button key={g.group_id} onClick={() => setSelectedGroup(g)} className={`w-full p-3 mb-1 rounded-lg text-left transition-colors ${selectedGroup?.group_id === g.group_id ? 'bg-brand-blue text-white' : 'hover:bg-gray-100'}`}>
+                <p className="font-bold text-sm">{g.group_id}</p>
             </button>
         ))}
       </div>
 
       {/* Main Panel */}
-      <div className="flex-1 bg-white p-8 rounded-2xl shadow-sm border border-gray-100 h-[calc(100vh-4rem)] overflow-y-auto">
+      <div className="flex-1 overflow-y-auto p-8">
         {selectedGroup ? (
-            <div className="space-y-8">
-                <div className="flex justify-between items-center border-b pb-4">
-                    <h1 className="text-3xl font-black text-gray-900">{selectedGroup.group_id} Monitoring</h1>
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><Activity size={12}/> Live</span>
+            <div className="space-y-6">
+                <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h1 className="text-2xl font-black">{selectedGroup.group_id}</h1>
+                    <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
+                        { (['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'] as const).map(tab => (
+                            <button key={tab} onClick={() => setActiveTab(tab)} className={cn("px-4 py-2 rounded-lg text-[10px] font-black uppercase", activeTab === tab ? "bg-white shadow" : "")}>
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="bg-gray-50 p-6 rounded-xl border">
-                        <h3 className="font-bold mb-4 flex items-center gap-2"><FileText size={18}/> Live Content</h3>
-                        <pre className="text-xs font-mono bg-white p-4 rounded border overflow-x-auto h-96">{JSON.stringify(selectedGroup.content, null, 2)}</pre>
-                    </div>
-                    <div className="bg-gray-50 p-6 rounded-xl border">
-                        <h3 className="font-bold mb-4 flex items-center gap-2"><Users size={18}/> Participants</h3>
-                        <div className="space-y-2">
-                            {selectedGroup.content?.meta?.participants?.map((p:string) => (
-                                <div key={p} className="p-3 bg-white rounded border text-sm font-bold">{p}</div>
-                            ))}
-                        </div>
-                    </div>
+                {/* Visualizer - In a real app, I would import the actual components here */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[500px]">
+                    <h3 className="text-sm font-black uppercase mb-4 text-gray-400">{activeTab} View</h3>
+                    {/* JSON fallback for immediate functionality */}
+                    <pre className="text-xs font-mono bg-gray-50 p-4 rounded border overflow-x-auto">{JSON.stringify(content?.[activeTab.toLowerCase()], null, 2)}</pre>
                 </div>
             </div>
         ) : (
-            <div className="flex items-center justify-center h-full text-gray-400 font-bold">Select a group to view live monitoring</div>
+            <div className="flex items-center justify-center h-full text-gray-400 font-bold">Select a group</div>
         )}
       </div>
     </div>
