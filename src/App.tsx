@@ -62,72 +62,65 @@ const AccessScreen = ({ onAccess }: { onAccess: (group: string, name: string) =>
   const groups = Array.from({ length: 11 }, (_, i) => `Group ${i + 1}`);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 max-w-md w-full"
-      >
-        <div className="flex justify-center mb-8">
-          <img 
-            src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-            alt="Business School Logo" 
-            className="h-16 object-contain"
-          />
-        </div>
-        
-        <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">Strategic Suite Access</h2>
-        <p className="text-gray-500 text-center text-sm mb-8">Please enter your name and select your group to proceed.</p>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">Your Name</label>
-            <div className="relative">
-              <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Full Name"
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 transition-all text-lg font-bold"
-              />
+    <div className="min-h-screen bg-white flex overflow-hidden font-sans">
+        {/* Left Side - Visual */}
+        <div className="hidden lg:flex flex-1 bg-slate-900 items-center justify-center p-12 relative">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+            <div className="text-white space-y-4 max-w-lg z-10">
+                <h1 className="text-6xl font-extrabold tracking-tighter">Strategic<br/>Suite<span className="text-brand-blue">.</span></h1>
+                <p className="text-slate-400 text-lg leading-relaxed">Advanced academic collaboration interface. Real-time workspace synchronization for student teams.</p>
             </div>
-          </div>
+        </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest px-1">Your Group</label>
-            <div className="relative">
-              <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <select
-                value={selectedGroup}
-                onChange={(e) => setSelectedGroup(e.target.value)}
-                className="w-full pl-12 pr-10 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 transition-all text-lg font-bold appearance-none cursor-pointer"
-              >
-                {groups.map(g => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+        {/* Right Side - Form */}
+        <div className="flex-1 flex items-center justify-center p-8">
+            <div className="w-full max-w-md space-y-8">
+                <div className="space-y-2">
+                    <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">Student Access</h2>
+                    <p className="text-slate-500 font-medium">Verify your session details to enter your team's workspace.</p>
+                </div>
+                
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="relative">
+                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Full Name"
+                            className="w-full pl-12 pr-4 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-lg font-bold outline-none focus:border-brand-blue focus:bg-white transition-all shadow-sm"
+                        />
+                    </div>
+                    <div className="relative">
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" size={20} />
+                        <select
+                            value={selectedGroup}
+                            onChange={(e) => setSelectedGroup(e.target.value)}
+                            className="w-full pl-4 pr-12 py-5 bg-slate-50 border border-slate-100 rounded-2xl text-lg font-bold outline-none focus:border-brand-blue focus:bg-white transition-all shadow-sm appearance-none cursor-pointer"
+                        >
+                            {groups.map(g => (
+                            <option key={g} value={g}>{g}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <button
+                        type="submit"
+                        className="w-full py-5 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-3 shadow-lg shadow-slate-200"
+                    >
+                        Access Workspace <ArrowRight size={18}/>
+                    </button>
+                </form>
+
+                <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-slate-300 pt-8">
+                    <div className="h-px flex-1 bg-slate-100"></div>
+                    Secured by SDP
+                    <div className="h-px flex-1 bg-slate-100"></div>
+                </div>
+                <div className="text-center">
+                    <a href="/professor-dashboard" className="text-[10px] text-slate-300 hover:text-slate-500 uppercase tracking-widest">Faculty Access</a>
+                </div>
             </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-4 bg-brand-blue text-white rounded-2xl font-bold text-lg hover:bg-brand-blue/90 transition-all shadow-lg active:scale-[0.98]"
-          >
-            Access Planner
-          </button>
-        </form>
-
-        <div className="mt-8 pt-6 border-t border-gray-100 flex justify-center gap-6">
-          <span className="text-[10px] uppercase tracking-widest text-gray-300 font-bold">PESTEL</span>
-          <span className="text-[10px] uppercase tracking-widest text-gray-300 font-bold">MCKINSEY 7S</span>
-          <span className="text-[10px] uppercase tracking-widest text-gray-300 font-bold">VRIO</span>
         </div>
-        <div className="mt-4 text-center">
-            <a href="/professor-dashboard" className="text-[10px] text-gray-300 hover:text-gray-500 uppercase tracking-widest">Professor Access</a>
-        </div>
-      </motion.div>
     </div>
   );
 };
