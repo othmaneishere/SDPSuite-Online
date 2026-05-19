@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, FormEvent, Component, ErrorInfo, ReactNode
 import ProfessorDashboard from './ProfessorDashboard';
 
 // Error Boundary Component for stability
-class ErrorBoundary extends (Component as any) {
-  constructor(props: any) {
+class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: ReactNode}) {
     super(props);
     this.state = { hasError: false };
   }
@@ -12,7 +12,7 @@ class ErrorBoundary extends (Component as any) {
     return { hasError: true };
   }
 
-  componentDidCatch(error: any, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
   }
 
