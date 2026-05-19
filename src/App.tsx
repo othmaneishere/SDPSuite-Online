@@ -1354,60 +1354,11 @@ function AppContent() {
                   {/* Main Worksheet Area */}
                   <div className="overflow-x-auto pb-12">
                   <div ref={containerRef} className="worksheet-container relative overflow-hidden">
-                  <CorporateHeader meta={meta} setMeta={setMeta} activeUsers={activeUsers} hideMeta={activeTab === 'TOWS'} />
+                  <CorporateHeader meta={meta} setMeta={setMeta} activeUsers={activeUsers} hideMeta={false} />
 
                   {activeTab === 'TOWS' && <ConfrontationMatrixGuide />}
 
                   <div className="mb-6">
-                  {activeTab === 'TOWS' && (
-                    <div className="mb-6 pb-6 border-b border-gray-100">
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 text-sm max-w-4xl">
-                        <div className="flex flex-col border-b border-gray-100">
-                          <span className="text-gray-400 text-[10px] uppercase font-black tracking-widest">Module</span>
-                          <span className="font-bold text-gray-900 leading-tight">Strategic Development Project (SDP)</span>
-                        </div>
-                        <div className="flex flex-col border-b border-gray-100">
-                          <span className="text-gray-400 text-[10px] uppercase font-black tracking-widest">Cohort</span>
-                          <span className="font-bold text-gray-900 leading-tight">MA27</span>
-                        </div>
-                        <div className="flex flex-col border-b border-gray-100">
-                          <span className="text-gray-400 text-[10px] uppercase font-black tracking-widest">Date</span>
-                          <span className="font-bold text-gray-900 leading-tight">05 - 06 June 2026</span>
-                        </div>
-                        <div className="flex flex-col border-b border-gray-100">
-                          <span className="text-gray-400 text-[10px] uppercase font-black tracking-widest">Company Name</span>
-                          <input 
-                            type="text" 
-                            value={meta.companyName} 
-                            onChange={(e) => setMeta({...meta, companyName: e.target.value})}
-                            className="font-bold text-gray-700 outline-hidden bg-transparent w-full focus:text-black transition-colors"
-                            placeholder="----------------------------------"
-                          />
-                        </div>
-                        <div className="flex flex-col border-b border-gray-100">
-                          <span className="text-gray-400 text-[10px] uppercase font-black tracking-widest">Group</span>
-                          <input 
-                            type="text" 
-                            value={meta.group} 
-                            onChange={(e) => setMeta({...meta, group: e.target.value})}
-                            className="font-bold text-gray-700 outline-hidden bg-transparent w-full focus:text-black transition-colors"
-                            placeholder="Group 1"
-                          />
-                        </div>
-                        <div className="flex flex-col border-b border-gray-100">
-                          <span className="text-gray-400 text-[10px] uppercase font-black tracking-widest">Participant Name</span>
-                          <input 
-                            type="text" 
-                            value={meta.participantName} 
-                            onChange={(e) => setMeta({...meta, participantName: e.target.value})}
-                            className="font-bold text-gray-700 outline-hidden bg-transparent w-full focus:text-black transition-colors"
-                            placeholder="----------------------------------"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
                   <div className="flex items-end justify-between">
                     <h2 className={cn(
                       "text-4xl font-bold uppercase tracking-tight text-gray-900 inline-block",
@@ -1433,6 +1384,7 @@ function AppContent() {
                     </div>
                   </div>
                   </div>
+
 
                   <AnimatePresence mode="wait">
                   <motion.div
