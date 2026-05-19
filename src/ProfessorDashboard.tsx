@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/src/utils/supabase/client';
-import { Lock, Users, Activity, FileText, Settings2, Network, Files, RefreshCw } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
-// Note: In a production app, these should be exported from a separate UI library file.
-// For this single-file solution, I'll rely on the assumption that these are available if imported properly
-// or recreate basic versions for the dashboard.
-import { PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData } from './types';
+import { PESTELWorksheet, McKinseyWorksheet, VRIOAnalysisTable } from './components/Worksheets';
 
 const supabase = createClient();
 
-// Dashboard UI
 export default function ProfessorDashboard() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [code, setCode] = useState('');
@@ -25,19 +21,12 @@ export default function ProfessorDashboard() {
 
   useEffect(() => {
     if (!isAuthorized) return;
-
     const fetchGroups = async () => {
       const { data } = await supabase.from('groups').select('*');
       if (data) setGroups(data);
     };
-
     fetchGroups();
-
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, () => fetchGroups())
-      .subscribe();
-
+    const channel = supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, () => fetchGroups()).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [isAuthorized]);
 
@@ -58,7 +47,6 @@ export default function ProfessorDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex h-screen overflow-hidden">
-      {/* Sidebar - Group List */}
       <div className="w-64 bg-white border-r p-4 overflow-y-auto">
         <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4 px-2">Groups</h2>
         {groups.map(g => (
@@ -67,8 +55,6 @@ export default function ProfessorDashboard() {
             </button>
         ))}
       </div>
-
-      {/* Main Panel */}
       <div className="flex-1 overflow-y-auto p-8">
         {selectedGroup ? (
             <div className="space-y-6">
@@ -83,11 +69,13 @@ export default function ProfessorDashboard() {
                     </div>
                 </div>
                 
-                {/* Visualizer - In a real app, I would import the actual components here */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[500px]">
-                    <h3 className="text-sm font-black uppercase mb-4 text-gray-400">{activeTab} View</h3>
-                    {/* JSON fallback for immediate functionality */}
-                    <pre className="text-xs font-mono bg-gray-50 p-4 rounded border overflow-x-auto">{JSON.stringify(content?.[activeTab.toLowerCase()], null, 2)}</pre>
+                    {activeTab === 'PESTEL' && <PESTELWorksheet data={content?.pestel || []} setData={() => {}} />}
+                    {activeTab === 'McKinsey' && <McKinseyWorksheet data={content?.mckinsey || {}} setData={() => {}} />}
+                    {activeTab === 'VRIO' && <VRIOAnalysisTable data={content?.vrio || []} setData={() => {}} />}
+                    {activeTab !== 'PESTEL' && activeTab !== 'McKinsey' && activeTab !== 'VRIO' && (
+                        <pre className="text-xs font-mono bg-gray-50 p-4 rounded border overflow-x-auto">{JSON.stringify(content?.[activeTab.toLowerCase()], null, 2)}</pre>
+                    )}
                 </div>
             </div>
         ) : (
