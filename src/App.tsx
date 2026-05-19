@@ -1139,10 +1139,10 @@ function AppContent() {
         setVrioNotes('');
       } else if (activeTab === 'TOWS') {
         setTowsData({
-          opportunities: ['Higher ticket pet items', 'More pets are bought', 'Healthier pet food'],
-          threats: ['Large companies are catching up everyone', 'Pet food margins are decreasing', 'Supermarkets are competing'],
-          strengths: ['Marketing', 'E-commerce shop', 'Bio food'],
-          weaknesses: ['Small compared to competition', 'Logistics', 'Small margins'],
+          opportunities: Array(3).fill(''),
+          threats: Array(3).fill(''),
+          strengths: Array(3).fill(''),
+          weaknesses: Array(3).fill(''),
           scores: {}
         });
       } else if (activeTab === 'PORTER') {
