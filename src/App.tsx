@@ -36,7 +36,7 @@ class ErrorBoundary extends (Component as any) {
   }
 }
 import { motion, AnimatePresence } from 'motion/react';
-import { Download, FileText, Settings2, Trash2, Users, CircleDollarSign, Gem, Files, Network, ChevronUp, ChevronDown, LogOut } from 'lucide-react';
+import { Download, FileText, Settings2, Trash2, Users, CircleDollarSign, Gem, Files, Network, ChevronUp, ChevronDown, LogOut, ArrowRight } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { cn } from '@/src/lib/utils';
