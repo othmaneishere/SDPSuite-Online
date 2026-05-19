@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/src/utils/supabase/client';
-import { Lock } from 'lucide-react';
+import { Lock, ShieldCheck, UserCircle } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { PESTELWorksheet, McKinseyWorksheet, VRIOAnalysisTable } from './components/Worksheets';
 
@@ -16,7 +16,7 @@ export default function ProfessorDashboard() {
   const handleAccess = (e: React.FormEvent) => {
     e.preventDefault();
     if (code === '1234') setIsAuthorized(true);
-    else { alert('Incorrect code.'); setCode(''); }
+    else { alert('Access Denied: Invalid Credentials.'); setCode(''); }
   };
 
   useEffect(() => {
@@ -32,13 +32,28 @@ export default function ProfessorDashboard() {
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <form onSubmit={handleAccess} className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 max-w-sm w-full">
-          <div className="flex justify-center mb-6"><Lock className="text-brand-blue" size={32} /></div>
-          <h2 className="text-2xl font-bold text-center mb-6">Professor Login</h2>
-          <input type="password" value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter access code" className="w-full p-4 bg-gray-50 border rounded-2xl mb-6 text-center text-lg font-bold outline-none" />
-          <button type="submit" className="w-full py-4 bg-brand-blue text-white rounded-2xl font-bold text-lg">Access Dashboard</button>
-        </form>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="bg-white p-10 rounded-2xl shadow-2xl max-w-md w-full border-t-4 border-brand-blue">
+            <div className="flex justify-center mb-8">
+                <div className="bg-brand-blue/10 p-4 rounded-full">
+                    <ShieldCheck className="text-brand-blue" size={40} />
+                </div>
+            </div>
+            <h2 className="text-3xl font-extrabold text-slate-900 text-center mb-2">Faculty Portal</h2>
+            <p className="text-slate-500 text-center mb-8 text-sm">Secure access to administrative monitoring systems.</p>
+            <form onSubmit={handleAccess} className="space-y-4">
+                <input 
+                    type="password" 
+                    value={code} 
+                    onChange={(e) => setCode(e.target.value)} 
+                    placeholder="Enter security token" 
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-center text-lg font-mono tracking-widest outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20" 
+                />
+                <button type="submit" className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                    <Lock size={18}/> Authorize Access
+                </button>
+            </form>
+        </div>
       </div>
     );
   }
@@ -46,57 +61,64 @@ export default function ProfessorDashboard() {
   const content = selectedGroup?.content;
 
   return (
-    <div className="min-h-screen bg-gray-100 flex h-screen overflow-hidden">
-      {/* Sidebar - Group List */}
-      <div className="w-64 bg-white border-r p-4 overflow-y-auto">
-        <h2 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4 px-2">All Groups</h2>
-        {Array.from({ length: 11 }, (_, i) => `Group ${i + 1}`).map(groupName => {
-            const groupData = groups.find(g => g.group_id === groupName);
-            const lastUpdated = groupData ? new Date(groupData.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No data';
-            
-            return (
-                <button 
-                    key={groupName} 
-                    onClick={() => setSelectedGroup(groupData || { group_id: groupName })} 
-                    className={cn(
-                        "w-full p-3 mb-1 rounded-lg text-left transition-colors flex items-center justify-between",
-                        selectedGroup?.group_id === groupName ? 'bg-brand-blue text-white' : 'hover:bg-gray-100'
-                    )}
-                >
-                    <span className="font-bold text-sm">{groupName}</span>
-                    <span className={cn("text-[10px] font-mono", selectedGroup?.group_id === groupName ? "text-white/70" : "text-gray-400")}>
-                        {lastUpdated}
-                    </span>
-                </button>
-            );
-        })}
+    <div className="min-h-screen bg-slate-50 flex h-screen overflow-hidden text-slate-900 font-sans">
+      <div className="w-72 bg-slate-900 text-slate-200 flex flex-col">
+        <div className="p-6 border-b border-slate-800 flex items-center gap-3">
+            <UserCircle size={24} className="text-brand-blue"/>
+            <span className="font-bold tracking-tight">Faculty Admin</span>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4">
+            <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4 px-2">Monitoring Status</h2>
+            {Array.from({ length: 11 }, (_, i) => `Group ${i + 1}`).map(groupName => {
+                const groupData = groups.find(g => g.group_id === groupName);
+                const isActive = selectedGroup?.group_id === groupName;
+                return (
+                    <button 
+                        key={groupName} 
+                        onClick={() => setSelectedGroup(groupData || { group_id: groupName })} 
+                        className={cn(
+                            "w-full p-3 mb-1 rounded-lg text-left transition-all flex items-center justify-between border border-transparent",
+                            isActive ? 'bg-brand-blue text-white shadow-lg' : 'hover:bg-slate-800 hover:border-slate-700'
+                        )}
+                    >
+                        <span className="font-semibold text-sm">{groupName}</span>
+                        <span className={cn("text-[9px] font-mono", isActive ? "text-white/70" : "text-slate-500")}>
+                            {groupData ? new Date(groupData.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Offline'}
+                        </span>
+                    </button>
+                );
+            })}
+        </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-10 bg-white">
         {selectedGroup ? (
-            <div className="space-y-6">
-                <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h1 className="text-2xl font-black">{selectedGroup.group_id}</h1>
-                    <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
+            <div className="space-y-8 max-w-6xl mx-auto">
+                <div className="flex justify-between items-end border-b border-slate-100 pb-6">
+                    <div>
+                        <p className="text-[10px] font-black uppercase text-brand-blue tracking-widest mb-1">Active Monitoring</p>
+                        <h1 className="text-4xl font-extrabold text-slate-900">{selectedGroup.group_id}</h1>
+                    </div>
+                    <div className="flex gap-2 bg-slate-50 p-1 rounded-xl border border-slate-100">
                         { (['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'] as const).map(tab => (
-                            <button key={tab} onClick={() => setActiveTab(tab)} className={cn("px-4 py-2 rounded-lg text-[10px] font-black uppercase", activeTab === tab ? "bg-white shadow" : "")}>
+                            <button key={tab} onClick={() => setActiveTab(tab)} className={cn("px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all", activeTab === tab ? "bg-white text-brand-blue shadow-sm" : "text-slate-400 hover:text-slate-600")}>
                                 {tab}
                             </button>
                         ))}
                     </div>
                 </div>
                 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-h-[500px]">
+                <div className="bg-white border border-slate-100 rounded-2xl shadow-sm p-8">
                     {activeTab === 'PESTEL' && <PESTELWorksheet data={content?.pestel || []} setData={() => {}} />}
                     {activeTab === 'McKinsey' && <McKinseyWorksheet data={content?.mckinsey || {}} setData={() => {}} />}
                     {activeTab === 'VRIO' && <VRIOAnalysisTable data={content?.vrio || []} setData={() => {}} />}
                     {activeTab !== 'PESTEL' && activeTab !== 'McKinsey' && activeTab !== 'VRIO' && (
-                        <pre className="text-xs font-mono bg-gray-50 p-4 rounded border overflow-x-auto">{JSON.stringify(content?.[activeTab.toLowerCase()], null, 2)}</pre>
+                        <pre className="text-xs font-mono bg-slate-50 p-6 rounded-xl border border-slate-100 overflow-x-auto text-slate-600">{JSON.stringify(content?.[activeTab.toLowerCase()], null, 2)}</pre>
                     )}
                 </div>
             </div>
         ) : (
-            <div className="flex items-center justify-center h-full text-gray-400 font-bold">Select a group</div>
+            <div className="flex items-center justify-center h-full text-slate-400 font-bold tracking-widest uppercase text-sm">Select a group from the sidebar to begin monitoring.</div>
         )}
       </div>
     </div>
