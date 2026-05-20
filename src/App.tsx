@@ -40,62 +40,14 @@ import { Download, FileText, Settings2, Trash2, Users, CircleDollarSign, Gem, Fi
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { cn } from '@/src/lib/utils';
-import { createClient } from '@/src/utils/supabase/client';
 import { MetaData, PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData } from './types';
 
-const supabase = createClient();
-
 // Access Control Component
-import { AccessCard } from './components/AccessUI';
-// ...
+import { AccessScreen } from './components/AccessUI';
 
-const AccessScreen = ({ onAccess }: { onAccess: (group: string, name: string) => void }) => {
-  const [selectedGroup, setSelectedGroup] = useState('Group 1');
-  const [name, setName] = useState('');
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return alert("Please enter your name.");
-    onAccess(selectedGroup, name);
-  };
-
-  const groups = Array.from({ length: 11 }, (_, i) => `Group ${i + 1}`);
-
-  return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6 font-sans">
-        <AccessCard title="Student Access" description="Verify your session details to enter your team's workspace.">
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Full Name"
-                    className="w-full px-6 py-4 border border-slate-200 rounded-full text-center text-sm outline-none focus:border-brand-blue transition-all"
-                />
-                <div className="relative">
-                    <select
-                        value={selectedGroup}
-                        onChange={(e) => setSelectedGroup(e.target.value)}
-                        className="w-full px-6 py-4 border border-slate-200 rounded-full text-center text-sm outline-none focus:border-brand-blue transition-all appearance-none cursor-pointer"
-                    >
-                        {groups.map(g => <option key={g} value={g}>{g}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                </div>
-                <button type="submit" className="w-full py-4 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
-                    Access Workspace <ArrowRight size={16}/>
-                </button>
-            </form>
-            <div className="text-center pt-4">
-                <a href="/professor-dashboard" className="text-[10px] text-slate-400 hover:text-slate-600 uppercase tracking-widest">Faculty Admin</a>
-            </div>
-        </AccessCard>
-    </div>
-  );
-};
 
 // Components
-const CorporateHeader = ({ meta, setMeta, activeUsers, hideMeta = false }: { meta: MetaData; setMeta: (m: MetaData) => void; activeUsers: any[]; hideMeta?: boolean }) => {
+const CorporateHeader = ({ meta, setMeta, hideMeta = false }: { meta: MetaData; setMeta: (m: MetaData) => void; hideMeta?: boolean }) => {
   const removeParticipant = (nameToRemove: string) => {
     setMeta({
       ...meta,
@@ -166,29 +118,19 @@ const CorporateHeader = ({ meta, setMeta, activeUsers, hideMeta = false }: { met
           <div className="flex flex-col border-b border-gray-200 col-span-2 py-2">
             <div className="flex justify-between items-center mb-1">
                 <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Team Members ({meta.participants.length})</span>
-                <span className="flex items-center gap-1 text-[10px] text-green-600 bg-green-50 px-2 py-0.5 rounded-full font-bold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse" />
-                    {activeUsers.length} Online Now
-                </span>
             </div>
             <div className="flex flex-wrap gap-2">
-                {meta.participants.map((name, index) => {
-                    const isOnline = activeUsers.some(u => u.name === name);
-                    return (
-                        <div key={index} className={cn(
-                            "group flex items-center gap-1.5 px-2 py-1 rounded-lg border transition-all",
-                            isOnline ? "bg-green-50 border-green-200 text-green-800" : "bg-gray-50 border-gray-200 text-gray-600"
-                        )}>
-                            <span className="font-bold text-[11px]">{name}</span>
-                            <button 
-                                onClick={() => removeParticipant(name)}
-                                className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-100 hover:text-red-600 rounded transition-all no-print"
-                            >
-                                <Trash2 size={10} />
-                            </button>
-                        </div>
-                    );
-                })}
+                {meta.participants.map((name, index) => (
+                    <div key={index} className="group flex items-center gap-1.5 px-2 py-1 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 transition-all">
+                        <span className="font-bold text-[11px]">{name}</span>
+                        <button 
+                            onClick={() => removeParticipant(name)}
+                            className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-red-100 hover:text-red-600 rounded transition-all no-print"
+                        >
+                            <Trash2 size={10} />
+                        </button>
+                    </div>
+                ))}
                 <input 
                     type="text"
                     placeholder="+ Add Member"
@@ -511,13 +453,44 @@ function AppContent() {
   const [isExportingAll, setIsExportingAll] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeUsers, setActiveUsers] = useState<any[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncError, setSyncError] = useState<string | null>(null);
-  const isRemoteUpdate = useRef(false);
-  const updateTimeout = useRef<NodeJS.Timeout | null>(null);
-  const channelRef = useRef<any>(null);
+  const [pestelData, setPestelData] = useState<PESTELData[]>(
+    ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
+      id: cat,
+      category: cat as any,
+      description: '',
+      impact: '',
+      probability: '',
+      potential: ''
+    }))
+  );
+  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>({});
+  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(
+    Array.from({ length: 8 }, (_, i) => ({
+      id: `res-${i}`,
+      resource: '',
+      type: '',
+      detail: '',
+      v: '',
+      r: '',
+      i: '',
+      o: ''
+    }))
+  );
+  const [vrioNotes, setVrioNotes] = useState('');
+  const [towsData, setTowsData] = useState<TOWSMatrixData>({
+    opportunities: Array(3).fill(''),
+    threats: Array(3).fill(''),
+    strengths: Array(3).fill(''),
+    weaknesses: Array(3).fill(''),
+    scores: {}
+  });
+  const [portersData, setPortersData] = useState<PortersFiveForcesData>({
+    newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+    buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+  });
 
   const [meta, setMeta] = useState<MetaData>(() => {
     const savedMeta = localStorage.getItem('sdp_meta');
@@ -537,288 +510,146 @@ function AppContent() {
     localStorage.setItem('sdp_meta', JSON.stringify(meta));
   }, [isAuthorized, meta]);
 
-  const sessionId = useRef(Math.random().toString(36).substring(7));
+  const updateTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Realtime subscription & Presence
+  // Load group data from localStorage when group changes
   useEffect(() => {
     if (!meta.group) return;
 
-    setIsConnected(true);
-    setSyncError(null);
-
-    const channel = supabase.channel(`group:${meta.group}`, {
-        config: { presence: { key: sessionId.current } }
-    });
-    
-    channelRef.current = channel;
-
-    // Fetch initial data from DB for new joiners
-    const fetchInitial = async () => {
-        setIsLoading(true);
-        isRemoteUpdate.current = true; // Lock sync immediately
-        try {
-            const { data, error } = await supabase
-                .from('groups')
-                .select('*')
-                .eq('group_id', meta.group)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle();
-            
-            if (error) throw error;
-
-            if (data?.content) {
-                console.log('Restoring data from cloud...');
-                applyState(data.content);
-            }
-        } catch (err) {
-            console.error('Initial fetch failed:', err);
-            setSyncError('Failed to load initial data. Collaboration might be out of sync.');
-        } finally {
-            // Wait extra time before unlocking sync to ensure state updates have settled
-            setTimeout(() => { 
-                setIsLoading(false); 
-                isRemoteUpdate.current = false;
-            }, 1000);
+    setIsLoading(true);
+    try {
+      const saved = localStorage.getItem(`sdp_group_${meta.group}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        
+        // Merge metadata
+        if (parsed.meta) {
+          setMeta(prev => {
+            const incomingParticipants = parsed.meta.participants || [];
+            const mergedParticipants = Array.from(new Set([...prev.participants, ...incomingParticipants])).filter(Boolean);
+            return {
+              ...prev,
+              ...parsed.meta,
+              participants: mergedParticipants
+            };
+          });
         }
-    };
-    fetchInitial();
-    
-    channel
-      .on('broadcast', { event: 'state-update' }, (message) => {
-        if (message?.payload?.state) {
-            applyState(message.payload.state);
-        }
-      })
-      .on('presence', { event: 'sync' }, () => {
-        const state = channel.presenceState();
-        // Defensive mapping to ensure we have objects with names
-        const users = Object.values(state)
-            .flat()
-            .map((p: any) => p.user)
-            .filter(u => u && typeof u === 'object' && u.name);
-        setActiveUsers(users);
-      })
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-        if (status === 'SUBSCRIBED') {
-            setIsConnected(true);
-        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-            setIsConnected(false);
-            setSyncError('Connection lost. Trying to reconnect...');
-        }
-      });
-
-    // Track own presence
-    const currentUserName = meta.participants[meta.participants.length - 1];
-    if (currentUserName) {
-        channel.track({ 
-            user: { 
-                id: sessionId.current, 
-                name: currentUserName 
-            } 
+        
+        if (parsed.pestel) setPestelData(parsed.pestel);
+        if (parsed.mckinsey) setMckinseyData(parsed.mckinsey);
+        if (parsed.vrio) setVrioAnalysisData(parsed.vrio);
+        if (parsed.vrioNotes !== undefined) setVrioNotes(parsed.vrioNotes);
+        if (parsed.tows) setTowsData(parsed.tows);
+        if (parsed.porters) setPortersData(parsed.porters);
+      } else {
+        // Reset state for new groups
+        setPestelData(
+          ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
+            id: cat,
+            category: cat as any,
+            description: '',
+            impact: '',
+            probability: '',
+            potential: ''
+          }))
+        );
+        setMckinseyData({});
+        setVrioAnalysisData(
+          Array.from({ length: 8 }, (_, i) => ({
+            id: `res-${i}`,
+            resource: '',
+            type: '',
+            detail: '',
+            v: '',
+            r: '',
+            i: '',
+            o: ''
+          }))
+        );
+        setVrioNotes('');
+        setTowsData({
+          opportunities: Array(3).fill(''),
+          threats: Array(3).fill(''),
+          strengths: Array(3).fill(''),
+          weaknesses: Array(3).fill(''),
+          scores: {}
         });
+        setPortersData({
+          newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+          buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+          suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+          substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+          rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+        });
+      }
+    } catch (err) {
+      console.error('Error loading group data from localStorage:', err);
+    } finally {
+      setIsLoading(false);
     }
-
-    return () => {
-      supabase.removeChannel(channel);
-      channelRef.current = null;
-    };
   }, [meta.group]);
 
-  const applyState = (updatedState: any) => {
-      if (!updatedState) return;
-      isRemoteUpdate.current = true;
-      console.log('Applying state update:', updatedState);
-      
-      try {
-          if (updatedState.meta) setMeta(prev => {
-            const incomingParticipants = updatedState.meta.participants || [];
-            const mergedParticipants = Array.from(new Set([...prev.participants, ...incomingParticipants])).filter(Boolean);
-            const newMeta = { ...prev, ...updatedState.meta, participants: mergedParticipants };
-            if (JSON.stringify(prev) === JSON.stringify(newMeta)) return prev;
-            return newMeta;
-          });
-          
-          if (updatedState.pestel && Array.isArray(updatedState.pestel)) setPestelData(prev => {
-            if (JSON.stringify(prev) === JSON.stringify(updatedState.pestel)) return prev;
-            return updatedState.pestel;
-          });
-          
-          if (updatedState.mckinsey) setMckinseyData(prev => {
-            if (JSON.stringify(prev) === JSON.stringify(updatedState.mckinsey)) return prev;
-            return updatedState.mckinsey;
-          });
-          
-          if (updatedState.vrio && Array.isArray(updatedState.vrio)) setVrioAnalysisData(prev => {
-            if (JSON.stringify(prev) === JSON.stringify(updatedState.vrio)) return prev;
-            return updatedState.vrio;
-          });
-          
-          if (updatedState.vrioNotes !== undefined) setVrioNotes(prev => {
-            if (prev === updatedState.vrioNotes) return prev;
-            return updatedState.vrioNotes;
-          });
-          
-          if (updatedState.tows) setTowsData(prev => {
-            if (JSON.stringify(prev) === JSON.stringify(updatedState.tows)) return prev;
-            return updatedState.tows;
-          });
-          
-          if (updatedState.porters) setPortersData(prev => {
-            if (JSON.stringify(prev) === JSON.stringify(updatedState.porters)) return prev;
-            return updatedState.porters;
-          });
-      } catch (err) {
-          console.error('Error applying remote state:', err);
-      } finally {
-          // If this is a broadcast update (not initial load), reset the flag after a delay
-          if (!isLoading) {
-            setTimeout(() => { isRemoteUpdate.current = false; }, 800);
-          }
-      }
-  };
-
-  const handleAccess = async (group: string, name: string) => {
-    const updatedMeta = {
-        ...meta,
-        group,
-        participants: meta.participants.includes(name) ? meta.participants : [...meta.participants, name]
-    };
-    setMeta(updatedMeta);
-    setIsAuthorized(true);
-    
-    // Trigger immediate save
-    try {
-        const { error } = await supabase.from('groups').upsert({
-            group_id: group,
-            content: {
-                meta: updatedMeta,
-                pestel: pestelData,
-                mckinsey: mckinseyData,
-                vrio: vrioAnalysisData,
-                vrioNotes: vrioNotes,
-                tows: towsData,
-                porters: portersData
-            }
-        });
-        if (error) throw error;
-    } catch (err) {
-        console.error('Initial access save failed:', err);
-        setSyncError('Failed to save session data to cloud. Collaboration might be limited.');
-    }
-  };
-
-  const [pestelData, setPestelData] = useState<PESTELData[]>(
-    ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
-      id: cat,
-      category: cat as any,
-      description: '',
-      impact: '',
-      probability: '',
-      potential: ''
-    }))
-  );
-
-  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>({});
-  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(
-    Array.from({ length: 8 }, (_, i) => ({
-      id: `res-${i}`,
-      resource: '',
-      type: '',
-      detail: '',
-      v: '',
-      r: '',
-      i: '',
-      o: ''
-    }))
-  );
-  const [vrioNotes, setVrioNotes] = useState('');
-  
-  const [towsData, setTowsData] = useState<TOWSMatrixData>({
-    opportunities: Array(3).fill(''),
-    threats: Array(3).fill(''),
-    strengths: Array(3).fill(''),
-    weaknesses: Array(3).fill(''),
-    scores: {}
-  });
-
-  const [portersData, setPortersData] = useState<PortersFiveForcesData>({
-    newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
-    buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-    suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-    substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-    rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
-  });
-
-  const prevState = useRef<any>({});
-
-  // Consolidated Synchronization (Broadcast + DB Persistence)
+  // Listen to Storage events for multi-tab synchronization
   useEffect(() => {
-    // Only sync if it's a local update
-    if (!isAuthorized || !meta.group || isRemoteUpdate.current || isLoading) {
-        return;
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === `sdp_group_${meta.group}` && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          
+          if (parsed.meta) {
+            setMeta(prev => {
+              const incomingParticipants = parsed.meta.participants || [];
+              const mergedParticipants = Array.from(new Set([...prev.participants, ...incomingParticipants])).filter(Boolean);
+              return { ...prev, ...parsed.meta, participants: mergedParticipants };
+            });
+          }
+          if (parsed.pestel) setPestelData(parsed.pestel);
+          if (parsed.mckinsey) setMckinseyData(parsed.mckinsey);
+          if (parsed.vrio) setVrioAnalysisData(parsed.vrio);
+          if (parsed.vrioNotes !== undefined) setVrioNotes(parsed.vrioNotes);
+          if (parsed.tows) setTowsData(parsed.tows);
+          if (parsed.porters) setPortersData(parsed.porters);
+        } catch (err) {
+          console.error('Error parsing sync storage event:', err);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [meta.group]);
+
+  const handleAccess = (group: string) => {
+    setMeta(prev => ({ ...prev, group }));
+    setIsAuthorized(true);
+  };
+
+  // Debounced save to localStorage
+  useEffect(() => {
+    if (!isAuthorized || !meta.group || isLoading) {
+      return;
     }
 
     if (updateTimeout.current) clearTimeout(updateTimeout.current);
 
-    updateTimeout.current = setTimeout(async () => {
-      // Re-check conditions inside the timeout to prevent race conditions
-      if (!isAuthorized || !meta.group || isRemoteUpdate.current || isLoading) {
-        return;
-      }
-
+    updateTimeout.current = setTimeout(() => {
       const currentState = { 
         meta, 
         pestel: pestelData, 
         mckinsey: mckinseyData, 
         vrio: vrioAnalysisData, 
-        vrioNotes: vrioNotes, 
+        vrioNotes, 
         tows: towsData, 
-        porters: portersData 
+        porters: portersData,
+        updatedAt: new Date().toISOString()
       };
-
-      // Find what changed
-      const changedSections: any = {};
-      Object.keys(currentState).forEach(key => {
-        if (JSON.stringify((currentState as any)[key]) !== JSON.stringify(prevState.current[key])) {
-          changedSections[key] = (currentState as any)[key];
-        }
-      });
-
-      if (Object.keys(changedSections).length === 0) return;
-
-      console.log('Syncing changed sections:', Object.keys(changedSections));
-      setIsSyncing(true);
-      setSyncError(null);
-
+      
       try {
-        // 1. Broadcast only changed sections for speed
-        if (channelRef.current) {
-            const status = await channelRef.current.send({
-                type: 'broadcast',
-                event: 'state-update',
-                payload: { state: changedSections }
-            });
-            if (status !== 'ok') throw new Error('Broadcast failed');
-        }
-
-        // 2. Persist full state to DB for new joiners & durability
-        const { error } = await supabase.from('groups').upsert({
-            group_id: meta.group,
-            content: currentState
-        });
-
-        if (error) throw error;
-        
-        prevState.current = currentState;
+        localStorage.setItem(`sdp_group_${meta.group}`, JSON.stringify(currentState));
       } catch (err) {
-        console.error('Sync failed:', err);
-        setSyncError('Sync failed. Changes might not be saved to others.');
-      } finally {
-        setIsSyncing(false);
+        console.error('Failed to save data to localStorage:', err);
       }
-    }, 800);
+    }, 500);
 
     return () => {
       if (updateTimeout.current) clearTimeout(updateTimeout.current);
@@ -1036,7 +867,7 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <div className="w-12 h-12 border-4 border-brand-blue/30 border-t-brand-blue rounded-full animate-spin mb-4" />
-        <p className="text-gray-500 font-bold animate-pulse">Synchronizing Session...</p>
+        <p className="text-gray-500 font-bold animate-pulse">Loading Workspace...</p>
       </div>
     );
   }
@@ -1045,30 +876,6 @@ function AppContent() {
     <main className="min-h-screen bg-gray-100 py-12 px-4 selection:bg-brand-blue selection:text-white relative">
       {/* Professor Dashboard Link */}
       <a href="/professor-dashboard" className="fixed bottom-4 right-4 text-[10px] text-gray-300 hover:text-gray-500 uppercase tracking-widest no-print">Admin</a>
-
-      {/* Global Status Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none pt-4">
-        <div className="flex gap-4 pointer-events-auto">
-          {isSyncing && (
-            <div className="bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-lg border border-indigo-100 flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
-              <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700">Syncing...</span>
-            </div>
-          )}
-          {syncError && (
-            <div className="bg-red-500 text-white px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
-              <span className="text-[10px] font-black uppercase tracking-widest">{syncError}</span>
-              <button onClick={() => setSyncError(null)} className="hover:opacity-80"><Trash2 size={12} /></button>
-            </div>
-          )}
-          {!isConnected && !syncError && (
-            <div className="bg-amber-500 text-white px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-4">
-              <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Reconnecting...</span>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Controls */}
       <div className="max-w-[297mm] mx-auto mb-6 flex flex-wrap gap-4 items-center justify-between no-print">
@@ -1135,38 +942,7 @@ function AppContent() {
           </button>
         </div>
 
-        <div className="flex gap-4 items-center">
-          {/* Connection Status & Active Users */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1 bg-white border border-gray-100 rounded-full shadow-xs">
-              <div className={cn("w-2 h-2 rounded-full", isConnected ? (isSyncing ? "bg-blue-500 animate-pulse" : "bg-green-500") : "bg-red-500")} />
-              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">
-                {isConnected ? (isSyncing ? "Syncing" : "Connected") : "Connecting..."}
-              </span>
-            </div>
-            
-            <div className="flex -space-x-2 overflow-hidden items-center">
-              {activeUsers.map((user, i) => (
-                <div 
-                  key={user.id} 
-                  className={cn(
-                    "inline-block h-8 w-8 rounded-full ring-2 ring-white flex items-center justify-center text-white text-[10px] font-black uppercase shadow-sm",
-                    i % 3 === 0 ? "bg-brand-blue" : i % 3 === 1 ? "bg-indigo-500" : "bg-slate-700"
-                  )}
-                  title={user.name}
-                >
-                  {user.name.charAt(0)}
-                </div>
-              ))}
-              {activeUsers.length > 0 && (
-                <span className="ml-4 text-[9px] font-black text-gray-400 uppercase tracking-widest bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-                  {activeUsers.length} active
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex gap-2">
+        <div className="flex gap-2">
             <button
               onClick={clearData}
               className="p-3 bg-white text-red-500 hover:bg-red-50 rounded-xl transition-colors shadow-sm border border-gray-200 group relative"
@@ -1223,12 +999,11 @@ function AppContent() {
                   </button>
                   </div>
                   </div>
-                  </div>
 
                   {/* Main Worksheet Area */}
                   <div className="overflow-x-auto pb-12">
                   <div ref={containerRef} className="worksheet-container relative overflow-hidden">
-                  <CorporateHeader meta={meta} setMeta={setMeta} activeUsers={activeUsers} hideMeta={false} />
+                  <CorporateHeader meta={meta} setMeta={setMeta} hideMeta={false} />
 
                   {activeTab === 'TOWS' && <ConfrontationMatrixGuide />}
 
@@ -1299,17 +1074,17 @@ function AppContent() {
       {/* Hidden container for full report generation - avoids UI flicker */}
       <div id="full-report-print-container" className="hidden" aria-hidden="true">
         <div className="print-section bg-white p-12 w-[297mm]">
-          <CorporateHeader meta={meta} setMeta={setMeta} activeUsers={activeUsers} />
+          <CorporateHeader meta={meta} setMeta={setMeta} />
           <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-8 border-gray-100 pb-2 mb-8">PESTEL Analysis</h2>
           <PESTELWorksheet data={pestelData} setData={() => {}} />
         </div>
         <div className="print-section bg-white p-12 w-[297mm]">
-          <CorporateHeader meta={meta} setMeta={setMeta} activeUsers={activeUsers} />
+          <CorporateHeader meta={meta} setMeta={setMeta} />
           <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-8 border-gray-100 pb-2 mb-8">McKinsey 7-S Framework</h2>
           <McKinseyWorksheet data={mckinseyData} setData={() => {}} />
         </div>
         <div className="print-section bg-white p-12 w-[297mm]">
-          <CorporateHeader meta={meta} setMeta={setMeta} activeUsers={activeUsers} />
+          <CorporateHeader meta={meta} setMeta={setMeta} />
           <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-8 border-gray-100 pb-2 mb-8">VRIO Framework</h2>
           <VRIOFramework />
           <div className="mt-8">
@@ -1326,7 +1101,7 @@ function AppContent() {
         {/* Porter's 5 Forces - Each force gets a page */}
         {(['suppliers', 'buyers', 'newEntrants', 'substitutes', 'rivalry'] as const).map(force => (
           <div key={force} className="print-section bg-white p-12 w-[297mm]">
-            <CorporateHeader meta={meta} setMeta={setMeta} activeUsers={activeUsers} />
+            <CorporateHeader meta={meta} setMeta={setMeta} />
             <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-8 border-indigo-600 pb-2 mb-8">Porter's 5 Forces: {force.toUpperCase()}</h2>
             <PortersFiveForces data={portersData} setData={() => {}} activeForce={force} setActiveForce={() => {}} />
           </div>

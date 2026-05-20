@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@/src/utils/supabase/client';
 import { Lock } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { PESTELWorksheet, McKinseyWorksheet, VRIOAnalysisTable } from './components/Worksheets';
-
-const supabase = createClient();
 
 export default function ProfessorDashboard() {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -19,16 +16,53 @@ export default function ProfessorDashboard() {
     else { alert('Access Denied: Invalid Credentials.'); setCode(''); }
   };
 
+  const loadGroupsFromLocalStorage = () => {
+    const loadedGroups = [];
+    for (let i = 1; i <= 11; i++) {
+      const groupName = `Group ${i}`;
+      const saved = localStorage.getItem(`sdp_group_${groupName}`);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          loadedGroups.push({
+            group_id: groupName,
+            content: parsed,
+            created_at: parsed.updatedAt || new Date().toISOString()
+          });
+        } catch (err) {
+          console.error(`Failed to parse group data for ${groupName}:`, err);
+        }
+      }
+    }
+    setGroups(loadedGroups);
+    
+    // Update currently selected group if it's in the loaded list
+    if (selectedGroup) {
+      const updatedSelected = loadedGroups.find(g => g.group_id === selectedGroup.group_id);
+      if (updatedSelected) {
+        setSelectedGroup(updatedSelected);
+      }
+    }
+  };
+
   useEffect(() => {
     if (!isAuthorized) return;
-    const fetchGroups = async () => {
-      const { data } = await supabase.from('groups').select('*');
-      if (data) setGroups(data);
+
+    // Initial load
+    loadGroupsFromLocalStorage();
+
+    // Listen to changes in localStorage from other tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key && e.key.startsWith('sdp_group_')) {
+        loadGroupsFromLocalStorage();
+      }
     };
-    fetchGroups();
-    const channel = supabase.channel('schema-db-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, () => fetchGroups()).subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [isAuthorized]);
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [isAuthorized, selectedGroup?.group_id]);
 
   if (!isAuthorized) {
     return (
