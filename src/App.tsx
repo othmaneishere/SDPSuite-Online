@@ -908,7 +908,7 @@ function AppContent() {
             {/* PESTEL */}
             <button
               onClick={() => setActiveTab('PESTEL')}
-              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'PESTEL' ? "bg-brand-peach text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'PESTEL' ? "bg-brand-blue text-white shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
             >
               <FileText size={18} /> PESTEL Analysis
             </button>
@@ -929,14 +929,14 @@ function AppContent() {
             {/* TOWS/Confrontation Matrix */}
             <button
               onClick={() => setActiveTab('TOWS')}
-              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'TOWS' ? "bg-brand-peach text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'TOWS' ? "bg-yellow-200 text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
             >
               <Network size={18} /> Confrontation Matrix
             </button>
             {/* Porter's */}
             <button
               onClick={() => setActiveTab('PORTER')}
-              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'PORTER' ? "bg-brand-peach text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'PORTER' ? "bg-indigo-300 text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
             >
               <Files size={18} /> Porter's 5 Forces
             </button>
