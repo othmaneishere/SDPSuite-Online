@@ -756,7 +756,7 @@ function AppContent() {
           </div>
           
           <div className="flex-1 flex flex-wrap items-center justify-center gap-1 p-4">
-            {(['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'] as const).map((tab) => (
+            {(['PESTEL', 'McKinsey', 'VRIO', 'PORTER', 'TOWS'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
