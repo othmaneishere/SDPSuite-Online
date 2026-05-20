@@ -392,7 +392,7 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <img 
-              src="https://i.ibb.co/XrCBhGpS/Chat-GPT-Image-May-20-2026-11-33-15-AM.png" 
+              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
               alt="Logo" 
               className="h-24 w-auto object-contain"
               crossOrigin="anonymous"
@@ -834,7 +834,7 @@ function AppContent() {
         <div className="flex flex-col lg:flex-row border-b border-gray-100">
           <div className="lg:w-72 p-4 border-r border-gray-100 flex items-center justify-center bg-gray-50/30">
             <img 
-              src="https://i.ibb.co/XrCBhGpS/Chat-GPT-Image-May-20-2026-11-33-15-AM.png" 
+              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
               alt="SDP Suite Logo" 
               className="h-20 w-auto object-contain"
               crossOrigin="anonymous"
