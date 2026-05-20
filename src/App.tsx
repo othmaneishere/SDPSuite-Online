@@ -922,7 +922,7 @@ function AppContent() {
             {/* VRIO */}
             <button
               onClick={() => setActiveTab('VRIO')}
-              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'VRIO' ? "bg-brand-peach text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'VRIO' ? "bg-[#1f2937] text-white shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
             >
               <Settings2 size={18} /> VRIO Framework
             </button>
@@ -936,7 +936,7 @@ function AppContent() {
             {/* Porter's */}
             <button
               onClick={() => setActiveTab('PORTER')}
-              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'PORTER' ? "bg-indigo-300 text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn("px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2", activeTab === 'PORTER' ? "bg-[#4f39f6] text-white shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
             >
               <Files size={18} /> Porter's 5 Forces
             </button>
