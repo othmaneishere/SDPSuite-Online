@@ -392,9 +392,9 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <img 
-              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
+              src="https://i.ibb.co/XrCBhGpS/Chat-GPT-Image-May-20-2026-11-33-15-AM.png" 
               alt="Logo" 
-              className="h-20 object-contain"
+              className="h-24 w-auto object-contain"
               crossOrigin="anonymous"
             />
           </div>
@@ -417,7 +417,7 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
                 id="group-select"
                 value={selectedValue}
                 onChange={(e) => setSelectedValue(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-all bg-white cursor-pointer hover:border-gray-300"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white cursor-pointer hover:border-gray-300"
               >
                 <option value="">-- Choose a group --</option>
                 {Array.from({ length: 11 }, (_, i) => (
@@ -431,7 +431,7 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
             <button
               onClick={handleContinue}
               disabled={!selectedValue}
-              className="w-full px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
+              className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
             >
               Continue to Dashboard
             </button>
@@ -830,16 +830,13 @@ function AppContent() {
       <div className="max-w-[1400px] mx-auto bg-white rounded-[32px] shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden min-h-[90vh] flex flex-col">
         {/* Navigation Header */}
         <div className="flex flex-col lg:flex-row border-b border-gray-100">
-          <div className="lg:w-72 p-8 border-r border-gray-100 flex items-center justify-between lg:justify-start gap-4 bg-gray-50/30">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-brand-blue rounded-xl flex items-center justify-center shadow-lg shadow-brand-blue/20">
-                <Settings2 className="text-white" size={20} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-black tracking-tighter text-gray-900">SDP<span className="text-brand-blue">Suite</span></span>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Local Mode</span>
-              </div>
-            </div>
+          <div className="lg:w-72 p-4 border-r border-gray-100 flex items-center justify-center bg-gray-50/30">
+            <img 
+              src="https://i.ibb.co/XrCBhGpS/Chat-GPT-Image-May-20-2026-11-33-15-AM.png" 
+              alt="SDP Suite Logo" 
+              className="h-20 w-auto object-contain"
+              crossOrigin="anonymous"
+            />
           </div>
           
           <div className="flex-1 flex flex-wrap items-center justify-center gap-1 p-4">
@@ -865,6 +862,20 @@ function AppContent() {
 
           <div className="p-4 lg:pr-8 flex items-center gap-3 border-t lg:border-t-0 lg:border-l border-gray-100">
             <button
+              onClick={() => {
+                if (confirm('Are you sure you want to log out? This will take you back to the access page.')) {
+                  setSelectedGroup(null);
+                }
+              }}
+              className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all group relative cursor-pointer"
+              title="Log out and return to access page"
+            >
+              <Network size={20} />
+              <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Log Out
+              </span>
+            </button>
+            <button
               onClick={clearData}
               className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all group relative cursor-pointer"
               title="Reset current worksheet"
@@ -889,7 +900,7 @@ function AppContent() {
             <button
               onClick={exportAllPDF}
               disabled={isExportingAll}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer"
+              className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer"
             >
               {isExportingAll ? (
                 <span className="flex items-center gap-2">
