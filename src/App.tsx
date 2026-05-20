@@ -1457,61 +1457,31 @@ const VRIOFramework = () => {
       <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.25fr] gap-0">
         <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-44 bg-white text-center">
           <div className="flex-1 flex items-center justify-center">
-            <img 
-              src="https://img.icons8.com/ios/100/money-bag.png" 
-              alt="Valuable" 
-              className="w-16 h-16 opacity-50 grayscale"
-              crossOrigin="anonymous"
-              referrerPolicy="no-referrer"
-            />
+            <span className="material-icons text-[64px] text-gray-300">payments</span>
           </div>
           <span className="text-[11px] font-bold uppercase tracking-tight text-gray-800 leading-tight">IS IT VALUABLE?</span>
         </div>
         <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-44 bg-white text-center border-l-0">
           <div className="flex-1 flex items-center justify-center">
-            <img 
-              src="https://img.icons8.com/ios/100/diamond--v1.png" 
-              alt="Rare" 
-              className="w-16 h-16 opacity-50 grayscale"
-              crossOrigin="anonymous"
-              referrerPolicy="no-referrer"
-            />
+            <span className="material-icons text-[64px] text-gray-300">diamond</span>
           </div>
           <span className="text-[11px] font-bold uppercase tracking-tight text-gray-800 leading-tight">IS IT RARE?</span>
         </div>
         <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-44 bg-white text-center border-l-0">
           <div className="flex-1 flex items-center justify-center">
-            <img 
-              src="https://img.icons8.com/ios/100/copy.png" 
-              alt="Imitation" 
-              className="w-16 h-16 opacity-50 grayscale"
-              crossOrigin="anonymous"
-              referrerPolicy="no-referrer"
-            />
+            <span className="material-icons text-[64px] text-gray-300">content_copy</span>
           </div>
           <span className="text-[11px] font-bold uppercase tracking-tight text-gray-800 leading-tight">IT IT DIFFICULT TO IMITATE?</span>
         </div>
         <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-44 bg-white text-center border-l-0">
           <div className="flex-1 flex items-center justify-center">
-            <img 
-              src="https://img.icons8.com/ios/100/settings.png" 
-              alt="Organized" 
-              className="w-16 h-16 opacity-50 grayscale"
-              crossOrigin="anonymous"
-              referrerPolicy="no-referrer"
-            />
+            <span className="material-icons text-[64px] text-gray-300">settings_suggest</span>
           </div>
           <span className="text-[11px] font-bold uppercase tracking-tight text-center leading-[1.1] text-gray-800 px-2">HOW ORGANIZED IS THE COMPANY AROUND THIS</span>
         </div>
         <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-44 bg-white text-center border-l-0">
           <div className="flex-1 flex items-center justify-center">
-            <img 
-              src="https://img.icons8.com/ios/100/goal--v1.png" 
-              alt="Result" 
-              className="w-16 h-16 opacity-50 grayscale"
-              crossOrigin="anonymous"
-              referrerPolicy="no-referrer"
-            />
+            <span className="material-icons text-[64px] text-gray-300">ads_click</span>
           </div>
           <span className="text-[11px] font-bold uppercase tracking-tight text-gray-800 leading-tight px-4">WHAT IS THE OVERALL RESULT?</span>
         </div>
