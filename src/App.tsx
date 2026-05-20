@@ -533,7 +533,13 @@ function AppContent() {
         if (parsed.mckinsey) setMckinseyData(parsed.mckinsey);
         if (parsed.vrio) setVrioAnalysisData(parsed.vrio);
         if (parsed.vrioNotes !== undefined) setVrioNotes(parsed.vrioNotes);
-        if (parsed.tows) setTowsData(parsed.tows);
+        if (parsed.tows) {
+          setTowsData({
+            ...parsed.tows,
+            scores: parsed.tows.scores || {},
+            notes: parsed.tows.notes || {}
+          });
+        }
         if (parsed.porters) setPortersData(parsed.porters);
         if (parsed.meta) setMeta(parsed.meta);
       }
@@ -721,7 +727,8 @@ function AppContent() {
           threats: Array(3).fill(''),
           strengths: Array(3).fill(''),
           weaknesses: Array(3).fill(''),
-          scores: {}
+          scores: {},
+          notes: {}
         });
       } else if (activeTab === 'PORTER') {
         setPortersData({
