@@ -36,7 +36,7 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}
   }
 }
 
-import { Download, FileText, Settings2, Trash2, Files, Network } from 'lucide-react';
+import { Download, FileText, Settings2, Trash2, Files, Network, ChevronDown } from 'lucide-react';
 import { toPng, toJpeg } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { cn } from '@/src/lib/utils';
@@ -585,46 +585,101 @@ function AppContent() {
     if (!containerRef.current) return;
     setIsExporting(true);
 
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4'
+    });
+
     try {
-      const element = containerRef.current;
-      const imgData = await toPng(element, {
-        quality: 1.0,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-        style: {
-          boxShadow: 'none',
-          margin: '0',
-          transform: 'none'
+      if (activeTab === 'PORTER') {
+        const forces = ['suppliers', 'buyers', 'newEntrants', 'substitutes', 'rivalry'] as const;
+        let isFirstPage = true;
+
+        for (const force of forces) {
+          // Temporarily show each force in the hidden container to capture it
+          const printRef = document.getElementById('full-report-print-container');
+          if (!printRef) throw new Error('Print container not found');
+          
+          const section = Array.from(printRef.querySelectorAll('.print-section')).find(s => 
+            s.querySelector('h2')?.textContent?.includes(`Porter's 5 Forces: ${force.toUpperCase()}`)
+          ) as HTMLElement;
+
+          if (section) {
+            const originalDisplay = section.style.display;
+            const originalParentDisplay = printRef.style.display;
+            
+            printRef.style.display = 'block';
+            section.style.display = 'block';
+            
+            const imgData = await toJpeg(section, {
+              quality: 0.95,
+              pixelRatio: 2,
+              backgroundColor: '#ffffff',
+            });
+
+            if (!isFirstPage) pdf.addPage();
+            isFirstPage = false;
+
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const imgProps = pdf.getImageProperties(imgData);
+            const imgRatio = imgProps.width / imgProps.height;
+            const pageRatio = pageWidth / pageHeight;
+
+            let finalWidth, finalHeight;
+            if (imgRatio > pageRatio) {
+                finalWidth = pageWidth;
+                finalHeight = pageWidth / imgRatio;
+            } else {
+                finalHeight = pageHeight;
+                finalWidth = pageHeight * imgRatio;
+            }
+
+            const x = (pageWidth - finalWidth) / 2;
+            const y = (pageHeight - finalHeight) / 2;
+            pdf.addImage(imgData, 'JPEG', x, y, finalWidth, finalHeight);
+
+            section.style.display = originalDisplay;
+            printRef.style.display = originalParentDisplay;
+          }
         }
-      });
-
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      
-      const imgProps = pdf.getImageProperties(imgData);
-      const imgRatio = imgProps.width / imgProps.height;
-      const pageRatio = pageWidth / pageHeight;
-
-      let finalWidth, finalHeight;
-      if (imgRatio > pageRatio) {
-          finalWidth = pageWidth;
-          finalHeight = pageWidth / imgRatio;
+        pdf.save(`Porters_Five_Forces_Full_${meta.companyName || 'Export'}.pdf`);
       } else {
-          finalHeight = pageHeight;
-          finalWidth = pageHeight * imgRatio;
-      }
+        const element = containerRef.current;
+        const imgData = await toPng(element, {
+          quality: 1.0,
+          pixelRatio: 2,
+          backgroundColor: '#ffffff',
+          style: {
+            boxShadow: 'none',
+            margin: '0',
+            transform: 'none'
+          }
+        });
 
-      const x = (pageWidth - finalWidth) / 2;
-      const y = (pageHeight - finalHeight) / 2;
-      
-      pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
-      pdf.save(`${activeTab}_Worksheet_${meta.companyName || 'Export'}.pdf`);
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgRatio = imgProps.width / imgProps.height;
+        const pageRatio = pageWidth / pageHeight;
+
+        let finalWidth, finalHeight;
+        if (imgRatio > pageRatio) {
+            finalWidth = pageWidth;
+            finalHeight = pageWidth / imgRatio;
+        } else {
+            finalHeight = pageHeight;
+            finalWidth = pageHeight * imgRatio;
+        }
+
+        const x = (pageWidth - finalWidth) / 2;
+        const y = (pageHeight - finalHeight) / 2;
+        
+        pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
+        pdf.save(`${activeTab}_Worksheet_${meta.companyName || 'Export'}.pdf`);
+      }
     } catch (error) {
       console.error('Export failed:', error);
     } finally {
@@ -1041,22 +1096,27 @@ const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatrixData;
         "border border-gray-400 h-[100px] flex flex-col transition-all duration-300 shadow-sm hover:shadow-md", 
         getBgColor(score)
       )}>
-        {/* Top Section: Dropdown */}
-        <div className="border-b border-gray-400/30 p-1">
-          <select
-            value={score}
-            onChange={(e) => updateScore(rowType, rIdx, colType, cIdx, e.target.value)}
-            className={cn(
-              "w-full bg-transparent font-bold text-xs outline-hidden cursor-pointer py-1 appearance-none text-center",
-              getTextColor(score)
-            )}
-          >
-            <option value="-2">Very Negative (-2)</option>
-            <option value="-1">Negative (-1)</option>
-            <option value="0">Neutral (0)</option>
-            <option value="1">Positive (+1)</option>
-            <option value="2">Very Positive (+2)</option>
-          </select>
+        {/* Top Section: Dropdown with Custom Styling */}
+        <div className="border-b border-gray-400/30 p-1 relative group/cell">
+          <div className="relative">
+            <select
+              value={score}
+              onChange={(e) => updateScore(rowType, rIdx, colType, cIdx, e.target.value)}
+              className={cn(
+                "w-full bg-white/40 hover:bg-white/60 transition-colors font-black text-[10px] uppercase tracking-tighter outline-hidden cursor-pointer py-1.5 pl-2 pr-6 appearance-none border border-black/5 rounded-md",
+                getTextColor(score)
+              )}
+            >
+              <option value="-2">Very Negative (-2)</option>
+              <option value="-1">Negative (-1)</option>
+              <option value="0">Neutral (0)</option>
+              <option value="1">Positive (+1)</option>
+              <option value="2">Very Positive (+2)</option>
+            </select>
+            <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+              <ChevronDown size={12} className={getTextColor(score)} strokeWidth={3} />
+            </div>
+          </div>
         </div>
         
         {/* Bottom Section: Textarea */}
@@ -1064,8 +1124,8 @@ const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatrixData;
           <textarea
             value={note}
             onChange={(e) => updateNote(rowType, rIdx, colType, cIdx, e.target.value)}
-            className="w-full h-full text-[10px] leading-tight bg-transparent outline-hidden resize-none placeholder:text-gray-400/50"
-            placeholder="Notes..."
+            className="w-full h-full text-[10px] leading-tight bg-transparent outline-hidden resize-none placeholder:text-gray-400/50 font-medium scrollbar-hide"
+            placeholder="Add strategic notes..."
             rows={2}
           />
         </div>
