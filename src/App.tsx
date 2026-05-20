@@ -36,7 +36,7 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}
   }
 }
 
-import { Download, FileText, Settings2, Trash2, Files, Network, ChevronDown } from 'lucide-react';
+import { Download, FileText, Settings2, Trash2, Files, LogOut, ChevronDown } from 'lucide-react';
 import { toPng, toJpeg } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import { cn } from '@/src/lib/utils';
@@ -841,45 +841,48 @@ function AppContent() {
             />
           </div>
           
-          <div className="flex-1 flex flex-wrap items-center justify-center gap-1 p-4">
-            {(['PESTEL', 'McKinsey', 'VRIO', 'PORTER', 'TOWS'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={cn(
-                  "px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer",
-                  activeTab === tab 
-                    ? "bg-gray-900 text-white shadow-xl shadow-gray-900/10 scale-105" 
-                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                )}
-              >
-                {tab === 'PESTEL' ? 'PESTEL Analysis' :
-                 tab === 'McKinsey' ? 'McKinsey 7-S Framework' :
-                 tab === 'VRIO' ? 'VRIO Framework' :
-                 tab === 'PORTER' ? "Porter's 5 Forces" :
-                 'Confrontation Matrix'}
-              </button>
-            ))}
+          <div className="flex-1 overflow-hidden relative">
+            <div className="flex items-center gap-2 p-4 overflow-x-auto no-scrollbar scroll-smooth">
+              {(['PESTEL', 'McKinsey', 'VRIO', 'PORTER', 'TOWS'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={cn(
+                    "px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 cursor-pointer whitespace-nowrap border-2",
+                    activeTab === tab 
+                      ? "bg-gray-900 text-white border-gray-900 shadow-lg shadow-gray-900/20" 
+                      : "text-gray-400 border-transparent hover:text-gray-900 hover:bg-gray-50"
+                  )}
+                >
+                  {tab === 'PESTEL' ? 'PESTEL Analysis' :
+                   tab === 'McKinsey' ? 'McKinsey 7-S Framework' :
+                   tab === 'VRIO' ? 'VRIO Framework' :
+                   tab === 'PORTER' ? "Porter's 5 Forces" :
+                   'Confrontation Matrix'}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="p-4 lg:pr-8 flex items-center gap-3 border-t lg:border-t-0 lg:border-l border-gray-100">
             <button
               onClick={() => {
-                if (confirm('Are you sure you want to log out? This will take you back to the access page.')) {
+                if (confirm('Are you sure you want to exit this session? You will return to the group selection page.')) {
                   setSelectedGroup(null);
                 }
               }}
-              className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all group relative cursor-pointer"
-              title="Log out and return to access page"
+              className="flex items-center gap-2 px-4 py-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all group relative cursor-pointer font-bold text-xs uppercase tracking-widest border-2 border-transparent hover:border-blue-100"
+              title="Exit Session"
             >
-              <Network size={20} />
-              <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                Log Out
+              <LogOut size={18} strokeWidth={3} />
+              <span className="hidden xl:inline">Exit Session</span>
+              <span className="xl:hidden absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Exit Session
               </span>
             </button>
             <button
               onClick={clearData}
-              className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all group relative cursor-pointer"
+              className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all group relative cursor-pointer border-2 border-transparent hover:border-red-100"
               title="Reset current worksheet"
             >
               <Trash2 size={20} />
