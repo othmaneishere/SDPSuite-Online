@@ -371,6 +371,77 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
+const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void }) => {
+  const [selectedValue, setSelectedValue] = useState('');
+
+  const handleContinue = () => {
+    if (selectedValue) {
+      onSelectGroup(selectedValue);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <img 
+              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
+              alt="Logo" 
+              className="h-20 object-contain"
+              crossOrigin="anonymous"
+            />
+          </div>
+
+          {/* Title */}
+          <h1 className="text-3xl font-black text-gray-900 text-center mb-2 tracking-tight">
+            Strategic Suite Pro
+          </h1>
+          <p className="text-center text-gray-600 text-sm mb-8">
+            Select your group to access the dashboard
+          </p>
+
+          {/* Form */}
+          <div className="space-y-6">
+            <div>
+              <label htmlFor="group-select" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
+                Select Group
+              </label>
+              <select
+                id="group-select"
+                value={selectedValue}
+                onChange={(e) => setSelectedValue(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition-all bg-white cursor-pointer hover:border-gray-300"
+              >
+                <option value="">-- Choose a group --</option>
+                {Array.from({ length: 11 }, (_, i) => (
+                  <option key={i + 1} value={`Group ${i + 1}`}>
+                    Group {i + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={handleContinue}
+              disabled={!selectedValue}
+              className="w-full px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
+            >
+              Continue to Dashboard
+            </button>
+          </div>
+
+          {/* Footer */}
+          <p className="text-center text-xs text-gray-400 mt-8 font-mono tracking-widest">
+            SDP_ACCESS_V1.0
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -380,12 +451,18 @@ export default function App() {
 }
 
 function AppContent() {
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>('PESTEL');
   const [activeForce, setActiveForce] = useState<keyof PortersFiveForcesData>('suppliers');
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Show access page if no group selected
+  if (!selectedGroup) {
+    return <AccessPage onSelectGroup={setSelectedGroup} />;
+  }
   
   const [pestelData, setPestelData] = useState<PESTELData[]>(
     ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
