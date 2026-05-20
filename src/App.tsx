@@ -459,11 +459,6 @@ function AppContent() {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Show access page if no group selected
-  if (!selectedGroup) {
-    return <AccessPage onSelectGroup={setSelectedGroup} />;
-  }
-  
   const [pestelData, setPestelData] = useState<PESTELData[]>(
     ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
       id: cat,
@@ -743,7 +738,7 @@ function AppContent() {
     );
   }
 
-  return (
+  return selectedGroup ? (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans selection:bg-brand-blue/10">
       <div className="max-w-[1400px] mx-auto bg-white rounded-[32px] shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden min-h-[90vh] flex flex-col">
         {/* Navigation Header */}
@@ -923,6 +918,8 @@ function AppContent() {
         </div>
       </div>
     </div>
+  ) : (
+    <AccessPage onSelectGroup={setSelectedGroup} />
   );
 }
 
