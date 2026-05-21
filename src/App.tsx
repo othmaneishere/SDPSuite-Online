@@ -831,15 +831,6 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="w-12 h-12 border-4 border-brand-blue/30 border-t-brand-blue rounded-full animate-spin mb-4" />
-        <p className="text-gray-500 font-bold animate-pulse">Loading Workspace...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans selection:bg-brand-blue/10">
       <div className="max-w-[1400px] mx-auto bg-white rounded-[32px] shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden min-h-[90vh] flex flex-col">
