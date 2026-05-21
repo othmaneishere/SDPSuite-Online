@@ -489,7 +489,97 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
     localStorage.setItem(`sdp_tab_${selectedGroup}`, activeTab);
   }, [activeTab, selectedGroup]);
   
-  // ... (rest of state definitions)
+  const [pestelData, setPestelData] = useState<PESTELData[]>(
+    ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
+      id: cat,
+      category: cat as any,
+      description: '',
+      impact: '',
+      probability: '',
+      potential: ''
+    }))
+  );
+  
+  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>({});
+  
+  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(
+    Array.from({ length: 8 }, (_, i) => ({
+      id: `res-${i}`,
+      resource: '',
+      type: '',
+      detail: '',
+      v: '',
+      r: '',
+      i: '',
+      o: ''
+    }))
+  );
+  
+  const [vrioNotes, setVrioNotes] = useState('');
+  
+  const [towsData, setTowsData] = useState<TOWSMatrixData>({
+    opportunities: Array(3).fill(''),
+    threats: Array(3).fill(''),
+    strengths: Array(3).fill(''),
+    weaknesses: Array(3).fill(''),
+    scores: {},
+    notes: {}
+  });
+  
+  const [portersData, setPortersData] = useState<PortersFiveForcesData>({
+    newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+    buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+  });
+
+  const [meta, setMeta] = useState<MetaData>(() => {
+    const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.meta) return parsed.meta;
+      } catch (e) {}
+    }
+    return {
+      module: '',
+      cohort: '',
+      date: '',
+      companyName: '',
+      participants: []
+    };
+  });
+
+  const updateTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Load data from localStorage on initial mount
+  useEffect(() => {
+    setIsLoading(true);
+    try {
+      const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.pestel) setPestelData(parsed.pestel);
+        if (parsed.mckinsey) setMckinseyData(parsed.mckinsey);
+        if (parsed.vrio) setVrioAnalysisData(parsed.vrio);
+        if (parsed.vrioNotes !== undefined) setVrioNotes(parsed.vrioNotes);
+        if (parsed.tows) {
+          setTowsData({
+            ...parsed.tows,
+            scores: parsed.tows.scores || {},
+            notes: parsed.tows.notes || {}
+          });
+        }
+        if (parsed.porters) setPortersData(parsed.porters);
+        if (parsed.meta) setMeta(parsed.meta);
+      }
+    } catch (err) {
+      console.error('Error loading data from localStorage:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedGroup]);
 
   // Debounced save to localStorage
   useEffect(() => {
