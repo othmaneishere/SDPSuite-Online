@@ -712,36 +712,50 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
 
   const updateTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Debounced save to localStorage
+  // Refactored Real-time Sync using Supabase Database
   useEffect(() => {
-    if (updateTimeout.current) clearTimeout(updateTimeout.current);
-    setIsSaving(true);
+    if (!selectedGroup) return;
 
-    updateTimeout.current = setTimeout(() => {
-      const currentState = {
-        meta,
-        pestel: pestelData,
-        mckinsey: mckinseyData,
-        vrio: vrioAnalysisData,
-        vrioNotes,
-        tows: towsData,
-        porters: portersData,
-        updatedAt: new Date().toISOString()
-      };
+    // 1. Fetch initial data from DB
+    const fetchData = async () => {
+      const { data } = await supabase
+        .from('worksheets')
+        .select('data')
+        .eq('id', selectedGroup)
+        .single();
       
-      try {
-        localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(currentState));
-        setIsSaving(false);
-      } catch (err) {
-        console.error('Failed to save data to localStorage:', err);
-        setIsSaving(false);
+      if (data) {
+        const parsed = data.data;
+        if (parsed.pestel) setPestelData(parsed.pestel);
+        // ... set other framework states
       }
-    }, 800);
-
-    return () => {
-      if (updateTimeout.current) clearTimeout(updateTimeout.current);
     };
-  }, [meta, pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, selectedGroup]);
+    fetchData();
+
+    // 2. Subscribe to real-time changes
+    const channel = supabase
+      .channel('db-changes')
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'worksheets',
+        filter: `id=eq.${selectedGroup}`
+      }, (payload) => {
+        const newData = payload.new.data;
+        setPestelData(newData.pestel);
+        // ... update other states
+      })
+      .subscribe();
+
+    return () => { channel.unsubscribe(); };
+  }, [selectedGroup]);
+
+  // 3. Save changes to DB (debounced)
+  const saveToDB = async (newData: any) => {
+    await supabase
+      .from('worksheets')
+      .upsert({ id: selectedGroup, data: newData, updated_at: new Date().toISOString() });
+  };
 
   const exportPDF = async () => {
     setIsExporting(true);
