@@ -119,7 +119,7 @@ export default function ProfessorDashboard() {
     // PESTEL (6 categories)
     if (data.pestel) {
       total += 6;
-      data.pestel.forEach((p: any) => if (p.description) filled++);
+      data.pestel.forEach((p: any) => { if (p.description) filled++; });
     }
     
     // McKinsey (7 elements)
