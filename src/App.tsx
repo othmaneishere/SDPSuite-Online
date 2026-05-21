@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
 import React from 'react';
-import { FileText, Settings2, Network, Files, Shield } from 'lucide-react';
+import { FileText, Settings2, Network, Files } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import ProfessorDashboard from './ProfessorDashboard';
 
 // Error Boundary Component for stability
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
@@ -45,50 +44,47 @@ import { cn } from '@/src/lib/utils';
 import { MetaData, PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData } from './types';
 
 // Components
-const CorporateHeader = ({ meta, setMeta, selectedGroup, hideMeta = false }: { meta: MetaData; setMeta: (m: MetaData) => void; selectedGroup?: string | null; hideMeta?: boolean }) => {
+const CorporateHeader = ({ meta, setMeta, selectedGroup, hideMeta = false, isSaving = false }: { meta: MetaData; setMeta: (m: MetaData) => void; selectedGroup?: string | null; hideMeta?: boolean; isSaving?: boolean }) => {
   return (
-    <div className={cn("flex flex-col md:flex-row justify-between border-b-2 border-gray-100 pb-8 mb-8 gap-8", hideMeta && "border-none mb-4")}>
-      <div className="flex items-start gap-4">
-        <div className="flex items-center">
-          <img 
-            src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-            alt="Business School Logo" 
-            className="h-16 object-contain"
-            crossOrigin="anonymous"
-          />
+    <div className={cn("flex flex-col md:flex-row justify-between border-b-2 border-slate-50 pb-8 mb-8 gap-8 relative", hideMeta && "border-none mb-4")}>
+      <div className="flex flex-col gap-6">
+        <img 
+          src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
+          alt="Business School Logo" 
+          className="h-14 w-auto object-contain self-start"
+          crossOrigin="anonymous"
+        />
+        <div className="flex items-center gap-2">
+          <div className={cn(
+            "w-2 h-2 rounded-full transition-all duration-500",
+            isSaving ? "bg-amber-400 animate-pulse scale-125" : "bg-green-500"
+          )} />
+          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">
+            {isSaving ? "Syncing to Cloud..." : "Local Storage Secured"}
+          </span>
         </div>
       </div>
 
       {!hideMeta && (
-        <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm max-w-xl">
-          <div className="flex flex-col border-b border-gray-200 col-span-2">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Module</span>
-            <span className="font-semibold text-black">Strategic Development Project (SDP)</span>
-          </div>
-          
-          <div className="flex flex-col border-b border-gray-200">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Cohort</span>
-            <span className="font-semibold text-black">MA27</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm flex-1 max-w-4xl">
+          <div className="flex flex-col gap-1">
+            <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Cohort / Period</span>
+            <span className="font-bold text-slate-900 border-b border-slate-100 pb-1">MA27 • JUNE 2026</span>
           </div>
 
-          <div className="flex flex-col border-b border-gray-200">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Group</span>
-            <span className="font-semibold text-black">{selectedGroup || '-'}</span>
+          <div className="flex flex-col gap-1">
+            <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Workstation</span>
+            <span className="font-bold text-brand-blue border-b border-slate-100 pb-1">{selectedGroup || 'STANDALONE'}</span>
           </div>
 
-          <div className="flex flex-col border-b border-gray-200">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Date</span>
-            <span className="font-semibold text-black">05 - 06 June 2026</span>
-          </div>
-
-          <div className="flex flex-col border-b border-gray-200 col-span-2">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Company Name</span>
+          <div className="flex flex-col gap-1 md:col-span-2">
+            <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Client Organization</span>
             <input 
               type="text" 
               value={meta.companyName} 
               onChange={(e) => setMeta({...meta, companyName: e.target.value})}
-              className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
-              placeholder="Enter company name..."
+              className="font-bold text-slate-900 outline-none bg-transparent border-b-2 border-slate-100 focus:border-brand-blue transition-colors w-full pb-0.5 placeholder:text-slate-200"
+              placeholder="Assign Company Name..."
             />
           </div>
         </div>
@@ -373,7 +369,7 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup, onAdminToggle }: { onSelectGroup: (group: string) => void; onAdminToggle: () => void }) => {
+const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
 
   const handleContinue = () => {
@@ -383,63 +379,84 @@ const AccessPage = ({ onSelectGroup, onAdminToggle }: { onSelectGroup: (group: s
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <img 
-              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-              alt="Logo" 
-              className="h-24 w-auto object-contain cursor-help"
-              crossOrigin="anonymous"
-              onDoubleClick={onAdminToggle}
-              title="Welcome to Strategic Suite Pro"
-            />
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 relative overflow-hidden font-sans">
+      {/* Abstract Background Shapes */}
+      <div className="absolute top-[-10%] -left-[5%] w-[40%] h-[40%] bg-blue-50 rounded-full blur-[120px] opacity-60" />
+      <div className="absolute bottom-[-10%] -right-[5%] w-[40%] h-[40%] bg-indigo-50 rounded-full blur-[120px] opacity-60" />
+      
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-[480px] relative z-10"
+      >
+        <div className="bg-white rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] p-12 border border-slate-100">
+          {/* Logo Section */}
+          <div className="flex flex-col items-center mb-10">
+            <div className="p-5 bg-slate-50 rounded-[2rem] mb-6 shadow-inner">
+              <img 
+                src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
+                alt="Logo" 
+                className="h-20 w-auto object-contain"
+                crossOrigin="anonymous"
+              />
+            </div>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tighter mb-2">
+              SDP<span className="text-brand-blue">Suite</span> <span className="text-slate-300 font-light">Pro</span>
+            </h1>
+            <div className="h-1 w-12 bg-brand-blue rounded-full opacity-20" />
           </div>
 
-          {/* Title */}
-          <h1 className="text-3xl font-black text-gray-900 text-center mb-2 tracking-tight">
-            Strategic Suite Pro
-          </h1>
-          <p className="text-center text-gray-600 text-sm mb-8">
-            Select your group to access the dashboard
+          <p className="text-center text-slate-500 text-sm font-medium mb-10 leading-relaxed">
+            Welcome to the Strategic Development Project workstation. Select your assigned group to begin your session.
           </p>
 
-          {/* Form */}
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="group-select" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
-                Select Group
-              </label>
-              <select
-                id="group-select"
-                value={selectedValue}
-                onChange={(e) => setSelectedValue(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white cursor-pointer hover:border-gray-300"
-              >
-                <option value="">-- Choose a group --</option>
-                {Array.from({ length: 11 }, (_, i) => (
-                  <option key={i + 1} value={`Group ${i + 1}`}>
-                    Group {i + 1}
-                  </option>
-                ))}
-              </select>
+          {/* Group Selection */}
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Workspace Selection</label>
+                {selectedValue && (
+                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] font-bold text-brand-blue bg-blue-50 px-2 py-0.5 rounded-full">
+                    Ready to Access
+                  </motion.span>
+                )}
+              </div>
+              <div className="relative group">
+                <select
+                  value={selectedValue}
+                  onChange={(e) => setSelectedValue(e.target.value)}
+                  className="w-full px-6 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-900 appearance-none focus:outline-none focus:border-brand-blue focus:bg-white transition-all cursor-pointer hover:border-slate-200 shadow-sm"
+                >
+                  <option value="" disabled className="text-slate-400 font-normal">-- Choose your group --</option>
+                  {Array.from({ length: 11 }, (_, i) => (
+                    <option key={i + 1} value={`Group ${i + 1}`} className="font-bold py-2">
+                      Group {i + 1}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 group-hover:text-brand-blue transition-colors">
+                  <span className="material-icons">expand_more</span>
+                </div>
+              </div>
             </div>
 
             <button
               onClick={handleContinue}
               disabled={!selectedValue}
-              className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
+              className="w-full group relative overflow-hidden py-5 bg-slate-900 text-white font-black rounded-2xl transition-all shadow-xl shadow-slate-200 hover:shadow-brand-blue/20 hover:bg-brand-blue disabled:opacity-20 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer uppercase tracking-[0.15em] text-xs"
             >
-              Continue to Dashboard
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Launch Dashboard
+                <span className="material-icons text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+              </span>
             </button>
           </div>
 
-          {/* Footer */}
-          <p className="text-center text-xs text-gray-400 mt-8 font-mono tracking-widest">
-            SDP_ACCESS_V1.0
-          </p>
+          {/* Version Info */}
+          <div className="mt-12 pt-8 border-t border-slate-50 flex justify-between items-center opacity-40">
+            <span className="text-[9px] font-mono tracking-tighter">SDP_CORE_v2.4.0</span>
+            <span className="text-[9px] font-mono tracking-tighter">© 2026 STRAT_PRO</span>
+          </div>
         </div>
       </div>
     </div>
@@ -450,7 +467,6 @@ export default function App() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(() => {
     return localStorage.getItem('sdp_selected_group');
   });
-  const [isAdminMode, setIsAdminMode] = useState(false);
 
   useEffect(() => {
     if (selectedGroup) {
@@ -460,24 +476,6 @@ export default function App() {
     }
   }, [selectedGroup]);
 
-  if (isAdminMode) {
-    return (
-      <ErrorBoundary>
-        <div className="relative">
-          <ProfessorDashboard />
-          <button 
-            onClick={() => setIsAdminMode(false)}
-            className="fixed bottom-8 right-8 p-4 bg-slate-900 text-white rounded-full shadow-2xl hover:bg-brand-blue transition-all z-50 group"
-            title="Exit Admin Mode"
-          >
-            <Shield size={24} />
-            <span className="absolute right-full mr-4 bg-slate-900 text-white px-3 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Exit Admin Mode</span>
-          </button>
-        </div>
-      </ErrorBoundary>
-    );
-  }
-
   return (
     <ErrorBoundary>
       {selectedGroup ? (
@@ -485,16 +483,15 @@ export default function App() {
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
           onExit={() => setSelectedGroup(null)} 
-          onAdminToggle={() => setIsAdminMode(true)}
         />
       ) : (
-        <AccessPage onSelectGroup={setSelectedGroup} onAdminToggle={() => setIsAdminMode(true)} />
+        <AccessPage onSelectGroup={setSelectedGroup} />
       )}
     </ErrorBoundary>
   );
 }
 
-function AppContent({ selectedGroup, onExit, onAdminToggle }: { selectedGroup: string; onExit: () => void; onAdminToggle: () => void }) {
+function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: () => void }) {
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(() => {
     const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
     return (saved as any) || 'PESTEL';
@@ -503,6 +500,7 @@ function AppContent({ selectedGroup, onExit, onAdminToggle }: { selectedGroup: s
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Update active tab in localStorage
@@ -510,103 +508,14 @@ function AppContent({ selectedGroup, onExit, onAdminToggle }: { selectedGroup: s
     localStorage.setItem(`sdp_tab_${selectedGroup}`, activeTab);
   }, [activeTab, selectedGroup]);
   
-  const [pestelData, setPestelData] = useState<PESTELData[]>(
-    ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
-      id: cat,
-      category: cat as any,
-      description: '',
-      impact: '',
-      probability: '',
-      potential: ''
-    }))
-  );
-  
-  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>({});
-  
-  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(
-    Array.from({ length: 8 }, (_, i) => ({
-      id: `res-${i}`,
-      resource: '',
-      type: '',
-      detail: '',
-      v: '',
-      r: '',
-      i: '',
-      o: ''
-    }))
-  );
-  
-  const [vrioNotes, setVrioNotes] = useState('');
-  
-  const [towsData, setTowsData] = useState<TOWSMatrixData>({
-    opportunities: Array(3).fill(''),
-    threats: Array(3).fill(''),
-    strengths: Array(3).fill(''),
-    weaknesses: Array(3).fill(''),
-    scores: {},
-    notes: {}
-  });
-  
-  const [portersData, setPortersData] = useState<PortersFiveForcesData>({
-    newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
-    buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-    suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-    substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-    rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
-  });
-
-  const [meta, setMeta] = useState<MetaData>(() => {
-    const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.meta) return parsed.meta;
-      } catch (e) {}
-    }
-    return {
-      module: '',
-      cohort: '',
-      date: '',
-      companyName: '',
-      participants: []
-    };
-  });
-
-  const updateTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  // Load data from localStorage on initial mount
-  useEffect(() => {
-    setIsLoading(true);
-    try {
-      const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.pestel) setPestelData(parsed.pestel);
-        if (parsed.mckinsey) setMckinseyData(parsed.mckinsey);
-        if (parsed.vrio) setVrioAnalysisData(parsed.vrio);
-        if (parsed.vrioNotes !== undefined) setVrioNotes(parsed.vrioNotes);
-        if (parsed.tows) {
-          setTowsData({
-            ...parsed.tows,
-            scores: parsed.tows.scores || {},
-            notes: parsed.tows.notes || {}
-          });
-        }
-        if (parsed.porters) setPortersData(parsed.porters);
-        if (parsed.meta) setMeta(parsed.meta);
-      }
-    } catch (err) {
-      console.error('Error loading data from localStorage:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedGroup]);
+  // ... (rest of state definitions)
 
   // Debounced save to localStorage
   useEffect(() => {
     if (isLoading) return;
 
     if (updateTimeout.current) clearTimeout(updateTimeout.current);
+    setIsSaving(true);
 
     updateTimeout.current = setTimeout(() => {
       const currentState = {
@@ -622,10 +531,12 @@ function AppContent({ selectedGroup, onExit, onAdminToggle }: { selectedGroup: s
       
       try {
         localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(currentState));
+        setIsSaving(false);
       } catch (err) {
         console.error('Failed to save data to localStorage:', err);
+        setIsSaving(false);
       }
-    }, 500);
+    }, 800);
 
     return () => {
       if (updateTimeout.current) clearTimeout(updateTimeout.current);
@@ -868,10 +779,9 @@ function AppContent({ selectedGroup, onExit, onAdminToggle }: { selectedGroup: s
             <img 
               src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
               alt="SDP Suite Logo" 
-              className="h-16 w-auto object-contain cursor-help"
+              className="h-16 w-auto object-contain"
               crossOrigin="anonymous"
-              onDoubleClick={onAdminToggle}
-              title="Double-click for System Management"
+              title="Welcome to Strategic Suite Pro"
             />
           </div>
 
@@ -937,42 +847,57 @@ function AppContent({ selectedGroup, onExit, onAdminToggle }: { selectedGroup: s
         </div>
 
         {/* Navigation Bar */}
-        <div className="flex items-center justify-center p-2 md:p-4">
-          <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-200 overflow-x-auto max-w-full no-scrollbar">
+        <div className="flex items-center justify-center p-4 md:p-6 bg-slate-50/50 border-b border-slate-100">
+          <div className="flex bg-white rounded-2xl p-1.5 shadow-sm border border-slate-200 overflow-x-auto max-w-full no-scrollbar gap-1">
             {/* PESTEL */}
             <button
               onClick={() => setActiveTab('PESTEL')}
-              className={cn("px-4 md:px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap", activeTab === 'PESTEL' ? "bg-brand-blue text-white shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn(
+                "px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer", 
+                activeTab === 'PESTEL' ? "bg-slate-900 text-white shadow-lg shadow-slate-200 scale-[1.02]" : "bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              )}
             >
-              <FileText size={18} /> PESTEL Analysis
+              <FileText size={14} className={activeTab === 'PESTEL' ? "text-brand-blue" : ""} /> PESTEL
             </button>
             {/* McKinsey */}
             <button
               onClick={() => setActiveTab('McKinsey')}
-              className={cn("px-4 md:px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap", activeTab === 'McKinsey' ? "bg-brand-peach text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn(
+                "px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer", 
+                activeTab === 'McKinsey' ? "bg-slate-900 text-white shadow-lg shadow-slate-200 scale-[1.02]" : "bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              )}
             >
-              <Settings2 size={18} /> McKinsey 7-S
+              <Settings2 size={14} className={activeTab === 'McKinsey' ? "text-brand-peach" : ""} /> McKinsey 7-S
             </button>
             {/* VRIO */}
             <button
               onClick={() => setActiveTab('VRIO')}
-              className={cn("px-4 md:px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap", activeTab === 'VRIO' ? "bg-[#1f2937] text-white shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn(
+                "px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer", 
+                activeTab === 'VRIO' ? "bg-slate-900 text-white shadow-lg shadow-slate-200 scale-[1.02]" : "bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              )}
             >
-              <Settings2 size={18} /> VRIO Framework
+              <Shield size={14} className={activeTab === 'VRIO' ? "text-indigo-400" : ""} /> VRIO
             </button>
             {/* TOWS/Confrontation Matrix */}
             <button
               onClick={() => setActiveTab('TOWS')}
-              className={cn("px-4 md:px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap", activeTab === 'TOWS' ? "bg-yellow-200 text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn(
+                "px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer", 
+                activeTab === 'TOWS' ? "bg-slate-900 text-white shadow-lg shadow-slate-200 scale-[1.02]" : "bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              )}
             >
-              <Network size={18} /> Confrontation Matrix
+              <Network size={14} className={activeTab === 'TOWS' ? "text-[#FFD666]" : ""} /> Matrix
             </button>
             {/* Porter's */}
             <button
               onClick={() => setActiveTab('PORTER')}
-              className={cn("px-4 md:px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap", activeTab === 'PORTER' ? "bg-[#4f39f6] text-white shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}
+              className={cn(
+                "px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer", 
+                activeTab === 'PORTER' ? "bg-slate-900 text-white shadow-lg shadow-slate-200 scale-[1.02]" : "bg-transparent text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              )}
             >
-              <Files size={18} /> Porter's 5 Forces
+              <Files size={14} className={activeTab === 'PORTER' ? "text-blue-400" : ""} /> Porter's
             </button>
           </div>
         </div>
@@ -982,7 +907,7 @@ function AppContent({ selectedGroup, onExit, onAdminToggle }: { selectedGroup: s
           <div className="max-w-6xl mx-auto">
             {/* Header with Title and Metadata */}
             <div ref={containerRef} className="worksheet-container relative overflow-hidden bg-white">
-              <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} hideMeta={false} />
+              <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} hideMeta={false} isSaving={isSaving} />
 
               {activeTab === 'TOWS' && <ConfrontationMatrixGuide />}
 
