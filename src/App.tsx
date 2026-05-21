@@ -741,14 +741,23 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
     const channel = supabase
       .channel('db-changes')
       .on('postgres_changes', { 
-        event: 'UPDATE', 
+        event: '*', // Listen to all events for debugging
         schema: 'public', 
         table: 'worksheets',
         filter: `id=eq.${selectedGroup}`
       }, (payload) => {
-        console.log('Real-time change received:', payload);
-        const newData = payload.new.data;
-        setPestelData(newData.pestel);
+        console.log('--- Real-time payload received ---');
+        console.log('Event Type:', payload.eventType);
+        console.log('New Data:', payload.new);
+        console.log('Old Data:', payload.old);
+        
+        if (payload.new && payload.new.data) {
+          console.log('Updating local state with new data...');
+          const newData = payload.new.data;
+          if (newData.pestel) setPestelData(newData.pestel);
+        } else {
+          console.warn('Payload received but no data found:', payload);
+        }
       })
       .subscribe((status) => {
         console.log('Subscription status:', status);
