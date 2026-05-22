@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Users, Clock, Eye, X } from 'lucide-react';
-import WorksheetViewer from './WorksheetViewer';
+import { AppContent } from '../App';
 
 export default function AdminDashboard({ onExit }: { onExit: () => void }) {
   const [groups, setGroups] = useState<any[]>([]);
@@ -22,22 +22,21 @@ export default function AdminDashboard({ onExit }: { onExit: () => void }) {
 
   return viewingGroup ? (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-900">Monitoring: <span className="text-blue-600">{viewingGroup}</span> (Read-Only)</h2>
           <button onClick={() => setViewingGroup(null)} className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
             <X size={16} /> Back to List
           </button>
-        </div>
       </div>
-      <WorksheetViewer 
+      <AppContent 
         selectedGroup={viewingGroup} 
-        fullName="Admin (Observer)"
+        fullName="Admin"
         onExit={() => setViewingGroup(null)}
         readOnly={true}
       />
     </div>
   ) : (
+    // ... (rest of the list view)
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-10">
