@@ -49,13 +49,15 @@ const CorporateHeader = ({
   setMeta, 
   selectedGroup, 
   hideMeta = false, 
-  participants = [] 
+  participants = [],
+  totalSiteUsers = 0
 }: { 
   meta: MetaData; 
   setMeta: (m: MetaData) => void; 
   selectedGroup?: string | null; 
   hideMeta?: boolean;
   participants?: string[];
+  totalSiteUsers?: number;
 }) => {
   return (
     <div className={cn("flex flex-col md:flex-row justify-between border-b-2 border-gray-100 pb-8 mb-8 gap-8", hideMeta && "border-none mb-4")}>
@@ -92,7 +94,7 @@ const CorporateHeader = ({
             <span className="font-semibold text-black">05 - 06 June 2026</span>
           </div>
 
-          <div className="flex flex-col border-b border-gray-200 col-span-2">
+          <div className="flex flex-col border-b border-gray-200 col-span-2 relative">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Company Name</span>
             <input 
               type="text" 
@@ -101,6 +103,28 @@ const CorporateHeader = ({
               className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
               placeholder="Enter company name..."
             />
+            {/* Total Online Indicator under Company Name */}
+            <div className="absolute -bottom-6 left-0 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+              <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">
+                {totalSiteUsers} Users Online Site-wide
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col col-span-2 mt-4 pt-2 border-t border-gray-100">
+            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-bold mb-1">Participants:</span>
+            <div className="flex flex-wrap gap-2">
+              {participants.length > 0 ? (
+                participants.map((p, i) => (
+                  <span key={i} className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md text-[10px] font-bold border border-blue-100">
+                    {p}
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-300 text-[10px] italic">No active participants...</span>
+              )}
+            </div>
           </div>
 
         </div>
@@ -389,12 +413,13 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void }) => {
+const AccessPage = ({ onJoin }: { onJoin: (group: string, name: string) => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
+  const [fullName, setFullName] = useState('');
 
   const handleContinue = () => {
-    if (selectedValue) {
-      onSelectGroup(selectedValue);
+    if (selectedValue && fullName.trim()) {
+      onJoin(selectedValue, fullName.trim());
     }
   };
 
@@ -418,11 +443,25 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
             Strategic Suite Access
           </h1>
           <p className="text-center text-gray-600 text-sm mb-8">
-            Select your group to access the dashboard
+            Enter your details to access the dashboard
           </p>
 
           {/* Form */}
           <div className="space-y-6">
+            <div>
+              <label htmlFor="full-name" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
+                Full Name
+              </label>
+              <input
+                id="full-name"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full name"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+              />
+            </div>
+
             <div>
               <label htmlFor="group-select" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
                 Select Group
@@ -444,7 +483,7 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
 
             <button
               onClick={handleContinue}
-              disabled={!selectedValue}
+              disabled={!selectedValue || !fullName.trim()}
               className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
             >
               Continue to Dashboard
@@ -462,161 +501,178 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
 };
 
 export default function App() {
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(() => {
-    return localStorage.getItem('sdp_selected_group');
+  const [session, setSession] = useState<{ group: string, name: string } | null>(() => {
+    const group = localStorage.getItem('sdp_selected_group');
+    const name = localStorage.getItem('sdp_user_name');
+    return group && name ? { group, name } : null;
   });
 
   useEffect(() => {
-    if (selectedGroup) {
-      localStorage.setItem('sdp_selected_group', selectedGroup);
+    if (session) {
+      localStorage.setItem('sdp_selected_group', session.group);
+      localStorage.setItem('sdp_user_name', session.name);
     } else {
       localStorage.removeItem('sdp_selected_group');
+      localStorage.removeItem('sdp_user_name');
     }
-  }, [selectedGroup]);
+  }, [session]);
 
-  const handleSelectGroup = (group: string) => {
-    setSelectedGroup(group);
+  const handleJoin = (group: string, name: string) => {
+    setSession({ group, name });
   };
 
   return (
     <ErrorBoundary>
-      {selectedGroup ? (
+      {session ? (
         <AppContent 
-          key={selectedGroup} 
-          selectedGroup={selectedGroup} 
+          key={session.group} 
+          selectedGroup={session.group} 
+          userName={session.name}
           onExit={() => {
-            setSelectedGroup(null);
+            setSession(null);
           }} 
         />
       ) : (
-        <AccessPage onSelectGroup={handleSelectGroup} />
+        <AccessPage onJoin={handleJoin} />
       )}
     </ErrorBoundary>
   );
 }
 
-function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: () => void }) {
-  const getInitialData = () => {
-    const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse saved data:', e);
-      }
-    }
-    return null;
-  };
+import { supabase } from './lib/supabase';
 
-  const initialData = getInitialData();
-
+function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string; userName: string; onExit: () => void }) {
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(() => {
     const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
     return (saved as any) || 'PESTEL';
   });
+  
   const [activeForce, setActiveForce] = useState<keyof PortersFiveForcesData>('suppliers');
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [onlineParticipantsCount, setOnlineParticipantsCount] = useState<number>(0);
+  const [totalSiteUsers, setTotalSiteUsers] = useState<number>(0);
+  const [activeParticipants, setActiveParticipants] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isRemoteUpdate = useRef(false);
 
-  // Update active tab in localStorage
+  // Data states
+  const [pestelData, setPestelData] = useState<PESTELData[]>([]);
+  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>({});
+  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>([]);
+  const [vrioNotes, setVrioNotes] = useState('');
+  const [towsData, setTowsData] = useState<TOWSMatrixData>({
+    opportunities: Array(3).fill(''),
+    threats: Array(3).fill(''),
+    strengths: Array(3).fill(''),
+    weaknesses: Array(3).fill(''),
+    scores: {},
+    notes: {}
+  });
+  const [portersData, setPortersData] = useState<PortersFiveForcesData>({
+    newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+    buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+  });
+  const [meta, setMeta] = useState<MetaData>({
+    module: '',
+    cohort: '',
+    date: '',
+    companyName: '',
+    participants: [],
+    group: selectedGroup
+  });
+
+  // Supabase Collaboration Logic
   useEffect(() => {
-    localStorage.setItem(`sdp_tab_${selectedGroup}`, activeTab);
-  }, [activeTab, selectedGroup]);
-  
-  const [pestelData, setPestelData] = useState<PESTELData[]>(() => {
-    if (initialData?.pestel) return initialData.pestel;
-    return ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
-      id: cat,
-      category: cat as any,
-      description: '',
-      impact: '',
-      probability: '',
-      potential: ''
-    }));
-  });
+    // 1. Global Presence Channel
+    const globalChannel = supabase.channel('global:presence');
+    globalChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = globalChannel.presenceState();
+        setTotalSiteUsers(Object.keys(state).length);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await globalChannel.track({ online_at: new Date().toISOString() });
+        }
+      });
 
-  // Local-only state handlers (offline mode)
-  const handlePestelUpdate = (data: PESTELData[]) => setPestelData(data);
-  const handleMcKinseyUpdate = (data: McKinsey7SData) => setMckinseyData(data);
-  const handleVrioUpdate = (data: VRIOAnalysisData[]) => setVrioAnalysisData(data);
-  const handleTowsUpdate = (data: TOWSMatrixData) => setTowsData(data);
-  const handlePortersUpdate = (data: PortersFiveForcesData) => setPortersData(data);
-  const handleMetaUpdate = (data: MetaData) => setMeta(data);
+    // 2. Room Channel
+    const roomChannel = supabase.channel(`room:${selectedGroup}`, {
+      config: {
+        presence: {
+          key: selectedGroup,
+        },
+      },
+    });
 
-  
-  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>(() => {
-    return initialData?.mckinsey || {};
-  });
-  
-  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(() => {
-    if (initialData?.vrio) return initialData.vrio;
-    return Array.from({ length: 8 }, (_, i) => ({
-      id: `res-${i}`,
-      resource: '',
-      type: '',
-      detail: '',
-      v: '',
-      r: '',
-      i: '',
-      o: ''
-    }));
-  });
-  
-  const [vrioNotes, setVrioNotes] = useState(() => {
-    return initialData?.vrioNotes || '';
-  });
-  
-  const [towsData, setTowsData] = useState<TOWSMatrixData>(() => {
-    if (initialData?.tows) {
-      return {
-        ...initialData.tows,
-        scores: initialData.tows.scores || {},
-        notes: initialData.tows.notes || {}
-      };
-    }
-    return {
-      opportunities: Array(3).fill(''),
-      threats: Array(3).fill(''),
-      strengths: Array(3).fill(''),
-      weaknesses: Array(3).fill(''),
-      scores: {},
-      notes: {}
+    roomChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = roomChannel.presenceState();
+        const presences = Object.values(state).flat() as any[];
+        const names = presences.map(p => p.name).filter(Boolean);
+        // Unique names
+        setActiveParticipants([...new Set(names)]);
+        setOnlineParticipantsCount(Object.keys(state).length);
+      })
+      .on('broadcast', { event: 'update_data' }, ({ payload }) => {
+        isRemoteUpdate.current = true;
+        if (payload.pestel) setPestelData(payload.pestel);
+        if (payload.mckinsey) setMckinseyData(payload.mckinsey);
+        if (payload.vrio) setVrioAnalysisData(payload.vrio);
+        if (payload.vrioNotes !== undefined) setVrioNotes(payload.vrioNotes);
+        if (payload.tows) setTowsData(payload.tows);
+        if (payload.porters) setPortersData(payload.porters);
+        if (payload.meta) setMeta(payload.meta);
+        setTimeout(() => { isRemoteUpdate.current = false; }, 50);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await roomChannel.track({ 
+            name: userName,
+            online_at: new Date().toISOString() 
+          });
+        }
+      });
+
+    // Initial load from DB (if applicable)
+    const loadInitialData = async () => {
+      const { data, error } = await supabase
+        .from('worksheets')
+        .select('content')
+        .eq('id', selectedGroup)
+        .single();
+      
+      if (data && data.content) {
+        const content = data.content;
+        isRemoteUpdate.current = true;
+        if (content.pestel) setPestelData(content.pestel);
+        if (content.mckinsey) setMckinseyData(content.mckinsey);
+        if (content.vrio) setVrioAnalysisData(content.vrio);
+        if (content.vrioNotes !== undefined) setVrioNotes(content.vrioNotes);
+        if (content.tows) setTowsData(content.tows);
+        if (content.porters) setPortersData(content.porters);
+        if (content.meta) setMeta(content.meta);
+        setTimeout(() => { isRemoteUpdate.current = false; }, 50);
+      }
     };
-  });
-  
-  const [portersData, setPortersData] = useState<PortersFiveForcesData>(() => {
-    if (initialData?.porters) return initialData.porters;
-    return {
-      newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
-      buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-      suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-      substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-      rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+
+    loadInitialData();
+
+    return () => {
+      supabase.removeChannel(globalChannel);
+      supabase.removeChannel(roomChannel);
     };
-  });
+  }, [selectedGroup, userName]);
 
-  const [meta, setMeta] = useState<MetaData>(() => {
-    if (initialData?.meta) return initialData.meta;
-    return {
-      module: '',
-      cohort: '',
-      date: '',
-      companyName: '',
-      participants: []
-    };
-  });
-
-  const updateTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  // Persistence handled locally
+  // Broadcast updates
   useEffect(() => {
-    // Sync logic removed
-  }, [selectedGroup]);
+    if (isRemoteUpdate.current) return;
 
-  // Trigger auto-save whenever data changes
-  useEffect(() => {
     const dataToSave = {
       pestel: pestelData,
       mckinsey: mckinseyData,
@@ -626,10 +682,36 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
       porters: portersData,
       meta: meta
     };
-    
-    // Save to localStorage
-    localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
+
+    // Broadcast live typing
+    supabase.channel(`room:${selectedGroup}`).send({
+      type: 'broadcast',
+      event: 'update_data',
+      payload: dataToSave,
+    });
+
+    // Debounced save to DB
+    const timer = setTimeout(async () => {
+      setIsSaving(true);
+      await supabase.from('worksheets').upsert({
+        id: selectedGroup,
+        content: dataToSave,
+        updated_at: new Date().toISOString()
+      });
+      setIsSaving(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup]);
+
+  // Rest of the logic (exporting, clearData, etc.)
+  const handlePestelUpdate = (data: PESTELData[]) => setPestelData(data);
+  const handleMcKinseyUpdate = (data: McKinsey7SData) => setMckinseyData(data);
+  const handleVrioUpdate = (data: VRIOAnalysisData[]) => setVrioAnalysisData(data);
+  const handleTowsUpdate = (data: TOWSMatrixData) => setTowsData(data);
+  const handlePortersUpdate = (data: PortersFiveForcesData) => setPortersData(data);
+  const handleMetaUpdate = (data: MetaData) => setMeta(data);
+
 
 
   const exportPDF = async () => {
@@ -866,6 +948,22 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
           </div>
 
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100">
+              <div className={cn("w-2 h-2 rounded-full animate-pulse", onlineParticipantsCount > 0 ? "bg-green-500" : "bg-gray-300")} />
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">
+                {onlineParticipantsCount} {onlineParticipantsCount === 1 ? 'User' : 'Users'} Online
+              </span>
+            </div>
+
+            {isSaving && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-lg border border-blue-100">
+                <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" />
+                <span className="text-[10px] font-black text-blue-600 uppercase tracking-wider">Saving...</span>
+              </div>
+            )}
+
+            <div className="w-px h-4 bg-gray-200 mx-1" />
+
             <button
               onClick={() => {
                 if (confirm('Are you sure you want to exit this session? You will return to the group selection page.')) {
@@ -977,7 +1075,8 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
                 setMeta={setMeta} 
                 selectedGroup={selectedGroup} 
                 hideMeta={false} 
-                participants={meta.participants}
+                participants={activeParticipants}
+                totalSiteUsers={totalSiteUsers}
                 />
 
                 {activeTab === 'TOWS' && <ConfrontationMatrixGuide />}
