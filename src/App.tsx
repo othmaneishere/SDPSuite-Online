@@ -3,7 +3,6 @@ import React from 'react';
 import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Database, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './lib/supabase';
-import AdminDashboard from './components/AdminDashboard';
 
 // Error Boundary Component for stability
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
@@ -406,7 +405,7 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup, onEnterAdmin }: { onSelectGroup: (group: string, fullName: string) => void; onEnterAdmin: () => void }) => {
+const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName: string) => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [fullName, setFullName] = useState('');
 
@@ -420,14 +419,6 @@ const AccessPage = ({ onSelectGroup, onEnterAdmin }: { onSelectGroup: (group: st
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-          {/* Admin entry point (hidden/small) */}
-          <button 
-            onClick={onEnterAdmin}
-            className="absolute top-4 right-4 text-[8px] text-gray-300 hover:text-gray-500 font-mono"
-          >
-            ADMIN
-          </button>
-          
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <img 
@@ -510,8 +501,6 @@ export default function App() {
     return localStorage.getItem('sdp_full_name') || '';
   });
 
-  const [isAdmin, setIsAdmin] = useState(false);
-
   useEffect(() => {
     if (selectedGroup) {
       localStorage.setItem('sdp_selected_group', selectedGroup);
@@ -535,9 +524,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      {isAdmin ? (
-        <AdminDashboard onExit={() => setIsAdmin(false)} />
-      ) : selectedGroup ? (
+      {selectedGroup ? (
         <AppContent 
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
@@ -548,15 +535,86 @@ export default function App() {
           }} 
         />
       ) : (
-        <AccessPage onSelectGroup={handleSelectGroup} onEnterAdmin={() => setIsAdmin(true)} />
+        <AccessPage onSelectGroup={handleSelectGroup} />
       )}
     </ErrorBoundary>
   );
 }
 
-export function AppContent({ selectedGroup, fullName, onExit, readOnly = false }: { selectedGroup: string; fullName: string; onExit: () => void, readOnly?: boolean }) {
+function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string; fullName: string; onExit: () => void }) {
   const [participants, setParticipants] = useState<string[]>([]);
   const [onlineTotal, setOnlineTotal] = useState<number>(0);
+
+  // Real-time Collaboration
+  useEffect(() => {
+    if (!selectedGroup || !fullName) return;
+
+    // Use a unique group-specific channel
+    const channel = supabase.channel(`group:${selectedGroup}`);
+
+    // Track presence so others can see us
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const groupUsers: string[] = [];
+        let globalCount = 0;
+
+        Object.keys(state).forEach((key) => {
+          const presences = state[key] as any[];
+          presences.forEach((p) => {
+            globalCount++;
+            if (p.group === selectedGroup && p.fullName) {
+              groupUsers.push(p.fullName);
+            }
+          });
+        });
+        setParticipants([...new Set(groupUsers)]);
+        setOnlineTotal(globalCount);
+      })
+      // Broadcast events for data synchronization
+      .on('broadcast', { event: 'data-update' }, ({ payload }) => {
+        // Handle incoming data updates from other users
+        if (payload.pestel) setPestelData(payload.pestel);
+        if (payload.mckinsey) setMckinseyData(payload.mckinsey);
+        if (payload.vrio) setVrioAnalysisData(payload.vrio);
+        if (payload.tows) setTowsData(payload.tows);
+        if (payload.porters) setPortersData(payload.porters);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({
+            fullName: fullName,
+            group: selectedGroup,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [selectedGroup, fullName]);
+
+  // Function to broadcast updates
+  const broadcastUpdate = (data: any) => {
+    const channel = supabase.channel(`group:${selectedGroup}`);
+    channel.send({
+      type: 'broadcast',
+      event: 'data-update',
+      payload: data,
+    });
+  };
+
+  // Unified state handler to update state AND broadcast
+  const updateState = (
+    setter: (val: any) => void,
+    data: any,
+    key: string
+  ) => {
+    setter(data);
+    broadcastUpdate({ [key]: data });
+  };
+
 
   const getInitialData = () => {
     const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
@@ -571,15 +629,200 @@ export function AppContent({ selectedGroup, fullName, onExit, readOnly = false }
   };
 
   const initialData = getInitialData();
+
+  const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(() => {
+    const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
+    return (saved as any) || 'PESTEL';
+  });
+  const [activeForce, setActiveForce] = useState<keyof PortersFiveForcesData>('suppliers');
+  const [isExporting, setIsExporting] = useState(false);
+  const [isExportingAll, setIsExportingAll] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Update active tab in localStorage
+  useEffect(() => {
+    localStorage.setItem(`sdp_tab_${selectedGroup}`, activeTab);
+  }, [activeTab, selectedGroup]);
   
-  // [Paste all state, effects, handlers, and the full return JSX here]
+  const [pestelData, setPestelData] = useState<PESTELData[]>(() => {
+    if (initialData?.pestel) return initialData.pestel;
+    return ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
+      id: cat,
+      category: cat as any,
+      description: '',
+      impact: '',
+      probability: '',
+      potential: ''
+    }));
+  });
+
+  const handlePestelUpdate = (data: PESTELData[]) => updateState(setPestelData, data, 'pestel');
+  const handleMcKinseyUpdate = (data: McKinsey7SData) => updateState(setMckinseyData, data, 'mckinsey');
+  const handleVrioUpdate = (data: VRIOAnalysisData[]) => updateState(setVrioAnalysisData, data, 'vrio');
+  const handleTowsUpdate = (data: TOWSMatrixData) => updateState(setTowsData, data, 'tows');
+  const handlePortersUpdate = (data: PortersFiveForcesData) => updateState(setPortersData, data, 'porters');
+  const handleMetaUpdate = (data: MetaData) => updateState(setMeta, data, 'meta');
+
   
-  return (
-    <div className={cn("min-h-screen bg-gray-50/50 p-4 md:p-8", readOnly ? "pointer-events-none" : "")}>
-        {/* Full UI... */}
-    </div>
-  )
-}
+  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>(() => {
+    return initialData?.mckinsey || {};
+  });
+  
+  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(() => {
+    if (initialData?.vrio) return initialData.vrio;
+    return Array.from({ length: 8 }, (_, i) => ({
+      id: `res-${i}`,
+      resource: '',
+      type: '',
+      detail: '',
+      v: '',
+      r: '',
+      i: '',
+      o: ''
+    }));
+  });
+  
+  const [vrioNotes, setVrioNotes] = useState(() => {
+    return initialData?.vrioNotes || '';
+  });
+  
+  const [towsData, setTowsData] = useState<TOWSMatrixData>(() => {
+    if (initialData?.tows) {
+      return {
+        ...initialData.tows,
+        scores: initialData.tows.scores || {},
+        notes: initialData.tows.notes || {}
+      };
+    }
+    return {
+      opportunities: Array(3).fill(''),
+      threats: Array(3).fill(''),
+      strengths: Array(3).fill(''),
+      weaknesses: Array(3).fill(''),
+      scores: {},
+      notes: {}
+    };
+  });
+  
+  const [portersData, setPortersData] = useState<PortersFiveForcesData>(() => {
+    if (initialData?.porters) return initialData.porters;
+    return {
+      newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+      buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+      suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+      substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+      rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+    };
+  });
+
+  const [meta, setMeta] = useState<MetaData>(() => {
+    if (initialData?.meta) return initialData.meta;
+    return {
+      module: '',
+      cohort: '',
+      date: '',
+      companyName: '',
+      participants: []
+    };
+  });
+
+  const updateTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Refactored Real-time Sync using Supabase Database
+  useEffect(() => {
+    if (!selectedGroup) return;
+
+    // 1. Fetch initial data from DB
+    const fetchData = async () => {
+      console.log('Fetching initial data for group:', selectedGroup);
+      const { data, error } = await supabase
+        .from('worksheets')
+        .select('data')
+        .eq('id', selectedGroup);
+      
+      if (error) {
+        console.error('Error fetching initial data:', error);
+      } else if (data && data.length > 0) {
+        console.log('Data fetched successfully:', data[0]);
+        const parsed = data[0].data;
+        if (parsed.pestel) setPestelData(parsed.pestel);
+        if (parsed.mckinsey) setMckinseyData(parsed.mckinsey);
+        if (parsed.vrio) setVrioAnalysisData(parsed.vrio);
+        if (parsed.tows) setTowsData(parsed.tows);
+        if (parsed.porters) setPortersData(parsed.porters);
+      } else {
+        console.log('No existing data found for group:', selectedGroup, 'Starting with empty state.');
+      }
+    };
+    fetchData();
+
+    // 2. Subscribe to real-time changes
+    console.log('Subscribing to real-time changes for group:', selectedGroup);
+    const channel = supabase
+      .channel('db-changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'worksheets',
+        filter: `id=eq.${selectedGroup}`
+      }, (payload) => {
+        if (payload.new && payload.new.data) {
+          console.log('Updating local state with new data...');
+          const newData = payload.new.data;
+          if (newData.pestel) setPestelData(newData.pestel);
+          if (newData.mckinsey) setMckinseyData(newData.mckinsey);
+          if (newData.vrio) setVrioAnalysisData(newData.vrio);
+          if (newData.tows) setTowsData(newData.tows);
+          if (newData.porters) setPortersData(newData.porters);
+        }
+      })
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
+
+    return () => { channel.unsubscribe(); };
+  }, [selectedGroup]);
+
+  // 3. Save changes to DB (debounced)
+  const saveToDB = async (dataToSave: any) => {
+    console.log('Saving to DB for group:', selectedGroup, 'Data:', dataToSave);
+    const { error } = await supabase
+      .from('worksheets')
+      .upsert({ id: selectedGroup, data: dataToSave, updated_at: new Date().toISOString() });
+      
+    if (error) {
+      console.error('Error saving to DB:', error);
+    } else {
+      console.log('Data saved successfully');
+    }
+  };
+
+  // Trigger auto-save whenever data changes
+  useEffect(() => {
+    const dataToSave = {
+      pestel: pestelData,
+      mckinsey: mckinseyData,
+      vrio: vrioAnalysisData,
+      vrioNotes: vrioNotes,
+      tows: towsData,
+      porters: portersData,
+      meta: meta
+    };
+    
+    // Save to localStorage
+    localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
+    
+    // Debounced DB save
+    if (updateTimeout.current) clearTimeout(updateTimeout.current);
+    updateTimeout.current = setTimeout(() => {
+      saveToDB(dataToSave);
+    }, 2000);
+
+    return () => {
+      if (updateTimeout.current) clearTimeout(updateTimeout.current);
+    };
+  }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup]);
 
 
   const exportPDF = async () => {
