@@ -48,14 +48,12 @@ const CorporateHeader = ({
   meta, 
   setMeta, 
   selectedGroup, 
-  hideMeta = false, 
-  participants = [] 
+  hideMeta = false
 }: { 
   meta: MetaData; 
   setMeta: (m: MetaData) => void; 
   selectedGroup?: string | null; 
   hideMeta?: boolean;
-  participants?: string[];
 }) => {
   return (
     <div className={cn("flex flex-col md:flex-row justify-between border-b-2 border-gray-100 pb-8 mb-8 gap-8", hideMeta && "border-none mb-4")}>
@@ -101,22 +99,6 @@ const CorporateHeader = ({
               className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
               placeholder="Enter company name..."
             />
-          </div>
-
-          {/* Participants Section */}
-          <div className="flex flex-col border-b border-gray-200 col-span-2 pt-2">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Participants</span>
-            <div className="flex flex-wrap gap-2 mt-1 min-h-[1.5rem]">
-              {participants.length > 0 ? (
-                participants.map((p, i) => (
-                  <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
-                    {p}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-400 italic text-xs font-medium">No other participants online...</span>
-              )}
-            </div>
           </div>
         </div>
       )}
@@ -404,13 +386,12 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName: string) => void }) => {
+const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
-  const [fullName, setFullName] = useState('');
 
   const handleContinue = () => {
-    if (selectedValue && fullName.trim()) {
-      onSelectGroup(selectedValue, fullName.trim());
+    if (selectedValue) {
+      onSelectGroup(selectedValue);
     }
   };
 
@@ -440,20 +421,6 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName
           {/* Form */}
           <div className="space-y-6">
             <div>
-              <label htmlFor="full-name" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
-                Full Name
-              </label>
-              <input
-                id="full-name"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your full name"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white hover:border-gray-300"
-              />
-            </div>
-
-            <div>
               <label htmlFor="group-select" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
                 Select Group
               </label>
@@ -474,7 +441,7 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName
 
             <button
               onClick={handleContinue}
-              disabled={!selectedValue || !fullName.trim()}
+              disabled={!selectedValue}
               className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
             >
               Continue to Dashboard
@@ -540,31 +507,7 @@ export default function App() {
   );
 }
 
-function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string; fullName: string; onExit: () => void }) {
-  const [participants, setParticipants] = useState<string[]>([]);
-  const [onlineTotal, setOnlineTotal] = useState<number>(0);
-
-  // Real-time Collaboration removed
-  useEffect(() => {
-    // Sync logic removed for offline-only mode
-  }, [selectedGroup, fullName]);
-
-  // Function to broadcast updates (removed)
-  const broadcastUpdate = (data: any) => {
-    console.log('Online features disabled');
-  };
-
-  // Unified state handler to update state AND broadcast
-  const updateState = (
-    setter: (val: any) => void,
-    data: any,
-    key: string
-  ) => {
-    setter(data);
-    broadcastUpdate({ [key]: data });
-  };
-
-
+function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: () => void }) {
   const getInitialData = () => {
     const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
     if (saved) {
@@ -946,13 +889,6 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
               crossOrigin="anonymous"
               title="Welcome to Strategic Suite Access"
             />
-            {/* Online Indicator */}
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] font-black text-green-700 uppercase tracking-wider">
-                {onlineTotal} Online Users
-              </span>
-            </div>
           </div>
 
           <div className="flex items-center gap-3">
