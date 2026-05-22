@@ -574,8 +574,11 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
       // Broadcast events for data synchronization
       .on('broadcast', { event: 'data-update' }, ({ payload }) => {
         // Handle incoming data updates from other users
-        if (payload.type === 'PESTEL') setPestelData(payload.data);
-        // Add other framework updates as needed
+        if (payload.pestel) setPestelData(payload.pestel);
+        if (payload.mckinsey) setMckinseyData(payload.mckinsey);
+        if (payload.vrio) setVrioAnalysisData(payload.vrio);
+        if (payload.tows) setTowsData(payload.tows);
+        if (payload.porters) setPortersData(payload.porters);
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -593,12 +596,12 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
   }, [selectedGroup, fullName]);
 
   // Function to broadcast updates
-  const broadcastUpdate = (type: string, data: any) => {
+  const broadcastUpdate = (data: any) => {
     const channel = supabase.channel(`group:${selectedGroup}`);
     channel.send({
       type: 'broadcast',
       event: 'data-update',
-      payload: { type, data },
+      payload: data,
     });
   };
 
@@ -722,7 +725,7 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
       const { data, error } = await supabase
         .from('worksheets')
         .select('data')
-        .eq('id', selectedGroup); // Removed .single() to avoid error if no record
+        .eq('id', selectedGroup);
       
       if (error) {
         console.error('Error fetching initial data:', error);
@@ -730,6 +733,10 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
         console.log('Data fetched successfully:', data[0]);
         const parsed = data[0].data;
         if (parsed.pestel) setPestelData(parsed.pestel);
+        if (parsed.mckinsey) setMckinseyData(parsed.mckinsey);
+        if (parsed.vrio) setVrioAnalysisData(parsed.vrio);
+        if (parsed.tows) setTowsData(parsed.tows);
+        if (parsed.porters) setPortersData(parsed.porters);
       } else {
         console.log('No existing data found for group:', selectedGroup, 'Starting with empty state.');
       }
@@ -741,22 +748,19 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
     const channel = supabase
       .channel('db-changes')
       .on('postgres_changes', { 
-        event: '*', // Listen to all events for debugging
+        event: '*', 
         schema: 'public', 
         table: 'worksheets',
         filter: `id=eq.${selectedGroup}`
       }, (payload) => {
-        console.log('--- Real-time payload received ---');
-        console.log('Event Type:', payload.eventType);
-        console.log('New Data:', payload.new);
-        console.log('Old Data:', payload.old);
-        
         if (payload.new && payload.new.data) {
           console.log('Updating local state with new data...');
           const newData = payload.new.data;
           if (newData.pestel) setPestelData(newData.pestel);
-        } else {
-          console.warn('Payload received but no data found:', payload);
+          if (newData.mckinsey) setMckinseyData(newData.mckinsey);
+          if (newData.vrio) setVrioAnalysisData(newData.vrio);
+          if (newData.tows) setTowsData(newData.tows);
+          if (newData.porters) setPortersData(newData.porters);
         }
       })
       .subscribe((status) => {
@@ -767,11 +771,11 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
   }, [selectedGroup]);
 
   // 3. Save changes to DB (debounced)
-  const saveToDB = async (newData: any) => {
-    console.log('Saving to DB for group:', selectedGroup, 'Data:', newData);
+  const saveToDB = async (dataToSave: any) => {
+    console.log('Saving to DB for group:', selectedGroup, 'Data:', dataToSave);
     const { error } = await supabase
       .from('worksheets')
-      .upsert({ id: selectedGroup, data: { pestel: newData }, updated_at: new Date().toISOString() });
+      .upsert({ id: selectedGroup, data: dataToSave, updated_at: new Date().toISOString() });
       
     if (error) {
       console.error('Error saving to DB:', error);
@@ -779,6 +783,33 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
       console.log('Data saved successfully');
     }
   };
+
+  // Trigger auto-save whenever data changes
+  useEffect(() => {
+    const dataToSave = {
+      pestel: pestelData,
+      mckinsey: mckinseyData,
+      vrio: vrioAnalysisData,
+      vrioNotes: vrioNotes,
+      tows: towsData,
+      porters: portersData,
+      meta: meta
+    };
+    
+    // Save to localStorage
+    localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
+    
+    // Debounced DB save
+    if (updateTimeout.current) clearTimeout(updateTimeout.current);
+    updateTimeout.current = setTimeout(() => {
+      saveToDB(dataToSave);
+    }, 2000);
+
+    return () => {
+      if (updateTimeout.current) clearTimeout(updateTimeout.current);
+    };
+  }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup]);
+
 
   const exportPDF = async () => {
     setIsExporting(true);
