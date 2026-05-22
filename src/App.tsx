@@ -310,7 +310,7 @@ const PESTELWorksheet = ({ data, setData }: { data: PESTELData[]; setData: (d: P
                   <textarea
                     value={item.description}
                     onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                    className="w-full h-32 md:h-40 p-2 md:p-4 bg-transparent outline-hidden resize-none translate-z-0 relative z-10 text-xs md:text-sm leading-tight whitespace-pre-wrap"
+                    className="w-full h-32 md:h-40 p-2 md:p-4 bg-transparent outline-none resize-none relative z-10 text-xs md:text-sm leading-tight whitespace-pre-wrap"
                     placeholder={`Enter ${cat.toLowerCase()} factors...`}
                   />
                 </td>
@@ -556,11 +556,32 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
   const [activeParticipants, setActiveParticipants] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const isRemoteUpdate = useRef(false);
+  const roomChannelRef = useRef<any>(null);
 
-  // Data states
-  const [pestelData, setPestelData] = useState<PESTELData[]>([]);
+  // Data states with proper initialization
+  const [pestelData, setPestelData] = useState<PESTELData[]>(() => 
+    ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
+      id: cat,
+      category: cat as any,
+      description: '',
+      impact: '',
+      probability: '',
+      potential: ''
+    }))
+  );
   const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>({});
-  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>([]);
+  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(() => 
+    Array.from({ length: 8 }, (_, i) => ({
+      id: `res-${i}`,
+      resource: '',
+      type: '',
+      detail: '',
+      v: '',
+      r: '',
+      i: '',
+      o: ''
+    }))
+  );
   const [vrioNotes, setVrioNotes] = useState('');
   const [towsData, setTowsData] = useState<TOWSMatrixData>({
     opportunities: Array(3).fill(''),
@@ -586,6 +607,8 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
     group: selectedGroup
   });
 
+  const lastReceivedData = useRef<string>('');
+
   // Supabase Collaboration Logic
   useEffect(() => {
     // 1. Global Presence Channel
@@ -609,18 +632,23 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
         },
       },
     });
+    roomChannelRef.current = roomChannel;
 
     roomChannel
       .on('presence', { event: 'sync' }, () => {
         const state = roomChannel.presenceState();
         const presences = Object.values(state).flat() as any[];
         const names = presences.map(p => p.name).filter(Boolean);
-        // Unique names
         setActiveParticipants([...new Set(names)]);
         setOnlineParticipantsCount(Object.keys(state).length);
       })
       .on('broadcast', { event: 'update_data' }, ({ payload }) => {
+        const payloadStr = JSON.stringify(payload);
+        if (payloadStr === lastReceivedData.current) return;
+        
+        lastReceivedData.current = payloadStr;
         isRemoteUpdate.current = true;
+        
         if (payload.pestel) setPestelData(payload.pestel);
         if (payload.mckinsey) setMckinseyData(payload.mckinsey);
         if (payload.vrio) setVrioAnalysisData(payload.vrio);
@@ -628,7 +656,8 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
         if (payload.tows) setTowsData(payload.tows);
         if (payload.porters) setPortersData(payload.porters);
         if (payload.meta) setMeta(payload.meta);
-        setTimeout(() => { isRemoteUpdate.current = false; }, 50);
+        
+        setTimeout(() => { isRemoteUpdate.current = false; }, 100);
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -639,7 +668,7 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
         }
       });
 
-    // Initial load from DB (if applicable)
+    // Initial load from DB
     const loadInitialData = async () => {
       const { data, error } = await supabase
         .from('worksheets')
@@ -649,7 +678,10 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
       
       if (data && data.content) {
         const content = data.content;
+        const contentStr = JSON.stringify(content);
+        lastReceivedData.current = contentStr;
         isRemoteUpdate.current = true;
+        
         if (content.pestel) setPestelData(content.pestel);
         if (content.mckinsey) setMckinseyData(content.mckinsey);
         if (content.vrio) setVrioAnalysisData(content.vrio);
@@ -657,7 +689,8 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
         if (content.tows) setTowsData(content.tows);
         if (content.porters) setPortersData(content.porters);
         if (content.meta) setMeta(content.meta);
-        setTimeout(() => { isRemoteUpdate.current = false; }, 50);
+        
+        setTimeout(() => { isRemoteUpdate.current = false; }, 100);
       }
     };
 
@@ -669,11 +702,11 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
     };
   }, [selectedGroup, userName]);
 
-  // Broadcast updates
+  // Broadcast and Save updates
   useEffect(() => {
     if (isRemoteUpdate.current) return;
 
-    const dataToSave = {
+    const currentData = {
       pestel: pestelData,
       mckinsey: mckinseyData,
       vrio: vrioAnalysisData,
@@ -683,25 +716,35 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
       meta: meta
     };
 
-    // Broadcast live typing
-    supabase.channel(`room:${selectedGroup}`).send({
-      type: 'broadcast',
-      event: 'update_data',
-      payload: dataToSave,
-    });
+    const dataStr = JSON.stringify(currentData);
+    if (dataStr === lastReceivedData.current) return;
+
+    // Broadcast live typing (debounced)
+    const broadcastTimer = setTimeout(() => {
+      if (roomChannelRef.current) {
+        roomChannelRef.current.send({
+          type: 'broadcast',
+          event: 'update_data',
+          payload: currentData,
+        });
+      }
+    }, 100);
 
     // Debounced save to DB
-    const timer = setTimeout(async () => {
+    const saveTimer = setTimeout(async () => {
       setIsSaving(true);
       await supabase.from('worksheets').upsert({
         id: selectedGroup,
-        content: dataToSave,
+        content: currentData,
         updated_at: new Date().toISOString()
-      });
+      }, { onConflict: 'id' });
       setIsSaving(false);
     }, 2000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(broadcastTimer);
+      clearTimeout(saveTimer);
+    };
   }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup]);
 
   // Rest of the logic (exporting, clearData, etc.)
