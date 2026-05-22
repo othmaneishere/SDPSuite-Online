@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Users, Clock, Eye, X } from 'lucide-react';
-import { AppContent } from '../App';
+// We will integrate WorksheetViewer once it is successfully created/tested.
 
 export default function AdminDashboard({ onExit }: { onExit: () => void }) {
   const [groups, setGroups] = useState<any[]>([]);
@@ -28,15 +28,9 @@ export default function AdminDashboard({ onExit }: { onExit: () => void }) {
             <X size={16} /> Back to List
           </button>
       </div>
-      <AppContent 
-        selectedGroup={viewingGroup} 
-        fullName="Admin"
-        onExit={() => setViewingGroup(null)}
-        readOnly={true}
-      />
+      <div className="p-8 text-center">Worksheet Viewer pending integration...</div>
     </div>
   ) : (
-    // ... (rest of the list view)
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-10">
