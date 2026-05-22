@@ -541,18 +541,6 @@ export default function App() {
 }
 
 function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string; fullName: string; onExit: () => void }) {
-  const [participants, setParticipants] = useState<string[]>([]);
-  const [onlineTotal, setOnlineTotal] = useState<number>(0);
-
-  // Offline-only state handler
-  const updateState = (
-    setter: (val: any) => void,
-    data: any
-  ) => {
-    setter(data);
-  };
-
-
   const getInitialData = () => {
     const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
     if (saved) {
@@ -920,13 +908,6 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
               crossOrigin="anonymous"
               title="Welcome to Strategic Suite Access"
             />
-            {/* Online Indicator */}
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] font-black text-green-700 uppercase tracking-wider">
-                {onlineTotal} Online Users
-              </span>
-            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -1041,11 +1022,10 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
                 setMeta={setMeta} 
                 selectedGroup={selectedGroup} 
                 hideMeta={false} 
-                participants={participants}
-              />
+                participants={meta.participants}
+                />
 
-              {activeTab === 'TOWS' && <ConfrontationMatrixGuide />}
-
+                {activeTab === 'TOWS' && <ConfrontationMatrixGuide />}
               <div className="mb-12">
                 <div className="flex items-end justify-between border-b-2 border-gray-50 pb-6">
                   <h2 className={cn(
@@ -1088,8 +1068,7 @@ function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string
                   ) : activeTab === 'VRIO' ? (
                     <div className="space-y-12">
                       <VRIOFramework />
-                      <VRIOAnalysisTable data={vrioAnalysisData} setData={handleVrioUpdate} notes={vrioNotes} setNotes={(n) => updateState(setVrioNotes, n, 'vrioNotes')} />
-                    </div>
+                      <VRIOAnalysisTable data={vrioAnalysisData} setData={handleVrioUpdate} notes={vrioNotes} setNotes={setVrioNotes} />                    </div>
                   ) : activeTab === 'TOWS' ? (
                     <div className="space-y-12">
                       <TOWSWorksheet data={towsData} setData={handleTowsUpdate} meta={meta} setMeta={handleMetaUpdate} />
