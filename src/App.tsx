@@ -48,12 +48,14 @@ const CorporateHeader = ({
   meta, 
   setMeta, 
   selectedGroup, 
-  hideMeta = false
+  hideMeta = false, 
+  participants = [] 
 }: { 
   meta: MetaData; 
   setMeta: (m: MetaData) => void; 
   selectedGroup?: string | null; 
   hideMeta?: boolean;
+  participants?: string[];
 }) => {
   return (
     <div className={cn("flex flex-col md:flex-row justify-between border-b-2 border-gray-100 pb-8 mb-8 gap-8", hideMeta && "border-none mb-4")}>
@@ -99,6 +101,22 @@ const CorporateHeader = ({
               className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
               placeholder="Enter company name..."
             />
+          </div>
+
+          {/* Participants Section */}
+          <div className="flex flex-col border-b border-gray-200 col-span-2 pt-2">
+            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Participants</span>
+            <div className="flex flex-wrap gap-2 mt-1 min-h-[1.5rem]">
+              {participants.length > 0 ? (
+                participants.map((p, i) => (
+                  <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                    {p}
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-400 italic text-xs font-medium">No other participants online...</span>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -386,12 +404,13 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void }) => {
+const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName: string) => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
+  const [fullName, setFullName] = useState('');
 
   const handleContinue = () => {
-    if (selectedValue) {
-      onSelectGroup(selectedValue);
+    if (selectedValue && fullName.trim()) {
+      onSelectGroup(selectedValue, fullName.trim());
     }
   };
 
@@ -399,6 +418,7 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+          {/* Logo */}
           <div className="flex justify-center mb-8">
             <img 
               src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
@@ -408,13 +428,31 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
               title="Welcome to Strategic Suite Access"
             />
           </div>
+
+          {/* Title */}
           <h1 className="text-3xl font-black text-gray-900 text-center mb-2 tracking-tight">
             Strategic Suite Access
           </h1>
           <p className="text-center text-gray-600 text-sm mb-8">
             Select your group to access the dashboard
           </p>
+
+          {/* Form */}
           <div className="space-y-6">
+            <div>
+              <label htmlFor="full-name" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
+                Full Name
+              </label>
+              <input
+                id="full-name"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full name"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white hover:border-gray-300"
+              />
+            </div>
+
             <div>
               <label htmlFor="group-select" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
                 Select Group
@@ -433,14 +471,17 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
                 ))}
               </select>
             </div>
+
             <button
               onClick={handleContinue}
-              disabled={!selectedValue}
+              disabled={!selectedValue || !fullName.trim()}
               className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
             >
               Continue to Dashboard
             </button>
           </div>
+
+          {/* Footer */}
           <p className="text-center text-xs text-gray-400 mt-8 font-mono tracking-widest">
             SDP_ACCESS_V1.0
           </p>
@@ -455,6 +496,10 @@ export default function App() {
     return localStorage.getItem('sdp_selected_group');
   });
 
+  const [fullName, setFullName] = useState<string>(() => {
+    return localStorage.getItem('sdp_full_name') || '';
+  });
+
   useEffect(() => {
     if (selectedGroup) {
       localStorage.setItem('sdp_selected_group', selectedGroup);
@@ -463,7 +508,16 @@ export default function App() {
     }
   }, [selectedGroup]);
 
-  const handleSelectGroup = (group: string) => {
+  useEffect(() => {
+    if (fullName) {
+      localStorage.setItem('sdp_full_name', fullName);
+    } else {
+      localStorage.removeItem('sdp_full_name');
+    }
+  }, [fullName]);
+
+  const handleSelectGroup = (group: string, name: string) => {
+    setFullName(name);
     setSelectedGroup(group);
   };
 
@@ -473,8 +527,10 @@ export default function App() {
         <AppContent 
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
+          fullName={fullName}
           onExit={() => {
             setSelectedGroup(null);
+            setFullName('');
           }} 
         />
       ) : (
@@ -484,8 +540,81 @@ export default function App() {
   );
 }
 
-function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: () => void }) {
-  
+function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string; fullName: string; onExit: () => void }) {
+  const [participants, setParticipants] = useState<string[]>([]);
+  const [onlineTotal, setOnlineTotal] = useState<number>(0);
+
+  // Real-time Collaboration
+  useEffect(() => {
+    if (!selectedGroup || !fullName) return;
+
+    // Use a unique group-specific channel
+    const channel = supabase.channel(`group:${selectedGroup}`);
+
+    // Track presence so others can see us
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const groupUsers: string[] = [];
+        let globalCount = 0;
+
+        Object.keys(state).forEach((key) => {
+          const presences = state[key] as any[];
+          presences.forEach((p) => {
+            globalCount++;
+            if (p.group === selectedGroup && p.fullName) {
+              groupUsers.push(p.fullName);
+            }
+          });
+        });
+        setParticipants([...new Set(groupUsers)]);
+        setOnlineTotal(globalCount);
+      })
+      // Broadcast events for data synchronization
+      .on('broadcast', { event: 'data-update' }, ({ payload }) => {
+        // Handle incoming data updates from other users
+        if (payload.pestel) setPestelData(payload.pestel);
+        if (payload.mckinsey) setMckinseyData(payload.mckinsey);
+        if (payload.vrio) setVrioAnalysisData(payload.vrio);
+        if (payload.tows) setTowsData(payload.tows);
+        if (payload.porters) setPortersData(payload.porters);
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.track({
+            fullName: fullName,
+            group: selectedGroup,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [selectedGroup, fullName]);
+
+  // Function to broadcast updates
+  const broadcastUpdate = (data: any) => {
+    const channel = supabase.channel(`group:${selectedGroup}`);
+    channel.send({
+      type: 'broadcast',
+      event: 'data-update',
+      payload: data,
+    });
+  };
+
+  // Unified state handler to update state AND broadcast
+  const updateState = (
+    setter: (val: any) => void,
+    data: any,
+    key: string
+  ) => {
+    setter(data);
+    broadcastUpdate({ [key]: data });
+  };
+
+
   const getInitialData = () => {
     const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
     if (saved) {
@@ -527,12 +656,12 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
     }));
   });
 
-  const handlePestelUpdate = (data: PESTELData[]) => setPestelData(data);
-  const handleMcKinseyUpdate = (data: McKinsey7SData) => setMckinseyData(data);
-  const handleVrioUpdate = (data: VRIOAnalysisData[]) => setVrioAnalysisData(data);
-  const handleTowsUpdate = (data: TOWSMatrixData) => setTowsData(data);
-  const handlePortersUpdate = (data: PortersFiveForcesData) => setPortersData(data);
-  const handleMetaUpdate = (data: MetaData) => setMeta(data);
+  const handlePestelUpdate = (data: PESTELData[]) => updateState(setPestelData, data, 'pestel');
+  const handleMcKinseyUpdate = (data: McKinsey7SData) => updateState(setMckinseyData, data, 'mckinsey');
+  const handleVrioUpdate = (data: VRIOAnalysisData[]) => updateState(setVrioAnalysisData, data, 'vrio');
+  const handleTowsUpdate = (data: TOWSMatrixData) => updateState(setTowsData, data, 'tows');
+  const handlePortersUpdate = (data: PortersFiveForcesData) => updateState(setPortersData, data, 'porters');
+  const handleMetaUpdate = (data: MetaData) => updateState(setMeta, data, 'meta');
 
   
   const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>(() => {
@@ -599,10 +728,74 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
 
   const updateTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Persistence handled locally
+  // Refactored Real-time Sync using Supabase Database
   useEffect(() => {
-    console.log('Persistence handled locally by localStorage.');
-  }, []);
+    if (!selectedGroup) return;
+
+    // 1. Fetch initial data from DB
+    const fetchData = async () => {
+      console.log('Fetching initial data for group:', selectedGroup);
+      const { data, error } = await supabase
+        .from('worksheets')
+        .select('data')
+        .eq('id', selectedGroup);
+      
+      if (error) {
+        console.error('Error fetching initial data:', error);
+      } else if (data && data.length > 0) {
+        console.log('Data fetched successfully:', data[0]);
+        const parsed = data[0].data;
+        if (parsed.pestel) setPestelData(parsed.pestel);
+        if (parsed.mckinsey) setMckinseyData(parsed.mckinsey);
+        if (parsed.vrio) setVrioAnalysisData(parsed.vrio);
+        if (parsed.tows) setTowsData(parsed.tows);
+        if (parsed.porters) setPortersData(parsed.porters);
+      } else {
+        console.log('No existing data found for group:', selectedGroup, 'Starting with empty state.');
+      }
+    };
+    fetchData();
+
+    // 2. Subscribe to real-time changes
+    console.log('Subscribing to real-time changes for group:', selectedGroup);
+    const channel = supabase
+      .channel('db-changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'worksheets',
+        filter: `id=eq.${selectedGroup}`
+      }, (payload) => {
+        if (payload.new && payload.new.data) {
+          console.log('Updating local state with new data...');
+          const newData = payload.new.data;
+          if (newData.pestel) setPestelData(newData.pestel);
+          if (newData.mckinsey) setMckinseyData(newData.mckinsey);
+          if (newData.vrio) setVrioAnalysisData(newData.vrio);
+          if (newData.tows) setTowsData(newData.tows);
+          if (newData.porters) setPortersData(newData.porters);
+        }
+      })
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
+
+    return () => { channel.unsubscribe(); };
+  }, [selectedGroup]);
+
+  // 3. Save changes to DB (debounced)
+  const saveToDB = async (dataToSave: any) => {
+    console.log('Saving to DB for group:', selectedGroup, 'Data:', dataToSave);
+    const { error } = await supabase
+      .from('worksheets')
+      .upsert({ id: selectedGroup, data: dataToSave, updated_at: new Date().toISOString() });
+      
+    if (error) {
+      console.error('Error saving to DB:', error);
+    } else {
+      console.log('Data saved successfully');
+    }
+  };
 
   // Trigger auto-save whenever data changes
   useEffect(() => {
@@ -618,6 +811,16 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
     
     // Save to localStorage
     localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
+    
+    // Debounced DB save
+    if (updateTimeout.current) clearTimeout(updateTimeout.current);
+    updateTimeout.current = setTimeout(() => {
+      saveToDB(dataToSave);
+    }, 2000);
+
+    return () => {
+      if (updateTimeout.current) clearTimeout(updateTimeout.current);
+    };
   }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup]);
 
 
@@ -652,7 +855,6 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
               quality: 0.95,
               pixelRatio: 2,
               backgroundColor: '#ffffff',
-              filter: (node) => !(node instanceof Element && node.tagName === 'LINK' && node.getAttribute('href')?.includes('fonts.googleapis.com')),
             });
 
             if (!isFirstPage) pdf.addPage();
@@ -853,6 +1055,13 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
               crossOrigin="anonymous"
               title="Welcome to Strategic Suite Access"
             />
+            {/* Online Indicator */}
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[10px] font-black text-green-700 uppercase tracking-wider">
+                {onlineTotal} Online Users
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -962,12 +1171,14 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
           <div className="max-w-6xl mx-auto">
             {/* Header with Title and Metadata */}
             <div ref={containerRef} className="worksheet-container relative overflow-hidden bg-white">
-              <CorporateHeader
-                meta={meta}
-                setMeta={setMeta}
-                selectedGroup={selectedGroup}
-                hideMeta={false}
+              <CorporateHeader 
+                meta={meta} 
+                setMeta={setMeta} 
+                selectedGroup={selectedGroup} 
+                hideMeta={false} 
+                participants={participants}
               />
+
               {activeTab === 'TOWS' && <ConfrontationMatrixGuide />}
 
               <div className="mb-12">
@@ -1012,7 +1223,8 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
                   ) : activeTab === 'VRIO' ? (
                     <div className="space-y-12">
                       <VRIOFramework />
-                      <VRIOAnalysisTable data={vrioAnalysisData} setData={handleVrioUpdate} notes={vrioNotes} setNotes={setVrioNotes} />                    </div>
+                      <VRIOAnalysisTable data={vrioAnalysisData} setData={handleVrioUpdate} notes={vrioNotes} setNotes={(n) => updateState(setVrioNotes, n, 'vrioNotes')} />
+                    </div>
                   ) : activeTab === 'TOWS' ? (
                     <div className="space-y-12">
                       <TOWSWorksheet data={towsData} setData={handleTowsUpdate} meta={meta} setMeta={handleMetaUpdate} />
