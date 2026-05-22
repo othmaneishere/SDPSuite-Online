@@ -103,21 +103,6 @@ const CorporateHeader = ({
             />
           </div>
 
-          {/* Participants Section */}
-          <div className="flex flex-col border-b border-gray-200 col-span-2 pt-2">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Participants</span>
-            <div className="flex flex-wrap gap-2 mt-1 min-h-[1.5rem]">
-              {participants.length > 0 ? (
-                participants.map((p, i) => (
-                  <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
-                    {p}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-400 italic text-xs font-medium">No other participants online...</span>
-              )}
-            </div>
-          </div>
         </div>
       )}
     </div>
@@ -404,13 +389,12 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName: string) => void }) => {
+const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
-  const [fullName, setFullName] = useState('');
 
   const handleContinue = () => {
-    if (selectedValue && fullName.trim()) {
-      onSelectGroup(selectedValue, fullName.trim());
+    if (selectedValue) {
+      onSelectGroup(selectedValue);
     }
   };
 
@@ -440,20 +424,6 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName
           {/* Form */}
           <div className="space-y-6">
             <div>
-              <label htmlFor="full-name" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
-                Full Name
-              </label>
-              <input
-                id="full-name"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your full name"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white hover:border-gray-300"
-              />
-            </div>
-
-            <div>
               <label htmlFor="group-select" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
                 Select Group
               </label>
@@ -474,7 +444,7 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName
 
             <button
               onClick={handleContinue}
-              disabled={!selectedValue || !fullName.trim()}
+              disabled={!selectedValue}
               className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
             >
               Continue to Dashboard
@@ -496,10 +466,6 @@ export default function App() {
     return localStorage.getItem('sdp_selected_group');
   });
 
-  const [fullName, setFullName] = useState<string>(() => {
-    return localStorage.getItem('sdp_full_name') || '';
-  });
-
   useEffect(() => {
     if (selectedGroup) {
       localStorage.setItem('sdp_selected_group', selectedGroup);
@@ -508,16 +474,7 @@ export default function App() {
     }
   }, [selectedGroup]);
 
-  useEffect(() => {
-    if (fullName) {
-      localStorage.setItem('sdp_full_name', fullName);
-    } else {
-      localStorage.removeItem('sdp_full_name');
-    }
-  }, [fullName]);
-
-  const handleSelectGroup = (group: string, name: string) => {
-    setFullName(name);
+  const handleSelectGroup = (group: string) => {
     setSelectedGroup(group);
   };
 
@@ -527,10 +484,8 @@ export default function App() {
         <AppContent 
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
-          fullName={fullName}
           onExit={() => {
             setSelectedGroup(null);
-            setFullName('');
           }} 
         />
       ) : (
@@ -540,7 +495,7 @@ export default function App() {
   );
 }
 
-function AppContent({ selectedGroup, fullName, onExit }: { selectedGroup: string; fullName: string; onExit: () => void }) {
+function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: () => void }) {
   const getInitialData = () => {
     const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
     if (saved) {
