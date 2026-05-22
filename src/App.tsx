@@ -3,6 +3,7 @@ import React from 'react';
 import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Database, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './lib/supabase';
+import AdminDashboard from './components/AdminDashboard';
 
 // Error Boundary Component for stability
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
@@ -405,7 +406,7 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName: string) => void }) => {
+const AccessPage = ({ onSelectGroup, onEnterAdmin }: { onSelectGroup: (group: string, fullName: string) => void; onEnterAdmin: () => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [fullName, setFullName] = useState('');
 
@@ -419,6 +420,14 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, fullName
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+          {/* Admin entry point (hidden/small) */}
+          <button 
+            onClick={onEnterAdmin}
+            className="absolute top-4 right-4 text-[8px] text-gray-300 hover:text-gray-500 font-mono"
+          >
+            ADMIN
+          </button>
+          
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <img 
@@ -501,6 +510,8 @@ export default function App() {
     return localStorage.getItem('sdp_full_name') || '';
   });
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
   useEffect(() => {
     if (selectedGroup) {
       localStorage.setItem('sdp_selected_group', selectedGroup);
@@ -524,7 +535,9 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      {selectedGroup ? (
+      {isAdmin ? (
+        <AdminDashboard onExit={() => setIsAdmin(false)} />
+      ) : selectedGroup ? (
         <AppContent 
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
@@ -535,7 +548,7 @@ export default function App() {
           }} 
         />
       ) : (
-        <AccessPage onSelectGroup={handleSelectGroup} />
+        <AccessPage onSelectGroup={handleSelectGroup} onEnterAdmin={() => setIsAdmin(true)} />
       )}
     </ErrorBoundary>
   );
