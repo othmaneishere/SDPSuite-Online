@@ -1,4 +1,4 @@
-taimport { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
+import { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
 import React from 'react';
 import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Database, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
