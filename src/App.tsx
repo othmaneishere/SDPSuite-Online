@@ -527,12 +527,12 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
     }));
   });
 
-  const handlePestelUpdate = (data: PESTELData[]) => updateState(setPestelData, data, 'pestel');
-  const handleMcKinseyUpdate = (data: McKinsey7SData) => updateState(setMckinseyData, data, 'mckinsey');
-  const handleVrioUpdate = (data: VRIOAnalysisData[]) => updateState(setVrioAnalysisData, data, 'vrio');
-  const handleTowsUpdate = (data: TOWSMatrixData) => updateState(setTowsData, data, 'tows');
-  const handlePortersUpdate = (data: PortersFiveForcesData) => updateState(setPortersData, data, 'porters');
-  const handleMetaUpdate = (data: MetaData) => updateState(setMeta, data, 'meta');
+  const handlePestelUpdate = (data: PESTELData[]) => setPestelData(data);
+  const handleMcKinseyUpdate = (data: McKinsey7SData) => setMckinseyData(data);
+  const handleVrioUpdate = (data: VRIOAnalysisData[]) => setVrioAnalysisData(data);
+  const handleTowsUpdate = (data: TOWSMatrixData) => setTowsData(data);
+  const handlePortersUpdate = (data: PortersFiveForcesData) => setPortersData(data);
+  const handleMetaUpdate = (data: MetaData) => setMeta(data);
 
   
   const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>(() => {
