@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
+taimport { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
 import React from 'react';
 import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Database, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -103,13 +103,6 @@ const CorporateHeader = ({
               className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
               placeholder="Enter company name..."
             />
-            {/* Total Online Indicator under Company Name */}
-            <div className="absolute -bottom-6 left-0 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-              <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">
-                {totalSiteUsers} Users Online Site-wide
-              </span>
-            </div>
           </div>
 
           <div className="flex flex-col col-span-2 mt-4 pt-2 border-t border-gray-100">
@@ -1045,11 +1038,22 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100">
-              <div className={cn("w-2 h-2 rounded-full animate-pulse", onlineParticipantsCount > 0 ? "bg-green-500" : "bg-gray-300")} />
-              <span className="text-[10px] font-black text-gray-500 uppercase tracking-wider">
-                {onlineParticipantsCount} {onlineParticipantsCount === 1 ? 'User' : 'Users'} Online
-              </span>
+            <div 
+              className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100/80 transition-all group/status relative cursor-default"
+              title={`Group: ${onlineParticipantsCount} users | Site-wide: ${totalSiteUsers} users`}
+            >
+              <div className="flex -space-x-1.5 overflow-hidden">
+                <div className={cn("w-2 h-2 rounded-full border border-white", onlineParticipantsCount > 0 ? "bg-green-500 animate-pulse" : "bg-gray-300")} />
+                <div className={cn("w-2 h-2 rounded-full border border-white", totalSiteUsers > 0 ? "bg-indigo-500" : "bg-gray-300")} />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-gray-700 uppercase tracking-tighter leading-none">
+                  {onlineParticipantsCount} Group
+                </span>
+                <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter leading-none mt-0.5">
+                  {totalSiteUsers} Total
+                </span>
+              </div>
             </div>
 
             {isSaving && (
