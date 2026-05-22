@@ -48,14 +48,12 @@ const CorporateHeader = ({
   meta, 
   setMeta, 
   selectedGroup, 
-  hideMeta = false, 
-  participants = [] 
+  hideMeta = false
 }: { 
   meta: MetaData; 
   setMeta: (m: MetaData) => void; 
   selectedGroup?: string | null; 
   hideMeta?: boolean;
-  participants?: string[];
 }) => {
   return (
     <div className={cn("flex flex-col md:flex-row justify-between border-b-2 border-gray-100 pb-8 mb-8 gap-8", hideMeta && "border-none mb-4")}>
@@ -101,22 +99,6 @@ const CorporateHeader = ({
               className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
               placeholder="Enter company name..."
             />
-          </div>
-
-          {/* Participants Section */}
-          <div className="flex flex-col border-b border-gray-200 col-span-2 pt-2">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Participants</span>
-            <div className="flex flex-wrap gap-2 mt-1 min-h-[1.5rem]">
-              {participants.length > 0 ? (
-                participants.map((p, i) => (
-                  <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-100">
-                    {p}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-400 italic text-xs font-medium">No other participants online...</span>
-              )}
-            </div>
           </div>
         </div>
       )}
