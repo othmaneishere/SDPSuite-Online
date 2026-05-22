@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Users, Clock, Eye, X } from 'lucide-react';
+import WorksheetViewer from './WorksheetViewer';
 
 export default function AdminDashboard({ onExit }: { onExit: () => void }) {
   const [groups, setGroups] = useState<any[]>([]);
@@ -13,7 +14,6 @@ export default function AdminDashboard({ onExit }: { onExit: () => void }) {
     };
     fetchGroups();
 
-    // Subscribe to changes to refresh list
     const channel = supabase.channel('admin-list-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'worksheets' }, fetchGroups)
       .subscribe();
@@ -21,18 +21,21 @@ export default function AdminDashboard({ onExit }: { onExit: () => void }) {
   }, []);
 
   return viewingGroup ? (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-900">Monitoring: <span className="text-blue-600">{viewingGroup}</span> (Read-Only)</h2>
           <button onClick={() => setViewingGroup(null)} className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
-            <X size={16} /> Close Monitor
+            <X size={16} /> Back to List
           </button>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center text-gray-500">
-          Worksheet Viewer component will be embedded here.
-        </div>
       </div>
+      <WorksheetViewer 
+        selectedGroup={viewingGroup} 
+        fullName="Admin (Observer)"
+        onExit={() => setViewingGroup(null)}
+        readOnly={true}
+      />
     </div>
   ) : (
     <div className="min-h-screen bg-gray-50 p-8">
