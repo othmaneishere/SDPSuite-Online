@@ -434,13 +434,13 @@ const AccessPage = ({ onJoin }: { onJoin: (group: string, name: string) => void 
               alt="Logo" 
               className="h-24 w-auto object-contain"
               crossOrigin="anonymous"
-              title="Welcome to Strategic Suite Access"
+              title="Welcome to SDP Suite Online Access"
             />
           </div>
 
           {/* Title */}
           <h1 className="text-3xl font-black text-gray-900 text-center mb-2 tracking-tight">
-            Strategic Suite Access
+            SDP Suite Online Access
           </h1>
           <p className="text-center text-gray-600 text-sm mb-8">
             Enter your details to access the dashboard
@@ -558,20 +558,29 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
   const isRemoteUpdate = useRef(false);
   const roomChannelRef = useRef<any>(null);
 
-  // Data states with proper initialization
-  const [pestelData, setPestelData] = useState<PESTELData[]>(() => 
-    ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
+  // Data states with localStorage initialization
+  const [pestelData, setPestelData] = useState<PESTELData[]>(() => {
+    const saved = localStorage.getItem(`sdp_pestel_${selectedGroup}`);
+    if (saved) return JSON.parse(saved);
+    return ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
       id: cat,
       category: cat as any,
       description: '',
       impact: '',
       probability: '',
       potential: ''
-    }))
-  );
-  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>({});
-  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(() => 
-    Array.from({ length: 8 }, (_, i) => ({
+    }));
+  });
+
+  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>(() => {
+    const saved = localStorage.getItem(`sdp_mckinsey_${selectedGroup}`);
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(() => {
+    const saved = localStorage.getItem(`sdp_vrio_${selectedGroup}`);
+    if (saved) return JSON.parse(saved);
+    return Array.from({ length: 8 }, (_, i) => ({
       id: `res-${i}`,
       resource: '',
       type: '',
@@ -580,31 +589,49 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
       r: '',
       i: '',
       o: ''
-    }))
-  );
-  const [vrioNotes, setVrioNotes] = useState('');
-  const [towsData, setTowsData] = useState<TOWSMatrixData>({
-    opportunities: Array(3).fill(''),
-    threats: Array(3).fill(''),
-    strengths: Array(3).fill(''),
-    weaknesses: Array(3).fill(''),
-    scores: {},
-    notes: {}
+    }));
   });
-  const [portersData, setPortersData] = useState<PortersFiveForcesData>({
-    newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
-    buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-    suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-    substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-    rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+
+  const [vrioNotes, setVrioNotes] = useState(() => {
+    return localStorage.getItem(`sdp_vrio_notes_${selectedGroup}`) || '';
   });
-  const [meta, setMeta] = useState<MetaData>({
-    module: '',
-    cohort: '',
-    date: '',
-    companyName: '',
-    participants: [],
-    group: selectedGroup
+
+  const [towsData, setTowsData] = useState<TOWSMatrixData>(() => {
+    const saved = localStorage.getItem(`sdp_tows_${selectedGroup}`);
+    if (saved) return JSON.parse(saved);
+    return {
+      opportunities: Array(3).fill(''),
+      threats: Array(3).fill(''),
+      strengths: Array(3).fill(''),
+      weaknesses: Array(3).fill(''),
+      scores: {},
+      notes: {}
+    };
+  });
+
+  const [portersData, setPortersData] = useState<PortersFiveForcesData>(() => {
+    const saved = localStorage.getItem(`sdp_porters_${selectedGroup}`);
+    if (saved) return JSON.parse(saved);
+    return {
+      newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+      buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+      suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+      substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+      rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+    };
+  });
+
+  const [meta, setMeta] = useState<MetaData>(() => {
+    const saved = localStorage.getItem(`sdp_meta_${selectedGroup}`);
+    if (saved) return JSON.parse(saved);
+    return {
+      module: '',
+      cohort: '',
+      date: '',
+      companyName: '',
+      participants: [],
+      group: selectedGroup
+    };
   });
 
   const lastReceivedData = useRef<string>('');
@@ -657,6 +684,15 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
         if (payload.porters) setPortersData(payload.porters);
         if (payload.meta) setMeta(payload.meta);
         
+        // Sync to localStorage as well
+        if (payload.pestel) localStorage.setItem(`sdp_pestel_${selectedGroup}`, JSON.stringify(payload.pestel));
+        if (payload.mckinsey) localStorage.setItem(`sdp_mckinsey_${selectedGroup}`, JSON.stringify(payload.mckinsey));
+        if (payload.vrio) localStorage.setItem(`sdp_vrio_${selectedGroup}`, JSON.stringify(payload.vrio));
+        if (payload.vrioNotes !== undefined) localStorage.setItem(`sdp_vrio_notes_${selectedGroup}`, payload.vrioNotes);
+        if (payload.tows) localStorage.setItem(`sdp_tows_${selectedGroup}`, JSON.stringify(payload.tows));
+        if (payload.porters) localStorage.setItem(`sdp_porters_${selectedGroup}`, JSON.stringify(payload.porters));
+        if (payload.meta) localStorage.setItem(`sdp_meta_${selectedGroup}`, JSON.stringify(payload.meta));
+
         setTimeout(() => { isRemoteUpdate.current = false; }, 100);
       })
       .subscribe(async (status) => {
@@ -690,6 +726,15 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
         if (content.porters) setPortersData(content.porters);
         if (content.meta) setMeta(content.meta);
         
+        // Sync to localStorage on load
+        if (content.pestel) localStorage.setItem(`sdp_pestel_${selectedGroup}`, JSON.stringify(content.pestel));
+        if (content.mckinsey) localStorage.setItem(`sdp_mckinsey_${selectedGroup}`, JSON.stringify(content.mckinsey));
+        if (content.vrio) localStorage.setItem(`sdp_vrio_${selectedGroup}`, JSON.stringify(content.vrio));
+        if (content.vrioNotes !== undefined) localStorage.setItem(`sdp_vrio_notes_${selectedGroup}`, content.vrioNotes);
+        if (content.tows) localStorage.setItem(`sdp_tows_${selectedGroup}`, JSON.stringify(content.tows));
+        if (content.porters) localStorage.setItem(`sdp_porters_${selectedGroup}`, JSON.stringify(content.porters));
+        if (content.meta) localStorage.setItem(`sdp_meta_${selectedGroup}`, JSON.stringify(content.meta));
+
         setTimeout(() => { isRemoteUpdate.current = false; }, 100);
       }
     };
@@ -718,6 +763,15 @@ function AppContent({ selectedGroup, userName, onExit }: { selectedGroup: string
 
     const dataStr = JSON.stringify(currentData);
     if (dataStr === lastReceivedData.current) return;
+
+    // Save to localStorage immediately
+    localStorage.setItem(`sdp_pestel_${selectedGroup}`, JSON.stringify(pestelData));
+    localStorage.setItem(`sdp_mckinsey_${selectedGroup}`, JSON.stringify(mckinseyData));
+    localStorage.setItem(`sdp_vrio_${selectedGroup}`, JSON.stringify(vrioAnalysisData));
+    localStorage.setItem(`sdp_vrio_notes_${selectedGroup}`, vrioNotes);
+    localStorage.setItem(`sdp_tows_${selectedGroup}`, JSON.stringify(towsData));
+    localStorage.setItem(`sdp_porters_${selectedGroup}`, JSON.stringify(portersData));
+    localStorage.setItem(`sdp_meta_${selectedGroup}`, JSON.stringify(meta));
 
     // Broadcast live typing (debounced)
     const broadcastTimer = setTimeout(() => {
