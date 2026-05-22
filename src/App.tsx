@@ -31,6 +31,11 @@ import {
   TOWSMatrixData,
   PortersFiveForcesData,
 } from "./types";
+import {
+  PESTELWorksheet,
+  McKinseyWorksheet,
+  VRIOAnalysisTable,
+} from "./components/Worksheets";
 import { supabase } from "./lib/supabase";
 
 // Error Boundary Component for stability
