@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
 import React from 'react';
-import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Users, Lock } from 'lucide-react';
+import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Users, Lock, WifiOff, CloudCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './lib/supabase';
 import { PasscodeModal, AdminDashboard } from './components/Admin';
@@ -296,6 +296,7 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
   const containerRef = useRef<HTMLDivElement>(null);
   const [showTopParticipants, setShowTopParticipants] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline'>('synced');
 
   // Core Worksheet State
   const [pestelData, setPestelData] = useState<PESTELData[]>(['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
@@ -364,12 +365,27 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
   const roomChannelRef = useRef<any>(null);
   const lastReceivedRef = useRef<string>('');
 
-  // 1. Initial Load from Database
+  // 1. Initial Load: Hybrid Strategy
   useEffect(() => {
     if (!selectedGroup) return;
 
     const loadData = async () => {
-      setIsLoading(true);
+      // Step A: Immediate Local Load (Instant)
+      const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
+      if (saved) {
+        try {
+          const local = JSON.parse(saved);
+          if (local.pestel) setPestelData(local.pestel);
+          if (local.mckinsey) setMckinseyData(local.mckinsey);
+          if (local.vrio) setVrioAnalysisData(local.vrio);
+          if (local.vrioNotes) setVrioNotes(local.vrioNotes || '');
+          if (local.tows) setTowsData(local.tows);
+          if (local.porters) setPortersData(local.porters);
+          if (local.meta) setMeta(local.meta);
+        } catch (e) { console.error('Failed to parse local backup', e); }
+      }
+
+      // Step B: Cloud Sync (Reliable)
       try {
         const { data, error } = await supabase
           .from('group_data')
@@ -377,8 +393,11 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
           .eq('group_id', selectedGroup)
           .single();
 
+        if (error) throw error;
+
         if (data?.data) {
           const remote = data.data;
+          // Only update if we don't have local data, or if you want Cloud to override Local
           if (remote.pestel) setPestelData(remote.pestel);
           if (remote.mckinsey) setMckinseyData(remote.mckinsey);
           if (remote.vrio) setVrioAnalysisData(remote.vrio);
@@ -386,9 +405,11 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
           if (remote.tows) setTowsData(remote.tows);
           if (remote.porters) setPortersData(remote.porters);
           if (remote.meta) setMeta(remote.meta);
+          setSyncStatus('synced');
         }
       } catch (err) {
-        console.warn('No existing data found in DB, using defaults.');
+        console.warn('Supabase fetch failed - entering offline mode', err);
+        setSyncStatus('offline');
       } finally {
         setIsLoading(false);
       }
@@ -472,10 +493,10 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
       meta: meta
     };
 
-    // LocalStorage fallback
+    // A. LocalStorage (Immediate safety)
     localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
 
-    // Realtime Broadcast (Fast)
+    // B. Realtime Broadcast
     const ch = roomChannelRef.current;
     if (ch) {
       if (updateTimeout.current) clearTimeout(updateTimeout.current);
@@ -489,22 +510,27 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
       }, 300);
     }
 
-    // Database Sync (Slower, Persistent)
+    // C. Database Sync (Persistent Cloud)
     if (dbUpdateTimeout.current) clearTimeout(dbUpdateTimeout.current);
+    setSyncStatus('syncing');
     dbUpdateTimeout.current = setTimeout(async () => {
       try {
-        await supabase
+        const { error } = await supabase
           .from('group_data')
           .upsert({ 
             group_id: selectedGroup, 
             data: dataToSave,
             updated_at: new Date().toISOString()
           });
+        
+        if (error) throw error;
+        setSyncStatus('synced');
       } catch (err) {
-        console.error('DB Sync failed', err);
+        console.warn('Cloud save failed - progress saved locally', err);
+        setSyncStatus('offline');
       }
       dbUpdateTimeout.current = null;
-    }, 2000);
+    }, 3000);
 
   }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup, isLoading]);
 
@@ -698,6 +724,22 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
         <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white">
           <div className="flex items-center gap-4">
             <img src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" alt="SDP Suite Logo" className="h-16 w-auto object-contain" crossOrigin="anonymous" />
+            <div className="h-8 w-px bg-gray-100 mx-2" />
+            <div className="flex items-center gap-2">
+              {syncStatus === 'synced' ? (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-green-50 text-green-600 rounded-full text-[9px] font-black uppercase tracking-tighter border border-green-100">
+                  <CloudCheck size={12} /> Cloud Saved
+                </div>
+              ) : syncStatus === 'syncing' ? (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-600 rounded-full text-[9px] font-black uppercase tracking-tighter border border-blue-100">
+                  <div className="w-2 h-2 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" /> Saving...
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-50 text-amber-600 rounded-full text-[9px] font-black uppercase tracking-tighter border border-amber-100 animate-pulse">
+                  <WifiOff size={12} /> Local Mode
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
