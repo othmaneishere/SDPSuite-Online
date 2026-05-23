@@ -612,19 +612,21 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
   const updateTimeout = useRef<NodeJS.Timeout | null>(null);
   
   // Collaboration: Supabase presence and realtime sync
-  const clientIdRef = useRef<string>(() => {
+  const clientIdRef = useRef<string | null>(null);
+  if (!clientIdRef.current) {
     let id = localStorage.getItem('sdp_client_id');
     if (!id) {
       id = 'user-' + Math.random().toString(36).slice(2, 9);
-      localStorage.setItem('sdp_client_id', id);
+      try { localStorage.setItem('sdp_client_id', id); } catch (e) { /* ignore */ }
     }
-    return id;
-  } as unknown as string);
+    clientIdRef.current = id;
+  }
 
-  const displayNameRef = useRef<string>(() => {
+  const displayNameRef = useRef<string | null>(null);
+  if (!displayNameRef.current) {
     const name = localStorage.getItem('sdp_user_name');
-    return name || clientIdRef.current;
-  } as unknown as string);
+    displayNameRef.current = (name as string) || clientIdRef.current || 'guest';
+  }
 
   const roomChannelRef = useRef<any>(null);
   const lastReceivedRef = useRef<string>('');
