@@ -46,6 +46,19 @@ const VRIOFramework = ({ notes, setNotes }: { notes?: string; setNotes?: (s: str
   </div>
 );
 
+// Small PortersFiveForces placeholder component (previously missing) to avoid runtime ReferenceError
+const PortersFiveForces = ({ data, setData, activeForce, setActiveForce }: { data: PortersFiveForcesData; setData: (d: PortersFiveForcesData) => void; activeForce: keyof PortersFiveForcesData; setActiveForce: (f: keyof PortersFiveForcesData) => void }) => (
+  <div className="space-y-4">
+    <h2 className="text-2xl font-bold tracking-tight text-gray-900">Porter's Five Forces</h2>
+    <p className="text-sm text-gray-500">Quick overview of Porter's five forces. Select a force to view details.</p>
+    <div className="flex gap-2 flex-wrap">
+      {(['suppliers','buyers','newEntrants','substitutes','rivalry'] as (keyof PortersFiveForcesData)[]).map(f => (
+        <button key={f} onClick={() => setActiveForce(f)} className={"px-3 py-1 rounded-md border " + (activeForce===f? 'bg-indigo-600 text-white' : 'bg-white')}>{f}</button>
+      ))}
+    </div>
+  </div>
+);
+
 // Error Boundary Component for stability
 class ErrorBoundary extends Component<
   { children: ReactNode },
