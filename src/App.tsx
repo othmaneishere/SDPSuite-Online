@@ -74,38 +74,33 @@ const CorporateHeader = ({
       </div>
 
       {!hideMeta && (
-        <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm max-w-xl ml-auto text-right">
+        <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm max-w-xl">
           <div className="flex flex-col border-b border-gray-200 col-span-2">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Module</span>
             <span className="font-semibold text-black">Strategic Development Project (SDP)</span>
           </div>
-          
           <div className="flex flex-col border-b border-gray-200">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Cohort</span>
             <span className="font-semibold text-black">MA27</span>
           </div>
-
           <div className="flex flex-col border-b border-gray-200">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Group</span>
-            <span className="font-semibold text-black">{selectedGroup || '-'}</span>
+            <span className="font-semibold text-black">{selectedGroup || 'Group 1'}</span>
           </div>
-
           <div className="flex flex-col border-b border-gray-200">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Date</span>
             <span className="font-semibold text-black">05 - 06 June 2026</span>
           </div>
-
           <div className="flex flex-col border-b border-gray-200 col-span-2">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Company Name</span>
-            <input 
-              type="text" 
-              value={meta.companyName} 
-              onChange={(e) => setMeta({...meta, companyName: e.target.value})}
+            <input
               className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
               placeholder="Enter company name..."
+              type="text"
+              value={meta.companyName}
+              onChange={(e) => setMeta({...meta, companyName: e.target.value})}
             />
           </div>
-
           <div className="flex flex-col border-b border-gray-200 col-span-2">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Participants</span>
             <div className="font-semibold text-gray-700 mt-1">
@@ -120,7 +115,6 @@ const CorporateHeader = ({
               )}
             </div>
           </div>
-
         </div>
       )}
 
