@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { LogOut, RefreshCw, Users, Activity } from 'lucide-react';
+import { LogOut, Users, Activity } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { AdminGroupSelector } from './AdminGroupSelector';
 import { AdminTablePreview } from './AdminTablePreview';
-import { AdminMonitor } from './AdminMonitor';
 import { PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData, MetaData } from '../../types';
 import { cn } from '../../lib/utils';
 
@@ -20,27 +19,21 @@ export interface GroupData {
 export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [groups, setGroups] = useState<string[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<Set<string>>(new Set());
-  const [viewMode, setViewMode] = useState<'single' | 'multi'>('single');
-  const [activeTab, setActiveTab] = useState('pestel');
+  const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>('PESTEL');
   const [groupsData, setGroupsData] = useState<Record<string, GroupData>>({});
   const [loading, setLoading] = useState(true);
-  const [liveActivity, setLiveActivity] = useState<Map<string, { user: string; action: string; timestamp: number }>>(new Map());
   const channelsRef = useRef<Map<string, any>>(new Map());
 
   // Load all available groups from localStorage
   useEffect(() => {
     const loadGroups = () => {
       const allGroups: string[] = [];
-      for (let key in localStorage) {
-        if (key.startsWith('sdp_group_')) {
-          const groupName = key.replace('sdp_group_', '');
-          allGroups.push(groupName);
-        }
+      for (let i = 1; i <= 11; i++) {
+        allGroups.push(`Group ${i}`);
       }
-      setGroups(allGroups.sort());
+      setGroups(allGroups);
       setLoading(false);
     };
-
     loadGroups();
   }, []);
 
@@ -48,69 +41,32 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   useEffect(() => {
     const loadGroupData = () => {
       const data: Record<string, GroupData> = {};
-      
       selectedGroups.forEach(group => {
         try {
           const saved = localStorage.getItem(`sdp_group_${group}`);
           if (saved) {
-            const parsed = JSON.parse(saved);
-            data[group] = {
-              pestel: parsed.pestel || [],
-              mckinsey: parsed.mckinsey || {},
-              vrio: parsed.vrio || [],
-              vrioNotes: parsed.vrioNotes || '',
-              tows: parsed.tows || { opportunities: [], threats: [], strengths: [], weaknesses: [], scores: {}, notes: {} },
-              porters: parsed.porters || {},
-              meta: parsed.meta || { module: '', cohort: '', date: '', companyName: '', participants: [], group: '' }
-            };
+            data[group] = JSON.parse(saved);
           }
         } catch (e) {
           console.error(`Failed to load group ${group}`, e);
         }
       });
-
       setGroupsData(data);
     };
-
     loadGroupData();
   }, [selectedGroups]);
 
   // Subscribe to real-time updates
   useEffect(() => {
-    if (selectedGroups.size === 0) return;
-
     selectedGroups.forEach(group => {
       if (!channelsRef.current.has(group)) {
-        const channel = supabase.channel(`room:${group}`, {
-          config: { broadcast: { self: true } }
-        });
-
+        const channel = supabase.channel(`room:${group}`);
         channel.on('broadcast', { event: 'update_data' }, ({ payload }: any) => {
           setGroupsData(prev => ({
             ...prev,
-            [group]: {
-              pestel: payload.data.pestel || [],
-              mckinsey: payload.data.mckinsey || {},
-              vrio: payload.data.vrio || [],
-              vrioNotes: payload.data.vrioNotes || '',
-              tows: payload.data.tows || { opportunities: [], threats: [], strengths: [], weaknesses: [], scores: {}, notes: {} },
-              porters: payload.data.porters || {},
-              meta: payload.data.meta || { module: '', cohort: '', date: '', companyName: '', participants: [], group: '' }
-            }
+            [group]: payload.data
           }));
-
-          // Update live activity
-          setLiveActivity(prev => {
-            const newActivity = new Map(prev);
-            newActivity.set(`${group}-update`, {
-              user: payload.payload.senderId || 'Unknown',
-              action: `Updating data in ${group}`,
-              timestamp: Date.now()
-            });
-            return newActivity;
-          });
         });
-
         channel.subscribe();
         channelsRef.current.set(group, channel);
       }
@@ -131,25 +87,11 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
     if (newSelected.has(group)) {
       newSelected.delete(group);
     } else {
-      if (viewMode === 'single') {
-        newSelected.clear();
-      }
+      newSelected.clear(); // Only allow one group at a time (Single View)
       newSelected.add(group);
     }
     setSelectedGroups(newSelected);
   };
-
-  const currentGroupData = selectedGroups.size > 0 
-    ? groupsData[Array.from(selectedGroups)[0]] 
-    : undefined;
-
-  const tabs = [
-    { id: 'pestel', label: 'PESTEL' },
-    { id: 'mckinsey', label: 'McKinsey 7S' },
-    { id: 'vrio', label: 'VRIO' },
-    { id: 'tows', label: 'TOWS' },
-    { id: 'porters', label: "Porter's Forces" }
-  ];
 
   if (loading) {
     return (
@@ -162,185 +104,68 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-brand-blue text-white p-3 rounded-lg">
-              <Users size={24} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-sm text-gray-500">Real-time monitoring of all groups</p>
-            </div>
-          </div>
+  const currentGroup = Array.from(selectedGroups)[0];
+  const currentGroupData = currentGroup ? groupsData[currentGroup] : undefined;
 
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="text-sm font-semibold text-gray-700">{groups.length} Total Groups</div>
-              <div className="text-xs text-gray-500">{selectedGroups.size} Viewing</div>
+  return (
+    <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans">
+      <div className="max-w-[1400px] mx-auto bg-white rounded-[32px] shadow-2xl border border-gray-100 overflow-hidden min-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white">
+          <div className="flex items-center gap-4">
+            <img src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" alt="SDP Suite Logo" className="h-16 w-auto object-contain" />
+            <div className="h-10 w-px bg-gray-200 mx-2" />
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase">Admin Monitor</h1>
+          </div>
+          <button onClick={onLogout} className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-100 transition-all">
+            <LogOut size={18} />
+            Logout
+          </button>
+        </div>
+
+        {/* Navigation/Selector */}
+        <div className="p-6 bg-gray-50/50 border-b border-gray-100">
+          <AdminGroupSelector groups={groups} selectedGroups={selectedGroups} onToggleGroup={handleToggleGroup} />
+          
+          <div className="flex justify-center mt-6">
+            <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-200 overflow-x-auto">
+              {(['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={cn(
+                    "px-6 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap",
+                    activeTab === tab ? "bg-brand-blue text-white shadow-md" : "text-gray-500 hover:text-gray-800"
+                  )}
+                >
+                  {tab === 'PORTER' ? "Porter's 5 Forces" : tab === 'TOWS' ? 'Confrontation Matrix' : tab === 'McKinsey' ? 'McKinsey 7-S' : `${tab} Analysis`}
+                </button>
+              ))}
             </div>
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg font-semibold hover:bg-red-100 transition-colors"
-            >
-              <LogOut size={18} />
-              Logout
-            </button>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Group Selector */}
-        <AdminGroupSelector
-          groups={groups}
-          selectedGroups={selectedGroups}
-          onToggleGroup={handleToggleGroup}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
-
-        {/* Activity Monitor */}
-        {selectedGroups.size > 0 && (
-          <AdminMonitor 
-            selectedGroups={selectedGroups}
-            liveActivity={liveActivity}
-            groupsData={groupsData}
-          />
-        )}
-
-        {/* Content Area */}
-        {selectedGroups.size === 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <Activity size={48} className="mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">No group selected</h3>
-            <p className="text-gray-500">Select a group from the dropdown above to view and monitor their data</p>
-          </div>
-        ) : viewMode === 'single' && currentGroupData ? (
-          <div className="space-y-6">
-            {/* Group Info */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                {Array.from(selectedGroups)[0]}
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <span className="text-xs font-semibold text-gray-500 uppercase">Company</span>
-                  <p className="text-gray-900 font-semibold">{currentGroupData.meta.companyName || 'Not set'}</p>
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-gray-500 uppercase">Cohort</span>
-                  <p className="text-gray-900 font-semibold">{currentGroupData.meta.cohort || 'MA27'}</p>
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-gray-500 uppercase">Date</span>
-                  <p className="text-gray-900 font-semibold">{currentGroupData.meta.date || '05 - 06 June 2026'}</p>
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-gray-500 uppercase">Participants</span>
-                  <p className="text-gray-900 font-semibold">{currentGroupData.meta.participants?.length || 0}</p>
-                </div>
+        {/* Content */}
+        <div className="flex-1 p-8 lg:p-12 overflow-y-auto">
+          {currentGroup ? (
+            <div className="space-y-8">
+              <div className="flex items-center gap-4 border-b-2 border-gray-50 pb-6">
+                <div className="w-3 h-10 bg-brand-blue rounded-full" />
+                <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tight">{currentGroup}</h2>
+                {currentGroupData?.meta?.companyName && (
+                  <span className="text-gray-400 text-xl font-bold">— {currentGroupData.meta.companyName}</span>
+                )}
               </div>
+              <AdminTablePreview activeTab={activeTab} data={currentGroupData} />
             </div>
-
-            {/* Tab Navigation */}
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              <div className="flex flex-wrap border-b border-gray-200">
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={cn(
-                      "flex-1 px-6 py-4 font-semibold border-b-2 transition-colors whitespace-nowrap",
-                      activeTab === tab.id
-                        ? 'border-brand-blue text-brand-blue bg-brand-blue/5'
-                        : 'border-transparent text-gray-600 hover:text-gray-900'
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Tab Content */}
-              <div className="p-6">
-                <AdminTablePreview
-                  activeTab={activeTab}
-                  pestelData={currentGroupData.pestel}
-                  mckinseyData={currentGroupData.mckinsey}
-                  vrioAnalysisData={currentGroupData.vrio}
-                  vrioNotes={currentGroupData.vrioNotes}
-                  towsData={currentGroupData.tows}
-                  portersData={currentGroupData.porters}
-                  meta={currentGroupData.meta}
-                  setMeta={() => {}}
-                />
-              </div>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-center p-20">
+              <Activity size={64} className="text-gray-200 mb-6" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">No Group Selected</h3>
+              <p className="text-gray-500 max-w-sm">Select a group from the list above to monitor their strategic worksheets in real-time.</p>
             </div>
-          </div>
-        ) : viewMode === 'multi' && selectedGroups.size > 0 ? (
-          <div className="space-y-8">
-            {Array.from(selectedGroups).map(group => {
-              const data = groupsData[group];
-              if (!data) return null;
-              
-              return (
-                <div key={group} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                    <h3 className="text-lg font-bold text-gray-900">{group}</h3>
-                    <div className="flex gap-8 mt-2 text-sm">
-                      <span className="text-gray-600"><strong>Company:</strong> {data.meta.companyName || 'Not set'}</span>
-                      <span className="text-gray-600"><strong>Participants:</strong> {data.meta.participants?.length || 0}</span>
-                    </div>
-                  </div>
-
-                  <div className="p-6">
-                    <h4 className="text-md font-semibold text-gray-900 mb-4">Current Data Preview</h4>
-                    
-                    {/* Mini tab view for multi-view */}
-                    <div className="space-y-4">
-                      {data.pestel.length > 0 && (
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                          <h5 className="font-semibold text-sm text-gray-700 mb-2">PESTEL Progress</h5>
-                          <p className="text-sm text-gray-600">{data.pestel.length} factors defined</p>
-                        </div>
-                      )}
-                      {Object.keys(data.mckinsey).length > 0 && (
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                          <h5 className="font-semibold text-sm text-gray-700 mb-2">McKinsey 7S Progress</h5>
-                          <p className="text-sm text-gray-600">{Object.keys(data.mckinsey).length} elements started</p>
-                        </div>
-                      )}
-                      {data.vrio.length > 0 && (
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                          <h5 className="font-semibold text-sm text-gray-700 mb-2">VRIO Analysis Progress</h5>
-                          <p className="text-sm text-gray-600">{data.vrio.length} resources analyzed</p>
-                        </div>
-                      )}
-                      {data.tows.opportunities.length > 0 && (
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                          <h5 className="font-semibold text-sm text-gray-700 mb-2">TOWS Matrix Progress</h5>
-                          <p className="text-sm text-gray-600">
-                            {data.tows.opportunities.length} opportunities, {data.tows.threats.length} threats
-                          </p>
-                        </div>
-                      )}
-                      {Object.keys(data.porters).length > 0 && (
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                          <h5 className="font-semibold text-sm text-gray-700 mb-2">Porter's Forces Progress</h5>
-                          <p className="text-sm text-gray-600">Framework started</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
+          )}
+        </div>
       </div>
     </div>
   );

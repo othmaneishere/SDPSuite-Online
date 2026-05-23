@@ -1,75 +1,82 @@
-import { PESTELWorksheet, McKinseyWorksheet, VRIOAnalysisTable } from '../Worksheets';
+import { 
+  PESTELWorksheet, 
+  McKinseyWorksheet, 
+  VRIOAnalysisTable, 
+  VRIOFramework, 
+  TOWSWorksheet, 
+  PortersFiveForces 
+} from '../Worksheets';
 import { PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData } from '../../types';
+import { useState } from 'react';
 
 export const AdminTablePreview = ({ 
   activeTab, 
-  pestelData, 
-  mckinseyData, 
-  vrioAnalysisData, 
-  vrioNotes, 
-  towsData, 
-  portersData,
-  meta,
-  setMeta
+  data 
 }: { 
-  activeTab: string;
-  pestelData: PESTELData[];
-  mckinseyData: McKinsey7SData;
-  vrioAnalysisData: VRIOAnalysisData[];
-  vrioNotes: string;
-  towsData: TOWSMatrixData;
-  portersData: PortersFiveForcesData;
-  meta?: any;
-  setMeta?: (m: any) => void;
+  activeTab: string; 
+  data: any;
 }) => {
+  const [activeForce, setActiveForce] = useState<keyof PortersFiveForcesData>('suppliers');
+
+  if (!data) return <div className="p-8 text-center text-gray-500 italic">No data available for this group</div>;
+
   return (
-    <div className="space-y-8">
-      {activeTab === 'pestel' && (
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h3 className="text-lg font-bold mb-4 text-gray-900">PESTEL Analysis</h3>
-          <PESTELWorksheet data={pestelData} setData={() => {}} />
-        </div>
-      )}
-
-      {activeTab === 'mckinsey' && (
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h3 className="text-lg font-bold mb-4 text-gray-900">McKinsey 7S</h3>
-          <McKinseyWorksheet data={mckinseyData} setData={() => {}} />
-        </div>
-      )}
-
-      {activeTab === 'vrio' && (
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h3 className="text-lg font-bold mb-4 text-gray-900">VRIO Analysis</h3>
-          <VRIOAnalysisTable data={vrioAnalysisData} setData={() => {}} notes={vrioNotes} setNotes={() => {}} />
-        </div>
-      )}
-
-      {activeTab === 'tows' && (
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h3 className="text-lg font-bold mb-4 text-gray-900">TOWS Matrix</h3>
-          <div className="text-sm text-gray-600">
-            <p><strong>Opportunities:</strong> {towsData.opportunities?.filter(o => o).length || 0}</p>
-            <p><strong>Threats:</strong> {towsData.threats?.filter(t => t).length || 0}</p>
-            <p><strong>Strengths:</strong> {towsData.strengths?.filter(s => s).length || 0}</p>
-            <p><strong>Weaknesses:</strong> {towsData.weaknesses?.filter(w => w).length || 0}</p>
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+        <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight">
+          {activeTab === 'PESTEL' ? 'PESTEL Analysis' : 
+           activeTab === 'McKinsey' ? 'McKinsey 7-S Framework' : 
+           activeTab === 'VRIO' ? 'VRIO Framework' :
+           activeTab === 'TOWS' ? 'Confrontation Matrix' :
+           "Porter's Five Forces"}
+        </h2>
+      </div>
+      
+      <div className="p-8 overflow-auto">
+        {activeTab === 'PESTEL' && (
+          <PESTELWorksheet data={data.pestel || []} setData={() => {}} />
+        )}
+        
+        {activeTab === 'McKinsey' && (
+          <McKinseyWorksheet data={data.mckinsey || {}} setData={() => {}} />
+        )}
+        
+        {activeTab === 'VRIO' && (
+          <div className="space-y-12">
+            <VRIOFramework />
+            <VRIOAnalysisTable 
+              data={data.vrio || []} 
+              setData={() => {}} 
+              notes={data.vrioNotes || ''} 
+              setNotes={() => {}} 
+            />
           </div>
-        </div>
-      )}
-
-      {activeTab === 'porters' && (
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h3 className="text-lg font-bold mb-4 text-gray-900">Porter's Five Forces</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            {Object.entries(portersData).map(([force, data]: any) => (
-              <div key={force} className="p-3 border border-gray-200 rounded">
-                <p className="font-semibold capitalize">{force}</p>
-                <p className="text-gray-600 text-xs">Impact: {data.impact || 'N/A'}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+        )}
+        
+        {activeTab === 'TOWS' && (
+          <TOWSWorksheet 
+            data={data.tows || { opportunities: [], threats: [], strengths: [], weaknesses: [], scores: {}, notes: {} }} 
+            setData={() => {}} 
+            meta={data.meta || {}} 
+            setMeta={() => {}} 
+          />
+        )}
+        
+        {activeTab === 'PORTER' && (
+          <PortersFiveForces 
+            data={data.porters || {
+              newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
+              buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
+              suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
+              substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
+              rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
+            }} 
+            setData={() => {}} 
+            activeForce={activeForce} 
+            setActiveForce={setActiveForce} 
+          />
+        )}
+      </div>
     </div>
   );
 };

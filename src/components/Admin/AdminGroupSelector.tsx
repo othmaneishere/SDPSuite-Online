@@ -5,53 +5,17 @@ import { cn } from '../../lib/utils';
 export const AdminGroupSelector = ({ 
   groups, 
   selectedGroups, 
-  onToggleGroup, 
-  viewMode,
-  onViewModeChange
+  onToggleGroup
 }: { 
   groups: string[];
   selectedGroups: Set<string>;
   onToggleGroup: (group: string) => void;
-  viewMode: 'single' | 'multi';
-  onViewModeChange: (mode: 'single' | 'multi') => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex-1">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            View Mode
-          </label>
-          <div className="flex gap-2">
-            <button
-              onClick={() => onViewModeChange('single')}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors",
-                viewMode === 'single' 
-                  ? 'bg-brand-blue text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              )}
-            >
-              <Eye size={16} />
-              Single View
-            </button>
-            <button
-              onClick={() => onViewModeChange('multi')}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors",
-                viewMode === 'multi' 
-                  ? 'bg-brand-blue text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              )}
-            >
-              <Eye size={16} />
-              Multi View ({selectedGroups.size})
-            </button>
-          </div>
-        </div>
-
         <div className="flex-1">
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             Groups
