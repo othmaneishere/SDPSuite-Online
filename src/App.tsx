@@ -74,7 +74,7 @@ const CorporateHeader = ({
       </div>
 
       {!hideMeta && (
-        <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm max-w-xl">
+        <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm max-w-xl ml-auto text-right">
           <div className="flex flex-col border-b border-gray-200 col-span-2">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Module</span>
             <span className="font-semibold text-black">Strategic Development Project (SDP)</span>
