@@ -24,7 +24,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [loading, setLoading] = useState(true);
   const channelsRef = useRef<Map<string, any>>(new Map());
 
-  // Load all available groups from localStorage
+  // Load all available groups
   useEffect(() => {
     const loadGroups = () => {
       const allGroups: string[] = [];
@@ -37,26 +37,30 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
     loadGroups();
   }, []);
 
-  // Load group data when selected
+  // Fetch data from DB whenever a group is selected
   useEffect(() => {
-    const loadGroupData = () => {
-      const data: Record<string, GroupData> = {};
-      selectedGroups.forEach(group => {
-        try {
-          const saved = localStorage.getItem(`sdp_group_${group}`);
-          if (saved) {
-            data[group] = JSON.parse(saved);
-          }
-        } catch (e) {
-          console.error(`Failed to load group ${group}`, e);
-        }
-      });
-      setGroupsData(data);
+    const fetchSelectedData = async () => {
+      const groupList = Array.from(selectedGroups);
+      if (groupList.length === 0) return;
+
+      const { data, error } = await supabase
+        .from('group_data')
+        .select('group_id, data')
+        .in('group_id', groupList);
+
+      if (data) {
+        const newData: Record<string, GroupData> = {};
+        data.forEach(row => {
+          newData[row.group_id] = row.data;
+        });
+        setGroupsData(prev => ({ ...prev, ...newData }));
+      }
     };
-    loadGroupData();
+
+    fetchSelectedData();
   }, [selectedGroups]);
 
-  // Subscribe to real-time updates
+  // Subscribe to real-time updates for persistence
   useEffect(() => {
     selectedGroups.forEach(group => {
       if (!channelsRef.current.has(group)) {

@@ -286,20 +286,6 @@ export default function App() {
 }
 
 function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string; onExit: () => void; isAdmin: boolean }) {
-  const getInitialData = () => {
-    const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse saved data:', e);
-      }
-    }
-    return null;
-  };
-
-  const initialData = getInitialData();
-
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(() => {
     const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
     return (saved as any) || 'PESTEL';
@@ -309,86 +295,56 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
   const [isExportingAll, setIsExportingAll] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showTopParticipants, setShowTopParticipants] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    localStorage.setItem(`sdp_tab_${selectedGroup}`, activeTab);
-  }, [activeTab, selectedGroup]);
-  
-  const [pestelData, setPestelData] = useState<PESTELData[]>(() => {
-    if (initialData?.pestel) return initialData.pestel;
-    return ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
-      id: cat,
-      category: cat as any,
-      description: '',
-      impact: '',
-      probability: '',
-      potential: ''
-    }));
+  // Core Worksheet State
+  const [pestelData, setPestelData] = useState<PESTELData[]>(['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
+    id: cat,
+    category: cat as any,
+    description: '',
+    impact: '',
+    probability: '',
+    potential: ''
+  })));
+  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>({});
+  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(Array.from({ length: 8 }, (_, i) => ({
+    id: `res-${i}`,
+    resource: '',
+    type: '',
+    detail: '',
+    v: '',
+    r: '',
+    i: '',
+    o: ''
+  })));
+  const [vrioNotes, setVrioNotes] = useState('');
+  const [towsData, setTowsData] = useState<TOWSMatrixData>({
+    opportunities: Array(3).fill(''),
+    threats: Array(3).fill(''),
+    strengths: Array(3).fill(''),
+    weaknesses: Array(3).fill(''),
+    scores: {},
+    notes: {}
   });
-
-  const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>(() => {
-    return initialData?.mckinsey || {};
+  const [portersData, setPortersData] = useState<PortersFiveForcesData>({
+    newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+    buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+    rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
   });
-  
-  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(() => {
-    if (initialData?.vrio) return initialData.vrio;
-    return Array.from({ length: 8 }, (_, i) => ({
-      id: `res-${i}`,
-      resource: '',
-      type: '',
-      detail: '',
-      v: '',
-      r: '',
-      i: '',
-      o: ''
-    }));
-  });
-  
-  const [vrioNotes, setVrioNotes] = useState(() => {
-    return initialData?.vrioNotes || '';
-  });
-  
-  const [towsData, setTowsData] = useState<TOWSMatrixData>(() => {
-    if (initialData?.tows) {
-      return {
-        ...initialData.tows,
-        scores: initialData.tows.scores || {},
-        notes: initialData.tows.notes || {}
-      };
-    }
-    return {
-      opportunities: Array(3).fill(''),
-      threats: Array(3).fill(''),
-      strengths: Array(3).fill(''),
-      weaknesses: Array(3).fill(''),
-      scores: {},
-      notes: {}
-    };
-  });
-  
-  const [portersData, setPortersData] = useState<PortersFiveForcesData>(() => {
-    if (initialData?.porters) return initialData.porters;
-    return {
-      newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
-      buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-      suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-      substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-      rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
-    };
+  const [meta, setMeta] = useState<MetaData>({
+    module: '',
+    cohort: '',
+    date: '',
+    companyName: '',
+    participants: [],
+    group: selectedGroup || ''
   });
 
-  const [meta, setMeta] = useState<MetaData>(() => {
-    if (initialData?.meta) return initialData.meta;
-    return {
-      module: '',
-      cohort: '',
-      date: '',
-      companyName: '',
-      participants: []
-    };
-  });
-
+  // Collaboration Refs
   const updateTimeout = useRef<NodeJS.Timeout | null>(null);
+  const dbUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
   const clientIdRef = useRef<string | null>(null);
   if (!clientIdRef.current) {
     let id = localStorage.getItem('sdp_client_id');
@@ -408,8 +364,42 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
   const roomChannelRef = useRef<any>(null);
   const lastReceivedRef = useRef<string>('');
 
+  // 1. Initial Load from Database
   useEffect(() => {
     if (!selectedGroup) return;
+
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('group_data')
+          .select('data')
+          .eq('group_id', selectedGroup)
+          .single();
+
+        if (data?.data) {
+          const remote = data.data;
+          if (remote.pestel) setPestelData(remote.pestel);
+          if (remote.mckinsey) setMckinseyData(remote.mckinsey);
+          if (remote.vrio) setVrioAnalysisData(remote.vrio);
+          if (remote.vrioNotes) setVrioNotes(remote.vrioNotes || '');
+          if (remote.tows) setTowsData(remote.tows);
+          if (remote.porters) setPortersData(remote.porters);
+          if (remote.meta) setMeta(remote.meta);
+        }
+      } catch (err) {
+        console.warn('No existing data found in DB, using defaults.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [selectedGroup]);
+
+  // 2. Realtime Subscription
+  useEffect(() => {
+    if (!selectedGroup || isLoading) return;
 
     if (roomChannelRef.current) {
       try { roomChannelRef.current.unsubscribe(); } catch (e) { /* ignore */ }
@@ -433,11 +423,11 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
       })
       .on('broadcast', { event: 'update_data' }, ({ payload }: any) => {
         try {
-          if (!payload) return;
-          if (payload.senderId === clientIdRef.current) return;
+          if (!payload || payload.senderId === clientIdRef.current) return;
           const payloadStr = JSON.stringify(payload.data || {});
           if (payloadStr === lastReceivedRef.current) return;
           lastReceivedRef.current = payloadStr;
+          
           const remote = payload.data || {};
           if (remote.pestel) setPestelData(remote.pestel);
           if (remote.mckinsey) setMckinseyData(remote.mckinsey);
@@ -466,9 +456,12 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
       try { channel.unsubscribe(); } catch (e) { /* ignore */ }
       roomChannelRef.current = null;
     };
-  }, [selectedGroup]);
+  }, [selectedGroup, isLoading]);
 
+  // 3. Auto-save and Broadcast
   useEffect(() => {
+    if (isLoading) return;
+
     const dataToSave = {
       pestel: pestelData,
       mckinsey: mckinseyData,
@@ -479,33 +472,41 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
       meta: meta
     };
 
+    // LocalStorage fallback
     localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
 
+    // Realtime Broadcast (Fast)
     const ch = roomChannelRef.current;
-    if (ch && ch.send) {
-      if (updateTimeout.current) {
-        clearTimeout(updateTimeout.current as any);
-      }
+    if (ch) {
+      if (updateTimeout.current) clearTimeout(updateTimeout.current);
       updateTimeout.current = setTimeout(() => {
-        try {
-          ch.send({
-            type: 'broadcast',
-            event: 'update_data',
-            payload: { senderId: clientIdRef.current, data: dataToSave }
-          });
-        } catch (err) {
-          console.warn('Broadcast failed', err);
-        }
+        ch.send({
+          type: 'broadcast',
+          event: 'update_data',
+          payload: { senderId: clientIdRef.current, data: dataToSave }
+        });
         updateTimeout.current = null;
-      }, 300);    }
+      }, 300);
+    }
 
-    return () => {
-      if (updateTimeout.current) {
-        clearTimeout(updateTimeout.current as any);
-        updateTimeout.current = null;
+    // Database Sync (Slower, Persistent)
+    if (dbUpdateTimeout.current) clearTimeout(dbUpdateTimeout.current);
+    dbUpdateTimeout.current = setTimeout(async () => {
+      try {
+        await supabase
+          .from('group_data')
+          .upsert({ 
+            group_id: selectedGroup, 
+            data: dataToSave,
+            updated_at: new Date().toISOString()
+          });
+      } catch (err) {
+        console.error('DB Sync failed', err);
       }
-    };
-  }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup]);
+      dbUpdateTimeout.current = null;
+    }, 2000);
+
+  }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup, isLoading]);
 
   const exportPDF = async () => {
     setIsExporting(true);
@@ -679,6 +680,17 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="font-bold text-gray-900 uppercase tracking-widest text-xs">Loading Strategy Workspace...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 font-sans selection:bg-brand-blue/10">
