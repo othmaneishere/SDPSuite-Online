@@ -1,4 +1,4 @@
-import { PESTELWorksheet, McKinseyWorksheet, VRIOAnalysisTable } from '../worksheets';
+import { PESTELWorksheet, McKinseyWorksheet, VRIOAnalysisTable } from '../Worksheets';
 import { PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData } from '../../types';
 
 export const AdminTablePreview = ({ 

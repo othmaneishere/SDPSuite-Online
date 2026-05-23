@@ -558,6 +558,7 @@ export default function App() {
         <AppContent 
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
+          isAdmin={isAdminMode}
           onExit={() => {
             setSelectedGroup(null);
           }} 
@@ -572,7 +573,7 @@ export default function App() {
   );
 }
 
-function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: () => void }) {
+function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string; onExit: () => void; isAdmin: boolean }) {
   const getInitialData = () => {
     const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
     if (saved) {
@@ -720,7 +721,7 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
     }
 
     const channel = supabase.channel(`room:${selectedGroup}`, {
-      config: { presence: { key: clientIdRef.current } }
+      config: { presence: { key: clientIdRef.current ?? undefined } }
     });
 
     channel.on('presence', { event: 'sync' }, () => {
