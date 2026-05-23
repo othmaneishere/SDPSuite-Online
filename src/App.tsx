@@ -420,46 +420,45 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
       config: { presence: { key: clientIdRef.current ?? undefined } }
     });
 
-    channel.on('presence', { event: 'sync' }, () => {
-      try {
-        const state = channel.presenceState();
-        const presences = Object.values(state).flat() as any[];
-        const names = presences.map(p => p?.name || p?.client).filter(Boolean);
-        setMeta(prev => ({ ...(prev || {}), participants: Array.from(new Set(names)) } as MetaData));
-      } catch (err) {
-        console.error('Presence parse error', err);
-      }
-    });
-
-    channel.on('broadcast', { event: 'update_data' }, ({ payload }: any) => {
-      try {
-        if (!payload) return;
-        if (payload.senderId === clientIdRef.current) return;
-        const payloadStr = JSON.stringify(payload.data || {});
-        if (payloadStr === lastReceivedRef.current) return;
-        lastReceivedRef.current = payloadStr;
-        const remote = payload.data || {};
-        if (remote.pestel) setPestelData(remote.pestel);
-        if (remote.mckinsey) setMckinseyData(remote.mckinsey);
-        if (remote.vrio) setVrioAnalysisData(remote.vrio);
-        if (remote.vrioNotes) setVrioNotes(remote.vrioNotes || '');
-        if (remote.tows) setTowsData(remote.tows);
-        if (remote.porters) setPortersData(remote.porters);
-        if (remote.meta) setMeta(remote.meta);
-      } catch (err) {
-        console.error('Failed applying remote update', err);
-      }
-    });
-
-    channel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
+    channel
+      .on('presence', { event: 'sync' }, () => {
         try {
-          await channel.track({ name: displayNameRef.current, online_at: new Date().toISOString() });
-        } catch (e) {
-          console.warn('Failed to track presence', e);
+          const state = channel.presenceState();
+          const presences = Object.values(state).flat() as any[];
+          const names = presences.map(p => p?.name || p?.client).filter(Boolean);
+          setMeta(prev => ({ ...(prev || {}), participants: Array.from(new Set(names)) } as MetaData));
+        } catch (err) {
+          console.error('Presence parse error', err);
         }
-      }
-    });
+      })
+      .on('broadcast', { event: 'update_data' }, ({ payload }: any) => {
+        try {
+          if (!payload) return;
+          if (payload.senderId === clientIdRef.current) return;
+          const payloadStr = JSON.stringify(payload.data || {});
+          if (payloadStr === lastReceivedRef.current) return;
+          lastReceivedRef.current = payloadStr;
+          const remote = payload.data || {};
+          if (remote.pestel) setPestelData(remote.pestel);
+          if (remote.mckinsey) setMckinseyData(remote.mckinsey);
+          if (remote.vrio) setVrioAnalysisData(remote.vrio);
+          if (remote.vrioNotes) setVrioNotes(remote.vrioNotes || '');
+          if (remote.tows) setTowsData(remote.tows);
+          if (remote.porters) setPortersData(remote.porters);
+          if (remote.meta) setMeta(remote.meta);
+        } catch (err) {
+          console.error('Failed applying remote update', err);
+        }
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          try {
+            await channel.track({ name: displayNameRef.current, online_at: new Date().toISOString() });
+          } catch (e) {
+            console.warn('Failed to track presence', e);
+          }
+        }
+      });
 
     roomChannelRef.current = channel;
 
