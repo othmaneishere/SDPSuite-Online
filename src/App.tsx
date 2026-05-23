@@ -390,12 +390,15 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void }) => {
+const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, name: string) => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
+  const [fullName, setFullName] = useState(() => localStorage.getItem('sdp_user_name') || '');
 
   const handleContinue = () => {
-    if (selectedValue) {
-      onSelectGroup(selectedValue);
+    if (selectedValue && fullName.trim()) {
+      // persist name locally so AppContent picks it up
+      try { localStorage.setItem('sdp_user_name', fullName.trim()); } catch (e) { /* ignore */ }
+      onSelectGroup(selectedValue, fullName.trim());
     }
   };
 
@@ -419,11 +422,25 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
             Strategic Suite Access
           </h1>
           <p className="text-center text-gray-600 text-sm mb-8">
-            Select your group to access the dashboard
+            Enter your name and select your group to access the dashboard
           </p>
 
           {/* Form */}
           <div className="space-y-6">
+            <div>
+              <label htmlFor="full-name" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
+                Your Name
+              </label>
+              <input
+                id="full-name"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full name"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+              />
+            </div>
+
             <div>
               <label htmlFor="group-select" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
                 Select Group
@@ -445,7 +462,7 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string) => void 
 
             <button
               onClick={handleContinue}
-              disabled={!selectedValue}
+              disabled={!selectedValue || !fullName.trim()}
               className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
             >
               Continue to Dashboard
@@ -475,7 +492,11 @@ export default function App() {
     }
   }, [selectedGroup]);
 
-  const handleSelectGroup = (group: string) => {
+  const handleSelectGroup = (group: string, name?: string) => {
+    // persist name before joining so AppContent picks it up from localStorage
+    if (name) {
+      try { localStorage.setItem('sdp_user_name', name); } catch (e) { /* ignore */ }
+    }
     setSelectedGroup(group);
   };
 
