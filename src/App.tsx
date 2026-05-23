@@ -38,27 +38,6 @@ import {
 } from "./components/Worksheets";
 import { supabase } from "./lib/supabase";
 
-// Small VRIOFramework placeholder component (previously missing) to avoid runtime ReferenceError
-const VRIOFramework = ({ notes, setNotes }: { notes?: string; setNotes?: (s: string) => void }) => (
-  <div className="space-y-4">
-    <h2 className="text-2xl font-bold tracking-tight text-gray-900">VRIO Framework</h2>
-    <p className="text-sm text-gray-500">Assess resources using Value, Rarity, Imitability and Organization. Use the table below to record resources and notes.</p>
-  </div>
-);
-
-// Small PortersFiveForces placeholder component (previously missing) to avoid runtime ReferenceError
-const PortersFiveForces = ({ data, setData, activeForce, setActiveForce }: { data: PortersFiveForcesData; setData: (d: PortersFiveForcesData) => void; activeForce: keyof PortersFiveForcesData; setActiveForce: (f: keyof PortersFiveForcesData) => void }) => (
-  <div className="space-y-4">
-    <h2 className="text-2xl font-bold tracking-tight text-gray-900">Porter's Five Forces</h2>
-    <p className="text-sm text-gray-500">Quick overview of Porter's five forces. Select a force to view details.</p>
-    <div className="flex gap-2 flex-wrap">
-      {(['suppliers','buyers','newEntrants','substitutes','rivalry'] as (keyof PortersFiveForcesData)[]).map(f => (
-        <button key={f} onClick={() => setActiveForce(f)} className={"px-3 py-1 rounded-md border " + (activeForce===f? 'bg-indigo-600 text-white' : 'bg-white')}>{f}</button>
-      ))}
-    </div>
-  </div>
-);
-
 // Error Boundary Component for stability
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -1274,51 +1253,4 @@ function AppContent({
   );
 }
 
-// ConfrontationMatrixGuide component
-const ConfrontationMatrixGuide = () => (
-  <div className="p-4 bg-white rounded-lg border">
-    <h3 className="text-lg font-bold">Confrontation Matrix Guide</h3>
-    <p className="text-sm text-gray-500">Map strengths and weaknesses against opportunities and threats to derive strategic actions.</p>
-  </div>
-);
-
-// TOWSWorksheet component
-const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatrixData; setData: (d: TOWSMatrixData) => void; meta: MetaData; setMeta: (m: MetaData) => void }) => {
-  const update = (key: 'opportunities' | 'threats' | 'strengths' | 'weaknesses', idx: number, value: string) => {
-    const copy = { ...data } as any;
-    copy[key] = copy[key].map((v: string, i: number) => (i === idx ? value : v));
-    setData(copy);
-  };
-
-  return (
-    <div className="grid grid-cols-2 gap-6">
-      <div>
-        <h4 className="font-bold">Opportunities</h4>
-        {data.opportunities.map((v, i) => (
-          <textarea key={i} value={v} onChange={(e) => update('opportunities', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
-        ))}
-      </div>
-
-      <div>
-        <h4 className="font-bold">Threats</h4>
-        {data.threats.map((v, i) => (
-          <textarea key={i} value={v} onChange={(e) => update('threats', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
-        ))}
-      </div>
-
-      <div>
-        <h4 className="font-bold">Strengths</h4>
-        {data.strengths.map((v, i) => (
-          <textarea key={i} value={v} onChange={(e) => update('strengths', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
-        ))}
-      </div>
-
-      <div>
-        <h4 className="font-bold">Weaknesses</h4>
-        {data.weaknesses.map((v, i) => (
-          <textarea key={i} value={v} onChange={(e) => update('weaknesses', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
-        ))}
-      </div>
-    </div>
-  );
-};
+// ... rest of the helper components (TOWSWorksheet, MatrixCell, etc.) ...

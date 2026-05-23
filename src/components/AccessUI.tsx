@@ -84,6 +84,14 @@ export const AccessScreen = ({
           </button>
         </form>
         
+        <div className="text-center pt-8 border-t border-slate-100 mt-8">
+          <a 
+            href="/professor-dashboard" 
+            className="text-[10px] font-black text-slate-400 hover:text-brand-blue uppercase tracking-widest transition-colors duration-150"
+          >
+            Faculty Admin
+          </a>
+        </div>
       </AccessCard>
     </div>
   );
