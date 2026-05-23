@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
 import React from 'react';
-import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Database, Users } from 'lucide-react';
+import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Database, Users, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from './lib/supabase';
+import { PasscodeModal, AdminDashboard } from './components/Admin';
 
 // Error Boundary Component for stability
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
@@ -411,7 +412,7 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, name: string) => void }) => {
+const AccessPage = ({ onSelectGroup, onAdminClick }: { onSelectGroup: (group: string, name: string) => void; onAdminClick: () => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [fullName, setFullName] = useState(() => localStorage.getItem('sdp_user_name') || '');
 
@@ -494,6 +495,15 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, name: st
           <p className="text-center text-xs text-gray-400 mt-8 font-mono tracking-widest">
             SDP_ACCESS_V1.0
           </p>
+
+          {/* Admin Access */}
+          <button
+            onClick={onAdminClick}
+            className="w-full mt-4 px-4 py-2 flex items-center justify-center gap-2 bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            <Lock size={14} />
+            Admin Access
+          </button>
         </div>
       </div>
     </div>
@@ -504,6 +514,10 @@ export default function App() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(() => {
     return localStorage.getItem('sdp_selected_group');
   });
+  const [isAdminMode, setIsAdminMode] = useState(() => {
+    return localStorage.getItem('sdp_admin_auth') === 'true';
+  });
+  const [showPasscodeModal, setShowPasscodeModal] = useState(false);
 
   useEffect(() => {
     if (selectedGroup) {
@@ -521,9 +535,26 @@ export default function App() {
     setSelectedGroup(group);
   };
 
+  const handleAdminAuthenticated = () => {
+    setIsAdminMode(true);
+    setShowPasscodeModal(false);
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminMode(false);
+    localStorage.removeItem('sdp_admin_auth');
+  };
+
   return (
     <ErrorBoundary>
-      {selectedGroup ? (
+      {isAdminMode ? (
+        <AdminDashboard onLogout={handleAdminLogout} />
+      ) : showPasscodeModal ? (
+        <PasscodeModal 
+          onAuthenticated={handleAdminAuthenticated}
+          onCancel={() => setShowPasscodeModal(false)}
+        />
+      ) : selectedGroup ? (
         <AppContent 
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
@@ -532,7 +563,10 @@ export default function App() {
           }} 
         />
       ) : (
-        <AccessPage onSelectGroup={handleSelectGroup} />
+        <AccessPage 
+          onSelectGroup={handleSelectGroup}
+          onAdminClick={() => setShowPasscodeModal(true)}
+        />
       )}
     </ErrorBoundary>
   );
