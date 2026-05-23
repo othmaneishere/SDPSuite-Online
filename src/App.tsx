@@ -50,15 +50,26 @@ const CorporateHeader = ({
   setMeta, 
   selectedGroup, 
   hideMeta = false, 
-  participants = [] 
+  participants = [],
+  isAdmin = false
 }: { 
   meta: MetaData; 
   setMeta: (m: MetaData) => void; 
   selectedGroup?: string | null; 
   hideMeta?: boolean;
   participants?: string[];
+  isAdmin?: boolean;
 }) => {
   const [showParticipants, setShowParticipants] = useState(false);
+
+  const removeParticipant = (name: string) => {
+    try {
+      const newParticipants = (meta.participants || []).filter(p => p !== name);
+      setMeta({ ...meta, participants: newParticipants });
+    } catch (e) {
+      console.error('Failed to remove participant', e);
+    }
+  };
 
   return (
     <div className={cn("flex flex-col md:flex-row justify-between items-start border-b-2 border-gray-100 pb-8 mb-8 gap-4", hideMeta && "border-none mb-4")}>
@@ -79,35 +90,45 @@ const CorporateHeader = ({
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Module</span>
             <span className="font-semibold text-black">Strategic Development Project (SDP)</span>
           </div>
+          
           <div className="flex flex-col border-b border-gray-200">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Cohort</span>
             <span className="font-semibold text-black">MA27</span>
           </div>
+
           <div className="flex flex-col border-b border-gray-200">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Group</span>
             <span className="font-semibold text-black">{selectedGroup || 'Group 1'}</span>
           </div>
+
           <div className="flex flex-col border-b border-gray-200">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Date</span>
             <span className="font-semibold text-black">05 - 06 June 2026</span>
           </div>
+
           <div className="flex flex-col border-b border-gray-200 col-span-2">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Company Name</span>
-            <input
+            <input 
+              type="text" 
+              value={meta.companyName} 
+              onChange={(e) => setMeta({...meta, companyName: e.target.value})}
               className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
               placeholder="Enter company name..."
-              type="text"
-              value={meta.companyName}
-              onChange={(e) => setMeta({...meta, companyName: e.target.value})}
             />
           </div>
+
           <div className="flex flex-col border-b border-gray-200 col-span-2">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Participants</span>
             <div className="font-semibold text-gray-700 mt-1">
               {(participants || []).length > 0 ? (
                 <div className="flex flex-col gap-1">
                   {(participants || []).map(p => (
-                    <span key={p} className="text-sm truncate">{p}</span>
+                    <div key={p} className="flex items-center justify-between">
+                      <span className="text-sm truncate">{p}</span>
+                      {isAdmin && (
+                        <button onClick={() => removeParticipant(p)} className="text-red-500 text-xs ml-2">Remove</button>
+                      )}
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -115,9 +136,38 @@ const CorporateHeader = ({
               )}
             </div>
           </div>
+
         </div>
       )}
 
+      <div className="flex items-center ml-auto">
+        <div className="relative">
+          <button
+            onClick={() => setShowParticipants(s => !s)}
+            className="flex items-center gap-2 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm hover:shadow-md"
+            aria-expanded={showParticipants}
+            aria-label="Show online participants"
+          >
+            <Users className="w-5 h-5 text-gray-700" />
+            <span className="font-semibold text-gray-700">{(participants || []).length}</span>
+          </button>
+
+          {showParticipants && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
+              <div className="text-xs text-gray-500 mb-2">Online users</div>
+              <ul className="text-sm max-h-40 overflow-auto space-y-1">
+                {(participants || []).length > 0 ? (
+                  (participants || []).map(p => (
+                    <li key={p} className="truncate">{p}</li>
+                  ))
+                ) : (
+                  <li className="text-gray-400">No one else online</li>
+                )}
+              </ul>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -495,6 +545,7 @@ export default function App() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(() => {
     return localStorage.getItem('sdp_selected_group');
   });
+  const [isAdminMode, setIsAdminMode] = useState(false);
 
   useEffect(() => {
     if (selectedGroup) {
@@ -512,9 +563,20 @@ export default function App() {
     setSelectedGroup(group);
   };
 
+  const handleAdminLogin = () => {
+    const pass = prompt('Enter admin passcode:');
+    if (pass === '1234') {
+      setIsAdminMode(true);
+    } else {
+      alert('Invalid passcode');
+    }
+  };
+
   return (
     <ErrorBoundary>
-      {selectedGroup ? (
+      {isAdminMode ? (
+        <AdminPage onExit={() => setIsAdminMode(false)} />
+      ) : selectedGroup ? (
         <AppContent 
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
@@ -523,13 +585,54 @@ export default function App() {
           }} 
         />
       ) : (
-        <AccessPage onSelectGroup={handleSelectGroup} />
+        <AccessPage onSelectGroup={handleSelectGroup} onAdminLogin={handleAdminLogin} />
       )}
     </ErrorBoundary>
   );
 }
 
-function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: () => void }) {
+const AdminPage = ({ onExit }: { onExit: () => void }) => {
+  const [adminGroup, setAdminGroup] = useState('');
+  const [entered, setEntered] = useState(false);
+
+  return (
+    <div className="min-h-screen p-8 bg-gray-50">
+      <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl border">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-lg">Admin Dashboard (Simple)</h2>
+          <div className="flex items-center gap-2">
+            <button onClick={onExit} className="px-3 py-2 text-sm bg-gray-100 rounded">Exit Admin</button>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <label className="block text-sm font-semibold">Select Group</label>
+          <select value={adminGroup} onChange={(e) => setAdminGroup(e.target.value)} className="w-full px-4 py-2 border rounded">
+            <option value="">-- Choose a group --</option>
+            {Array.from({ length: 11 }, (_, i) => (
+              <option key={i} value={`Group ${i + 1}`}>
+                Group {i + 1}
+              </option>
+            ))}
+          </select>
+
+          <div className="flex gap-2">
+            <button disabled={!adminGroup} onClick={() => setEntered(true)} className="px-4 py-2 bg-blue-600 text-white rounded">Open Admin View</button>
+            <button onClick={() => { setAdminGroup(''); setEntered(false); }} className="px-4 py-2 bg-gray-100 rounded">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      {entered && adminGroup && (
+        <div className="mt-8 max-w-6xl mx-auto">
+          <AppContent key={`admin-${adminGroup}`} selectedGroup={adminGroup} onExit={() => setEntered(false)} isAdmin={true} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+function AppContent({ selectedGroup, onExit, isAdmin = false }: { selectedGroup: string; onExit: () => void; isAdmin?: boolean }) {
   const getInitialData = () => {
     const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
     if (saved) {
