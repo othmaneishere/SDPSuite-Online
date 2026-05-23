@@ -73,6 +73,56 @@ const CorporateHeader = ({
 
   return (
     <div className={cn("flex flex-col md:flex-row justify-between items-start border-b-2 border-gray-100 pb-8 mb-8 gap-4", hideMeta && "border-none mb-4")}>
+      {!hideMeta && (
+        <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm max-w-xl">
+          <div className="flex flex-col border-b border-gray-200 col-span-2">
+            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Module</span>
+            <span className="font-semibold text-black">Strategic Development Project (SDP)</span>
+          </div>
+          <div className="flex flex-col border-b border-gray-200">
+            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Cohort</span>
+            <span className="font-semibold text-black">MA27</span>
+          </div>
+          <div className="flex flex-col border-b border-gray-200">
+            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Group</span>
+            <span className="font-semibold text-black">{selectedGroup || 'Group 1'}</span>
+          </div>
+          <div className="flex flex-col border-b border-gray-200">
+            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Date</span>
+            <span className="font-semibold text-black">05 - 06 June 2026</span>
+          </div>
+          <div className="flex flex-col border-b border-gray-200 col-span-2">
+            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Company Name</span>
+            <input
+              className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
+              placeholder="Enter company name..."
+              type="text"
+              value={meta.companyName}
+              onChange={(e) => setMeta({...meta, companyName: e.target.value})}
+            />
+          </div>
+          <div className="flex flex-col border-b border-gray-200 col-span-2">
+            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Participants</span>
+            <div className="font-semibold text-gray-700 mt-1">
+              {(participants || []).length > 0 ? (
+                <div className="flex flex-col gap-1">
+                  {(participants || []).map(p => (
+                    <div key={p} className="flex items-center justify-between">
+                      <span className="text-sm truncate">{p}</span>
+                      {isAdmin && (
+                        <button onClick={() => removeParticipant(p)} className="text-red-500 text-xs ml-2">Remove</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-400 text-sm">No participants yet</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-start gap-4">
         <div className="flex items-center">
           <img 
@@ -83,9 +133,6 @@ const CorporateHeader = ({
           />
         </div>
       </div>
-
-      {!hideMeta && (
-        <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm max-w-xl">
           <div className="flex flex-col border-b border-gray-200 col-span-2">
             <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Module</span>
             <span className="font-semibold text-black">Strategic Development Project (SDP)</span>
@@ -140,34 +187,6 @@ const CorporateHeader = ({
         </div>
       )}
 
-      <div className="flex items-center ml-auto">
-        <div className="relative">
-          <button
-            onClick={() => setShowParticipants(s => !s)}
-            className="flex items-center gap-2 bg-white border border-gray-200 px-3 py-2 rounded-xl shadow-sm hover:shadow-md"
-            aria-expanded={showParticipants}
-            aria-label="Show online participants"
-          >
-            <Users className="w-5 h-5 text-gray-700" />
-            <span className="font-semibold text-gray-700">{(participants || []).length}</span>
-          </button>
-
-          {showParticipants && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
-              <div className="text-xs text-gray-500 mb-2">Online users</div>
-              <ul className="text-sm max-h-40 overflow-auto space-y-1">
-                {(participants || []).length > 0 ? (
-                  (participants || []).map(p => (
-                    <li key={p} className="truncate">{p}</li>
-                  ))
-                ) : (
-                  <li className="text-gray-400">No one else online</li>
-                )}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };
@@ -452,7 +471,7 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, name: string) => void }) => {
+const AccessPage = ({ onSelectGroup, onAdminLogin }: { onSelectGroup: (group: string, name: string) => void; onAdminLogin?: () => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [fullName, setFullName] = useState(() => localStorage.getItem('sdp_user_name') || '');
 
@@ -535,6 +554,11 @@ const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, name: st
           <p className="text-center text-xs text-gray-400 mt-8 font-mono tracking-widest">
             SDP_ACCESS_V1.0
           </p>
+
+          {/* Admin Login (small) */}
+          <div className="mt-4 text-center">
+            <button onClick={() => onAdminLogin && onAdminLogin()} className="text-sm text-blue-600 underline">Admin Login</button>
+          </div>
         </div>
       </div>
     </div>
