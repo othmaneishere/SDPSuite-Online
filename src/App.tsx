@@ -38,6 +38,70 @@ import {
 } from "./components/Worksheets";
 import { supabase } from "./lib/supabase";
 
+// Small helper components to satisfy references if original modules are missing
+const VRIOFramework = ({ notes, setNotes }: { notes?: string; setNotes?: (s: string) => void }) => (
+  <div className="space-y-4">
+    <h2 className="text-2xl font-bold tracking-tight text-gray-900">VRIO Framework</h2>
+    <p className="text-sm text-gray-500">Assess resources using Value, Rarity, Imitability and Organization.</p>
+    {typeof notes !== 'undefined' && (
+      <div className="mt-2">
+        <label className="block text-sm font-bold">VRIO Notes</label>
+        <textarea value={notes} readOnly className="w-full p-2 border rounded-md h-24 bg-gray-50" />
+      </div>
+    )}
+  </div>
+);
+
+const PortersFiveForces = ({ data, setData, activeForce, setActiveForce }: { data: PortersFiveForcesData; setData: (d: PortersFiveForcesData) => void; activeForce: keyof PortersFiveForcesData; setActiveForce: (f: keyof PortersFiveForcesData) => void }) => (
+  <div className="space-y-4">
+    <h2 className="text-2xl font-bold tracking-tight text-gray-900">Porter's Five Forces</h2>
+    <p className="text-sm text-gray-500">Overview placeholder for Porter's Five Forces.</p>
+  </div>
+);
+
+const ConfrontationMatrixGuide = () => (
+  <div className="p-4 bg-white rounded-lg border">
+    <h3 className="text-lg font-bold">Confrontation Matrix Guide</h3>
+    <p className="text-sm text-gray-500">Map strengths and weaknesses against opportunities and threats to derive strategic actions.</p>
+  </div>
+);
+
+const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatrixData; setData: (d: TOWSMatrixData) => void; meta: MetaData; setMeta: (m: MetaData) => void }) => {
+  const update = (key: 'opportunities' | 'threats' | 'strengths' | 'weaknesses', idx: number, value: string) => {
+    const copy = { ...data } as any;
+    copy[key] = copy[key].map((v: string, i: number) => (i === idx ? value : v));
+    setData(copy);
+  };
+  return (
+    <div className="grid grid-cols-2 gap-6">
+      <div>
+        <h4 className="font-bold">Opportunities</h4>
+        {data.opportunities.map((v, i) => (
+          <textarea key={i} value={v} onChange={(e) => update('opportunities', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
+        ))}
+      </div>
+      <div>
+        <h4 className="font-bold">Threats</h4>
+        {data.threats.map((v, i) => (
+          <textarea key={i} value={v} onChange={(e) => update('threats', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
+        ))}
+      </div>
+      <div>
+        <h4 className="font-bold">Strengths</h4>
+        {data.strengths.map((v, i) => (
+          <textarea key={i} value={v} onChange={(e) => update('strengths', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
+        ))}
+      </div>
+      <div>
+        <h4 className="font-bold">Weaknesses</h4>
+        {data.weaknesses.map((v, i) => (
+          <textarea key={i} value={v} onChange={(e) => update('weaknesses', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // Error Boundary Component for stability
 class ErrorBoundary extends Component<
   { children: ReactNode },

@@ -78,7 +78,7 @@ export const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; set
   );
 };
 
-export const VRIOAnalysisTable = ({ data, setData }: { data: VRIOAnalysisData[]; setData: (d: VRIOAnalysisData[]) => void }) => {
+export const VRIOAnalysisTable = ({ data, setData, notes, setNotes }: { data: VRIOAnalysisData[]; setData: (d: VRIOAnalysisData[]) => void; notes?: string; setNotes?: (s: string) => void }) => {
     const updateItem = (id: string, field: keyof VRIOAnalysisData, value: string) => {
         setData(data.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
