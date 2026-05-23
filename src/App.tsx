@@ -50,13 +50,17 @@ const CorporateHeader = ({
   setMeta, 
   selectedGroup, 
   hideMeta = false, 
-  participants = [] 
+  participants = [],
+  isAdmin = false,
+  onRemoveParticipant
 }: { 
   meta: MetaData; 
   setMeta: (m: MetaData) => void; 
   selectedGroup?: string | null; 
   hideMeta?: boolean;
   participants?: string[];
+  isAdmin?: boolean;
+  onRemoveParticipant?: (name: string) => void;
 }) => {
   const [showParticipants, setShowParticipants] = useState(false);
 
@@ -107,7 +111,12 @@ const CorporateHeader = ({
               {(participants || []).length > 0 ? (
                 <div className="flex flex-col gap-1">
                   {(participants || []).map(p => (
-                    <span key={p} className="text-sm truncate">{p}</span>
+                    <div key={p} className="flex items-center justify-between">
+                      <span className="text-sm truncate">{p}</span>
+                      {isAdmin && onRemoveParticipant && (
+                        <button onClick={() => onRemoveParticipant(p)} className="text-red-500 text-xs ml-2">Remove</button>
+                      )}
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -752,7 +761,13 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
       }
       updateTimeout.current = setTimeout(() => {
         try {
-          ch.send({ type: 'broadcast', event: 'update_data', payload: { senderId: clientIdRef.current, data: dataToSave } });
+          const payload = { type: 'broadcast', event: 'update_data', payload: { senderId: clientIdRef.current, data: dataToSave } };
+          // Prefer explicit REST delivery when only HTTP is available to avoid deprecation warning
+          if ((ch as any).httpSend) {
+            (ch as any).httpSend(payload);
+          } else {
+            ch.send(payload);
+          };
         } catch (err) {
           console.warn('Broadcast failed', err);
         }
@@ -1137,13 +1152,15 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
           <div className="max-w-6xl mx-auto">
             {/* Header with Title and Metadata */}
             <div ref={containerRef} className="worksheet-container relative overflow-hidden bg-white">
-              <CorporateHeader 
+                      <CorporateHeader 
                 meta={meta} 
                 setMeta={setMeta} 
                 selectedGroup={selectedGroup} 
                 hideMeta={false} 
                 participants={meta.participants}
-                />
+                        isAdmin={isAdmin}
+                        onRemoveParticipant={(name: string) => setMeta({...meta, participants: (meta.participants || []).filter((p: string) => p !== name)})}
+                        />
 
                 {activeTab === 'TOWS' && <ConfrontationMatrixGuide />}
               <div className="mb-12">
