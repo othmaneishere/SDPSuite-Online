@@ -50,29 +50,29 @@ const CorporateHeader = ({
   setMeta, 
   selectedGroup, 
   hideMeta = false, 
-  participants = [],
-  isAdmin = false
+  participants = [] 
 }: { 
   meta: MetaData; 
   setMeta: (m: MetaData) => void; 
   selectedGroup?: string | null; 
   hideMeta?: boolean;
   participants?: string[];
-  isAdmin?: boolean;
 }) => {
   const [showParticipants, setShowParticipants] = useState(false);
 
-  const removeParticipant = (name: string) => {
-    try {
-      const newParticipants = (meta.participants || []).filter(p => p !== name);
-      setMeta({ ...meta, participants: newParticipants });
-    } catch (e) {
-      console.error('Failed to remove participant', e);
-    }
-  };
-
   return (
     <div className={cn("flex flex-col md:flex-row justify-between items-start border-b-2 border-gray-100 pb-8 mb-8 gap-4", hideMeta && "border-none mb-4")}>
+      <div className="flex items-start gap-4">
+        <div className="flex items-center">
+          <img 
+            src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
+            alt="Business School Logo" 
+            className="h-16 object-contain"
+            crossOrigin="anonymous"
+          />
+        </div>
+      </div>
+
       {!hideMeta && (
         <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm max-w-xl">
           <div className="flex flex-col border-b border-gray-200 col-span-2">
@@ -107,12 +107,7 @@ const CorporateHeader = ({
               {(participants || []).length > 0 ? (
                 <div className="flex flex-col gap-1">
                   {(participants || []).map(p => (
-                    <div key={p} className="flex items-center justify-between">
-                      <span className="text-sm truncate">{p}</span>
-                      {isAdmin && (
-                        <button onClick={() => removeParticipant(p)} className="text-red-500 text-xs ml-2">Remove</button>
-                      )}
-                    </div>
+                    <span key={p} className="text-sm truncate">{p}</span>
                   ))}
                 </div>
               ) : (
@@ -120,70 +115,6 @@ const CorporateHeader = ({
               )}
             </div>
           </div>
-        </div>
-      )}
-
-      <div className="flex items-start gap-4">
-        <div className="flex items-center">
-          <img 
-            src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-            alt="Business School Logo" 
-            className="h-16 object-contain"
-            crossOrigin="anonymous"
-          />
-        </div>
-      </div>
-          <div className="flex flex-col border-b border-gray-200 col-span-2">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Module</span>
-            <span className="font-semibold text-black">Strategic Development Project (SDP)</span>
-          </div>
-          
-          <div className="flex flex-col border-b border-gray-200">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Cohort</span>
-            <span className="font-semibold text-black">MA27</span>
-          </div>
-
-          <div className="flex flex-col border-b border-gray-200">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Group</span>
-            <span className="font-semibold text-black">{selectedGroup || 'Group 1'}</span>
-          </div>
-
-          <div className="flex flex-col border-b border-gray-200">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Date</span>
-            <span className="font-semibold text-black">05 - 06 June 2026</span>
-          </div>
-
-          <div className="flex flex-col border-b border-gray-200 col-span-2">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Company Name</span>
-            <input 
-              type="text" 
-              value={meta.companyName} 
-              onChange={(e) => setMeta({...meta, companyName: e.target.value})}
-              className="font-semibold text-gray-700 outline-hidden bg-transparent border-b border-dashed border-gray-300 w-full"
-              placeholder="Enter company name..."
-            />
-          </div>
-
-          <div className="flex flex-col border-b border-gray-200 col-span-2">
-            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Participants</span>
-            <div className="font-semibold text-gray-700 mt-1">
-              {(participants || []).length > 0 ? (
-                <div className="flex flex-col gap-1">
-                  {(participants || []).map(p => (
-                    <div key={p} className="flex items-center justify-between">
-                      <span className="text-sm truncate">{p}</span>
-                      {isAdmin && (
-                        <button onClick={() => removeParticipant(p)} className="text-red-500 text-xs ml-2">Remove</button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-gray-400 text-sm">No participants yet</div>
-              )}
-            </div>
-          </div>
-
         </div>
       )}
 
@@ -471,7 +402,7 @@ const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (
   );
 };
 
-const AccessPage = ({ onSelectGroup, onAdminLogin }: { onSelectGroup: (group: string, name: string) => void; onAdminLogin?: () => void }) => {
+const AccessPage = ({ onSelectGroup }: { onSelectGroup: (group: string, name: string) => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [fullName, setFullName] = useState(() => localStorage.getItem('sdp_user_name') || '');
 
@@ -554,11 +485,6 @@ const AccessPage = ({ onSelectGroup, onAdminLogin }: { onSelectGroup: (group: st
           <p className="text-center text-xs text-gray-400 mt-8 font-mono tracking-widest">
             SDP_ACCESS_V1.0
           </p>
-
-          {/* Admin Login (small) */}
-          <div className="mt-4 text-center">
-            <button onClick={() => onAdminLogin && onAdminLogin()} className="text-sm text-blue-600 underline">Admin Login</button>
-          </div>
         </div>
       </div>
     </div>
@@ -569,7 +495,6 @@ export default function App() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(() => {
     return localStorage.getItem('sdp_selected_group');
   });
-  const [isAdminMode, setIsAdminMode] = useState(false);
 
   useEffect(() => {
     if (selectedGroup) {
@@ -587,20 +512,9 @@ export default function App() {
     setSelectedGroup(group);
   };
 
-  const handleAdminLogin = () => {
-    const pass = prompt('Enter admin passcode:');
-    if (pass === '1234') {
-      setIsAdminMode(true);
-    } else {
-      alert('Invalid passcode');
-    }
-  };
-
   return (
     <ErrorBoundary>
-      {isAdminMode ? (
-        <AdminPage onExit={() => setIsAdminMode(false)} />
-      ) : selectedGroup ? (
+      {selectedGroup ? (
         <AppContent 
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
@@ -609,54 +523,13 @@ export default function App() {
           }} 
         />
       ) : (
-        <AccessPage onSelectGroup={handleSelectGroup} onAdminLogin={handleAdminLogin} />
+        <AccessPage onSelectGroup={handleSelectGroup} />
       )}
     </ErrorBoundary>
   );
 }
 
-const AdminPage = ({ onExit }: { onExit: () => void }) => {
-  const [adminGroup, setAdminGroup] = useState('');
-  const [entered, setEntered] = useState(false);
-
-  return (
-    <div className="min-h-screen p-8 bg-gray-50">
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-xl border">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-lg">Admin Dashboard (Simple)</h2>
-          <div className="flex items-center gap-2">
-            <button onClick={onExit} className="px-3 py-2 text-sm bg-gray-100 rounded">Exit Admin</button>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <label className="block text-sm font-semibold">Select Group</label>
-          <select value={adminGroup} onChange={(e) => setAdminGroup(e.target.value)} className="w-full px-4 py-2 border rounded">
-            <option value="">-- Choose a group --</option>
-            {Array.from({ length: 11 }, (_, i) => (
-              <option key={i} value={`Group ${i + 1}`}>
-                Group {i + 1}
-              </option>
-            ))}
-          </select>
-
-          <div className="flex gap-2">
-            <button disabled={!adminGroup} onClick={() => setEntered(true)} className="px-4 py-2 bg-blue-600 text-white rounded">Open Admin View</button>
-            <button onClick={() => { setAdminGroup(''); setEntered(false); }} className="px-4 py-2 bg-gray-100 rounded">Reset</button>
-          </div>
-        </div>
-      </div>
-
-      {entered && adminGroup && (
-        <div className="mt-8 max-w-6xl mx-auto">
-          <AppContent key={`admin-${adminGroup}`} selectedGroup={adminGroup} onExit={() => setEntered(false)} isAdmin={true} />
-        </div>
-      )}
-    </div>
-  );
-};
-
-function AppContent({ selectedGroup, onExit, isAdmin = false }: { selectedGroup: string; onExit: () => void; isAdmin?: boolean }) {
+function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: () => void }) {
   const getInitialData = () => {
     const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
     if (saved) {
