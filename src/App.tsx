@@ -1274,4 +1274,51 @@ function AppContent({
   );
 }
 
-// ... rest of the helper components (TOWSWorksheet, MatrixCell, etc.) ...
+// ConfrontationMatrixGuide component
+const ConfrontationMatrixGuide = () => (
+  <div className="p-4 bg-white rounded-lg border">
+    <h3 className="text-lg font-bold">Confrontation Matrix Guide</h3>
+    <p className="text-sm text-gray-500">Map strengths and weaknesses against opportunities and threats to derive strategic actions.</p>
+  </div>
+);
+
+// TOWSWorksheet component
+const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatrixData; setData: (d: TOWSMatrixData) => void; meta: MetaData; setMeta: (m: MetaData) => void }) => {
+  const update = (key: 'opportunities' | 'threats' | 'strengths' | 'weaknesses', idx: number, value: string) => {
+    const copy = { ...data } as any;
+    copy[key] = copy[key].map((v: string, i: number) => (i === idx ? value : v));
+    setData(copy);
+  };
+
+  return (
+    <div className="grid grid-cols-2 gap-6">
+      <div>
+        <h4 className="font-bold">Opportunities</h4>
+        {data.opportunities.map((v, i) => (
+          <textarea key={i} value={v} onChange={(e) => update('opportunities', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
+        ))}
+      </div>
+
+      <div>
+        <h4 className="font-bold">Threats</h4>
+        {data.threats.map((v, i) => (
+          <textarea key={i} value={v} onChange={(e) => update('threats', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
+        ))}
+      </div>
+
+      <div>
+        <h4 className="font-bold">Strengths</h4>
+        {data.strengths.map((v, i) => (
+          <textarea key={i} value={v} onChange={(e) => update('strengths', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
+        ))}
+      </div>
+
+      <div>
+        <h4 className="font-bold">Weaknesses</h4>
+        {data.weaknesses.map((v, i) => (
+          <textarea key={i} value={v} onChange={(e) => update('weaknesses', i, e.target.value)} className="w-full p-2 border rounded-md mb-2 h-20" />
+        ))}
+      </div>
+    </div>
+  );
+};

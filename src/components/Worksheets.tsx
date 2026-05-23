@@ -78,11 +78,12 @@ export const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; set
   );
 };
 
-export const VRIOAnalysisTable = ({ data, setData }: { data: VRIOAnalysisData[]; setData: (d: VRIOAnalysisData[]) => void }) => {
+export const VRIOAnalysisTable = ({ data, setData, notes, setNotes }: { data: VRIOAnalysisData[]; setData: (d: VRIOAnalysisData[]) => void; notes?: string; setNotes?: (s: string) => void }) => {
     const updateItem = (id: string, field: keyof VRIOAnalysisData, value: string) => {
         setData(data.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
     return (
+        <div>
         <table className="w-full border-collapse border-2 border-black">
           <thead>
             <tr className="bg-white">
@@ -109,5 +110,12 @@ export const VRIOAnalysisTable = ({ data, setData }: { data: VRIOAnalysisData[];
             ))}
           </tbody>
         </table>
+        {(typeof notes !== 'undefined' || setNotes) && (
+          <div className="mt-4">
+            <label className="block text-sm font-bold mb-2">VRIO Notes</label>
+            <textarea value={notes || ''} onChange={(e) => setNotes && setNotes(e.target.value)} className="w-full p-2 border rounded-md h-32" />
+          </div>
+        )}
+        </div>
     );
 };
