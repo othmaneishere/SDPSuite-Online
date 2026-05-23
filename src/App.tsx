@@ -762,12 +762,8 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
       updateTimeout.current = setTimeout(() => {
         try {
           const payload = { type: 'broadcast', event: 'update_data', payload: { senderId: clientIdRef.current, data: dataToSave } };
-          // Prefer explicit REST delivery when only HTTP is available to avoid deprecation warning
-          if ((ch as any).httpSend) {
-            (ch as any).httpSend(payload);
-          } else {
-            ch.send(payload);
-          };
+          // Use explicit REST delivery via httpSend() to avoid deprecation warning
+          (ch as any).httpSend(payload);
         } catch (err) {
           console.warn('Broadcast failed', err);
         }
