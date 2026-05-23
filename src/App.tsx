@@ -106,6 +106,21 @@ const CorporateHeader = ({
             />
           </div>
 
+          <div className="flex flex-col border-b border-gray-200 col-span-2">
+            <span className="text-gray-500 text-[10px] uppercase tracking-wider font-semibold">Participants</span>
+            <div className="font-semibold text-gray-700 mt-1">
+              {(participants || []).length > 0 ? (
+                <div className="flex flex-col gap-1">
+                  {(participants || []).map(p => (
+                    <span key={p} className="text-sm truncate">{p}</span>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-400 text-sm">No participants yet</div>
+              )}
+            </div>
+          </div>
+
         </div>
       )}
 
@@ -572,6 +587,9 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
   const [isExportingAll, setIsExportingAll] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Top header participants dropdown state
+  const [showTopParticipants, setShowTopParticipants] = useState(false);
+
 
   // Update active tab in localStorage
   useEffect(() => {
@@ -757,18 +775,31 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
       meta: meta
     };
 
-    // Save to localStorage
+    // Save to localStorage immediately for local persistence
     localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
 
-    // Broadcast to other participants
+    // Debounced broadcast to other participants (reduces churn)
     const ch = roomChannelRef.current;
     if (ch && ch.send) {
-      try {
-        ch.send({ type: 'broadcast', event: 'update_data', payload: { senderId: clientIdRef.current, data: dataToSave } });
-      } catch (err) {
-        console.warn('Broadcast failed', err);
+      if (updateTimeout.current) {
+        clearTimeout(updateTimeout.current as any);
       }
+      updateTimeout.current = setTimeout(() => {
+        try {
+          ch.send({ type: 'broadcast', event: 'update_data', payload: { senderId: clientIdRef.current, data: dataToSave } });
+        } catch (err) {
+          console.warn('Broadcast failed', err);
+        }
+        updateTimeout.current = null;
+      }, 300);
     }
+
+    return () => {
+      if (updateTimeout.current) {
+        clearTimeout(updateTimeout.current as any);
+        updateTimeout.current = null;
+      }
+    };
   }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup]);
 
 
@@ -1006,6 +1037,34 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Online indicator placed above and next to Exit as requested */}
+            <div className="relative">
+              <button
+                onClick={() => setShowTopParticipants(s => !s)}
+                className="flex items-center gap-2 px-3 py-2 text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md"
+                aria-expanded={showTopParticipants}
+                aria-label="Show online participants"
+              >
+                <Users className="w-5 h-5 text-green-600" />
+                <span className="font-semibold text-gray-700">{(meta.participants || []).length}</span>
+              </button>
+
+              {showTopParticipants && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-50">
+                  <div className="text-xs text-gray-500 mb-2">Online users</div>
+                  <ul className="text-sm max-h-40 overflow-auto space-y-1">
+                    {(meta.participants || []).length > 0 ? (
+                      (meta.participants || []).map(p => (
+                        <li key={p} className="truncate">{p}</li>
+                      ))
+                    ) : (
+                      <li className="text-gray-400">No one else online</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={() => {
                 if (confirm('Are you sure you want to exit this session? You will return to the group selection page.')) {
