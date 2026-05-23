@@ -489,14 +489,16 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
       }
       updateTimeout.current = setTimeout(() => {
         try {
-          const payload = { type: 'broadcast', event: 'update_data', payload: { senderId: clientIdRef.current, data: dataToSave } };
-          (ch as any).httpSend(payload);
+          ch.send({
+            type: 'broadcast',
+            event: 'update_data',
+            payload: { senderId: clientIdRef.current, data: dataToSave }
+          });
         } catch (err) {
           console.warn('Broadcast failed', err);
         }
         updateTimeout.current = null;
-      }, 300);
-    }
+      }, 300);    }
 
     return () => {
       if (updateTimeout.current) {
