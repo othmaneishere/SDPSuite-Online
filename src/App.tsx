@@ -38,6 +38,14 @@ import {
 } from "./components/Worksheets";
 import { supabase } from "./lib/supabase";
 
+// Small VRIOFramework placeholder component (previously missing) to avoid runtime ReferenceError
+const VRIOFramework = ({ notes, setNotes }: { notes?: string; setNotes?: (s: string) => void }) => (
+  <div className="space-y-4">
+    <h2 className="text-2xl font-bold tracking-tight text-gray-900">VRIO Framework</h2>
+    <p className="text-sm text-gray-500">Assess resources using Value, Rarity, Imitability and Organization. Use the table below to record resources and notes.</p>
+  </div>
+);
+
 // Error Boundary Component for stability
 class ErrorBoundary extends Component<
   { children: ReactNode },
