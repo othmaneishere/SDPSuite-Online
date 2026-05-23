@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 're
 import React from 'react';
 import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Database, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { supabase } from './lib/supabase';
 
 // Error Boundary Component for stability
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
@@ -609,13 +610,88 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
   });
 
   const updateTimeout = useRef<NodeJS.Timeout | null>(null);
+  
+  // Collaboration: Supabase presence and realtime sync
+  const clientIdRef = useRef<string>(() => {
+    let id = localStorage.getItem('sdp_client_id');
+    if (!id) {
+      id = 'user-' + Math.random().toString(36).slice(2, 9);
+      localStorage.setItem('sdp_client_id', id);
+    }
+    return id;
+  } as unknown as string);
 
-  // Persistence handled locally
+  const displayNameRef = useRef<string>(() => {
+    const name = localStorage.getItem('sdp_user_name');
+    return name || clientIdRef.current;
+  } as unknown as string);
+
+  const roomChannelRef = useRef<any>(null);
+  const lastReceivedRef = useRef<string>('');
+
   useEffect(() => {
-    // Sync logic removed
+    if (!selectedGroup) return;
+
+    // Clean up previous channel if any
+    if (roomChannelRef.current) {
+      try { roomChannelRef.current.unsubscribe(); } catch (e) { /* ignore */ }
+      roomChannelRef.current = null;
+    }
+
+    const channel = supabase.channel(`room:${selectedGroup}`, {
+      config: { presence: { key: clientIdRef.current } }
+    });
+
+    channel.on('presence', { event: 'sync' }, () => {
+      try {
+        const state = channel.presenceState();
+        const presences = Object.values(state).flat() as any[];
+        const names = presences.map(p => p?.name || p?.client).filter(Boolean);
+        setMeta(prev => ({ ...(prev || {}), participants: Array.from(new Set(names)) } as MetaData));
+      } catch (err) {
+        console.error('Presence parse error', err);
+      }
+    });
+
+    channel.on('broadcast', { event: 'update_data' }, ({ payload }: any) => {
+      try {
+        if (!payload) return;
+        if (payload.senderId === clientIdRef.current) return;
+        const payloadStr = JSON.stringify(payload.data || {});
+        if (payloadStr === lastReceivedRef.current) return;
+        lastReceivedRef.current = payloadStr;
+        const remote = payload.data || {};
+        if (remote.pestel) setPestelData(remote.pestel);
+        if (remote.mckinsey) setMckinseyData(remote.mckinsey);
+        if (remote.vrio) setVrioAnalysisData(remote.vrio);
+        if (remote.vrioNotes) setVrioNotes(remote.vrioNotes || '');
+        if (remote.tows) setTowsData(remote.tows);
+        if (remote.porters) setPortersData(remote.porters);
+        if (remote.meta) setMeta(remote.meta);
+      } catch (err) {
+        console.error('Failed applying remote update', err);
+      }
+    });
+
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        try {
+          await channel.track({ name: displayNameRef.current, online_at: new Date().toISOString() });
+        } catch (e) {
+          console.warn('Failed to track presence', e);
+        }
+      }
+    });
+
+    roomChannelRef.current = channel;
+
+    return () => {
+      try { channel.unsubscribe(); } catch (e) { /* ignore */ }
+      roomChannelRef.current = null;
+    };
   }, [selectedGroup]);
 
-  // Trigger auto-save whenever data changes
+  // Trigger auto-save and broadcast whenever data changes
   useEffect(() => {
     const dataToSave = {
       pestel: pestelData,
@@ -626,9 +702,19 @@ function AppContent({ selectedGroup, onExit }: { selectedGroup: string; onExit: 
       porters: portersData,
       meta: meta
     };
-    
+
     // Save to localStorage
     localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
+
+    // Broadcast to other participants
+    const ch = roomChannelRef.current;
+    if (ch && ch.send) {
+      try {
+        ch.send({ type: 'broadcast', event: 'update_data', payload: { senderId: clientIdRef.current, data: dataToSave } });
+      } catch (err) {
+        console.warn('Broadcast failed', err);
+      }
+    }
   }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup]);
 
 
