@@ -603,8 +603,7 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
             quality: 1.0, 
             pixelRatio: 2, 
             backgroundColor: '#ffffff',
-            cacheBust: true,
-            style: { fontDisplay: 'block' }
+            cacheBust: true
           });
           const pageWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
