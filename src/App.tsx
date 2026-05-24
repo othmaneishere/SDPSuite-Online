@@ -391,9 +391,12 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
           .from('group_data')
           .select('data')
           .eq('group_id', selectedGroup)
-          .single();
+          .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase fetch error:', error);
+          throw error;
+        }
 
         if (data?.data) {
           const remote = data.data;
@@ -406,9 +409,13 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
           if (remote.porters) setPortersData(remote.porters);
           if (remote.meta) setMeta(remote.meta);
           setSyncStatus('synced');
+        } else {
+          // No remote data found, but connection is successful
+          setSyncStatus('synced');
         }
-      } catch (err) {
-        console.warn('Supabase fetch failed - entering offline mode', err);
+      } catch (err: any) {
+        const errorMsg = err?.message || err?.details || JSON.stringify(err);
+        console.warn(`Supabase fetch failed (${errorMsg}) - entering offline mode. Check network, environment variables, or table RLS/configuration.`, err);
         setSyncStatus('offline');
       } finally {
         setIsLoading(false);
