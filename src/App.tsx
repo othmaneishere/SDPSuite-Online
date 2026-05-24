@@ -848,17 +848,17 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
 
       <div id="full-report-print-container" className="hidden" aria-hidden="true">
         <div className="print-section bg-white p-12 w-[297mm]">
-          <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} />
+          <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} participants={meta.participants} />
           <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-8 border-gray-100 pb-2 mb-8">PESTEL Analysis</h2>
           <PESTELWorksheet data={pestelData} setData={() => {}} />
         </div>
         <div className="print-section bg-white p-12 w-[297mm]">
-          <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} />
+          <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} participants={meta.participants} />
           <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-8 border-gray-100 pb-2 mb-8">McKinsey 7-S Framework</h2>
           <McKinseyWorksheet data={mckinseyData} setData={() => {}} />
         </div>
         <div className="print-section bg-white p-12 w-[297mm]">
-          <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} />
+          <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} participants={meta.participants} />
           <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-8 border-gray-100 pb-2 mb-8">VRIO Framework</h2>
           <VRIOFramework />
           <div className="mt-8">
@@ -867,12 +867,13 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
         </div>
         {(['suppliers', 'buyers', 'newEntrants', 'substitutes', 'rivalry'] as const).map(force => (
           <div key={force} className="print-section bg-white p-12 w-[297mm]">
-            <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} />
+            <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} participants={meta.participants} />
             <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-8 border-indigo-600 pb-2 mb-8">Porter's 5 Forces: {force.toUpperCase()}</h2>
             <PortersFiveForces data={portersData} setData={() => {}} activeForce={force} setActiveForce={() => {}} />
           </div>
         ))}
         <div className="print-section bg-white p-12 w-[297mm]">
+          <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} participants={meta.participants} />
           <ConfrontationMatrixGuide />
           <div className="mt-8">
             <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-[12px] border-[#FFD666] pb-2 mb-8">Confrontation Matrix</h2>
