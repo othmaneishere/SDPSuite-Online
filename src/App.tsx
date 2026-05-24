@@ -559,7 +559,12 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
           ) as HTMLElement;
           if (section) {
             section.style.display = 'block';
-            const imgData = await toJpeg(section, { quality: 0.95, pixelRatio: 2, backgroundColor: '#ffffff' });
+            const imgData = await toJpeg(section, { 
+              quality: 0.95, 
+              pixelRatio: 2, 
+              backgroundColor: '#ffffff',
+              cacheBust: true
+            });
             if (!isFirstPage) pdf.addPage();
             isFirstPage = false;
             const pageWidth = pdf.internal.pageSize.getWidth();
@@ -594,7 +599,13 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
 
         if (section) {
           section.style.display = 'block';
-          const imgData = await toPng(section, { quality: 1.0, pixelRatio: 2, backgroundColor: '#ffffff' });
+          const imgData = await toPng(section, { 
+            quality: 1.0, 
+            pixelRatio: 2, 
+            backgroundColor: '#ffffff',
+            cacheBust: true,
+            style: { fontDisplay: 'block' }
+          });
           const pageWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
           const imgProps = pdf.getImageProperties(imgData);
@@ -613,8 +624,7 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
           pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
           pdf.save(`${activeTab}_Worksheet_${meta.companyName || 'Export'}.pdf`);
           section.style.display = 'none';
-        }
-      }
+        }      }
       printRef.style.display = originalPrintDisplay;
     } catch (error) {
       console.error('Export failed:', error);
@@ -637,7 +647,12 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i] as HTMLElement;
         section.style.display = 'block';
-        const imgData = await toJpeg(section, { quality: 0.92, pixelRatio: 2, backgroundColor: '#ffffff' });
+        const imgData = await toJpeg(section, { 
+          quality: 0.92, 
+          pixelRatio: 2, 
+          backgroundColor: '#ffffff',
+          cacheBust: true
+        });
         if (!isFirstPage) pdf.addPage();
         isFirstPage = false;
         const pageWidth = pdf.internal.pageSize.getWidth();
