@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, UserPlus, Mail, Lock, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 
 export const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -29,6 +28,9 @@ export const AuthPage = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: window.location.origin,
+          }
         });
         if (error) throw error;
         setSuccess('Check your email for the confirmation link!');
@@ -41,34 +43,28 @@ export const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center p-4 font-sans">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
-      >
-        <div className="bg-white rounded-[32px] shadow-2xl p-10 border border-slate-100 relative overflow-hidden">
-          {/* Logo Section */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="bg-blue-50 p-4 rounded-2xl mb-4">
-              <img 
-                src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-                alt="SDP Suite Logo" 
-                className="h-16 w-auto object-contain"
-                crossOrigin="anonymous"
-              />
-            </div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-              SDP<span className="text-blue-600">Suite</span>
-            </h1>
-            <p className="text-slate-500 text-sm mt-2 font-medium">
-              {isLogin ? 'Welcome back to your workspace' : 'Create your professional account'}
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4 font-sans">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
+          <div className="flex justify-center mb-8">
+            <img 
+              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
+              alt="Logo" 
+              className="h-24 w-auto object-contain"
+              crossOrigin="anonymous"
+            />
           </div>
+          
+          <h1 className="text-3xl font-black text-gray-900 text-center mb-2 tracking-tight">
+            Strategic Suite Access
+          </h1>
+          <p className="text-center text-gray-600 text-sm mb-8">
+            {isLogin ? 'Sign in to access your dashboard' : 'Create an account to begin'}
+          </p>
 
-          <form onSubmit={handleAuth} className="space-y-5">
+          <form onSubmit={handleAuth} className="space-y-6">
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">
+              <label className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
                 Email Address
               </label>
               <div className="relative">
@@ -78,14 +74,13 @@ export const AuthPage = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
                   required
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all font-semibold"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
                 />
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 pl-1">
+              <label className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
                 Password
               </label>
               <div className="relative">
@@ -95,9 +90,8 @@ export const AuthPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-50 transition-all font-semibold"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
                 />
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               </div>
             </div>
 
@@ -107,9 +101,8 @@ export const AuthPage = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-red-50 text-red-600 p-4 rounded-xl text-xs font-bold flex items-center gap-3 border border-red-100"
+                  className="bg-red-50 text-red-600 p-3 rounded-lg text-xs font-bold border border-red-100"
                 >
-                  <AlertCircle size={16} className="shrink-0" />
                   {error}
                 </motion.div>
               )}
@@ -118,9 +111,8 @@ export const AuthPage = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-green-50 text-green-600 p-4 rounded-xl text-xs font-bold flex items-center gap-3 border border-green-100"
+                  className="bg-green-50 text-green-600 p-3 rounded-lg text-xs font-bold border border-green-100"
                 >
-                  <AlertCircle size={16} className="shrink-0" />
                   {success}
                 </motion.div>
               )}
@@ -129,37 +121,35 @@ export const AuthPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-slate-900 text-white rounded-2xl text-sm font-black hover:bg-slate-800 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer group"
+              className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
             >
               {loading ? (
-                <Loader2 className="animate-spin" size={20} />
+                <Loader2 className="animate-spin mx-auto" size={20} />
               ) : (
-                <>
-                  {isLogin ? 'Sign In' : 'Create Account'}
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </>
+                isLogin ? 'Continue to Dashboard' : 'Create Account'
               )}
             </button>
           </form>
 
-          <div className="mt-8 pt-8 border-t border-slate-100 text-center">
+          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
             <button
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError(null);
                 setSuccess(null);
               }}
-              className="text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-widest transition-colors cursor-pointer"
+              className="text-xs font-bold text-gray-400 hover:text-blue-600 uppercase tracking-widest transition-colors cursor-pointer"
             >
               {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
             </button>
           </div>
+          
+          <p className="text-center text-xs text-gray-400 mt-6 font-mono tracking-widest">
+            SDP_ACCESS_V2.0
+          </p>
         </div>
-        
-        <p className="text-center text-[10px] text-slate-400 mt-8 font-mono tracking-widest uppercase">
-          Secure Cloud Access • SDP_SUITE_V2.0
-        </p>
-      </motion.div>
+      </div>
     </div>
   );
 };
+
