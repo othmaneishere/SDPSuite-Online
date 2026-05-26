@@ -139,126 +139,79 @@ const CorporateHeader = ({
   );
 };
 
-const ProjectSelector = ({ onSelectProject, onAdminClick }: { onSelectProject: (id: string) => void; onAdminClick: () => void }) => {
-  const [projects, setProjects] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [newProjectTitle, setNewProjectTitle] = useState('');
-  const [creating, setCreating] = useState(false);
+const AccessPage = ({ onSelectGroup, onAdminClick }: { onSelectGroup: (group: string, name: string) => void; onAdminClick: () => void }) => {
+  const [selectedValue, setSelectedValue] = useState('');
+  const [fullName, setFullName] = useState(() => localStorage.getItem('sdp_user_name') || '');
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('projects')
-      .select('*')
-      .order('updated_at', { ascending: false });
-    
-    if (!error && data) {
-      setProjects(data);
+  const handleContinue = () => {
+    if (selectedValue && fullName.trim()) {
+      try { localStorage.setItem('sdp_user_name', fullName.trim()); } catch (e) { /* ignore */ }
+      onSelectGroup(selectedValue, fullName.trim());
     }
-    setLoading(false);
-  };
-
-  const handleCreateProject = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProjectTitle.trim()) return;
-    
-    setCreating(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('projects')
-      .insert({
-        title: newProjectTitle.trim(),
-        user_id: user.id,
-        data: {}
-      })
-      .select()
-      .single();
-
-    if (data && !error) {
-      onSelectProject(data.id);
-    } else {
-      console.error('Error creating project:', error);
-    }
-    setCreating(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-2xl">
-        <div className="bg-white rounded-[32px] shadow-2xl p-8 border border-gray-100">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
           <div className="flex justify-center mb-8">
             <img 
               src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
               alt="Logo" 
-              className="h-20 w-auto object-contain"
+              className="h-24 w-auto object-contain"
               crossOrigin="anonymous"
             />
           </div>
           <h1 className="text-3xl font-black text-gray-900 text-center mb-2 tracking-tight">
-            Your Strategy Projects
+            Strategic Suite Access
           </h1>
           <p className="text-center text-gray-600 text-sm mb-8">
-            Select an existing project or create a new one to begin your analysis
+            Enter your name and select your group to access the dashboard
           </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="space-y-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
-                Create New Project
-              </h3>
-              <form onSubmit={handleCreateProject} className="space-y-3">
-                <input
-                  type="text"
-                  value={newProjectTitle}
-                  onChange={(e) => setNewProjectTitle(e.target.value)}
-                  placeholder="Project name (e.g. Q3 Strategy)"
-                  className="w-full px-4 py-3 border-2 border-gray-100 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 transition-all bg-slate-50"
-                />
-                <button
-                  type="submit"
-                  disabled={creating || !newProjectTitle.trim()}
-                  className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer uppercase tracking-tight text-xs flex items-center justify-center gap-2"
-                >
-                  {creating ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Create Project'}
-                </button>
-              </form>
+          <div className="space-y-6">
+            <div>
+              <label htmlFor="full-name" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
+                Your Name
+              </label>
+              <input
+                id="full-name"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter your full name"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
+              />
             </div>
-
-            <div className="space-y-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">
-                Recent Projects
-              </h3>
-              <div className="max-h-[200px] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                {loading ? (
-                  <div className="text-center py-8 text-slate-400 text-xs italic">Loading projects...</div>
-                ) : projects.length > 0 ? (
-                  projects.map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => onSelectProject(p.id)}
-                      className="w-full text-left px-4 py-3 border border-slate-100 rounded-xl hover:border-blue-200 hover:bg-blue-50 transition-all group flex items-center justify-between"
-                    >
-                      <span className="font-bold text-slate-700 group-hover:text-blue-700 truncate">{p.title}</span>
-                      <ChevronDown size={14} className="text-slate-300 group-hover:text-blue-400 -rotate-90" />
-                    </button>
-                  ))
-                ) : (
-                  <div className="text-center py-8 border-2 border-dashed border-slate-100 rounded-xl text-slate-400 text-xs italic">
-                    No projects found
-                  </div>
-                )}
-              </div>
+            <div>
+              <label htmlFor="group-select" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
+                Select Group
+              </label>
+              <select
+                id="group-select"
+                value={selectedValue}
+                onChange={(e) => setSelectedValue(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white cursor-pointer hover:border-gray-300"
+              >
+                <option value="">-- Choose a group --</option>
+                {Array.from({ length: 11 }, (_, i) => (
+                  <option key={i + 1} value={`Group ${i + 1}`}>
+                    Group {i + 1}
+                  </option>
+                ))}
+              </select>
             </div>
+            <button
+              onClick={handleContinue}
+              disabled={!selectedValue || !fullName.trim()}
+              className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
+            >
+              Continue to Dashboard
+            </button>
           </div>
-
-          <div className="flex flex-col gap-2 mt-8 pt-8 border-t border-slate-50">
+          <p className="text-center text-xs text-gray-400 mt-8 font-mono tracking-widest">
+            SDP_ACCESS_V2.0
+          </p>
+          <div className="flex flex-col gap-2 mt-4">
             <button
               onClick={() => supabase.auth.signOut()}
               className="w-full px-4 py-2 flex items-center justify-center gap-2 bg-slate-50 text-slate-500 text-xs font-semibold rounded-lg hover:bg-slate-100 transition-colors"
@@ -268,9 +221,9 @@ const ProjectSelector = ({ onSelectProject, onAdminClick }: { onSelectProject: (
             </button>
             <button
               onClick={onAdminClick}
-              className="w-full px-4 py-2 flex items-center justify-center gap-2 text-slate-300 text-[10px] font-black uppercase tracking-widest hover:text-slate-500 transition-colors"
+              className="w-full px-4 py-2 flex items-center justify-center gap-2 bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors"
             >
-              <Lock size={12} />
+              <Lock size={14} />
               Admin Access
             </button>
           </div>
@@ -282,8 +235,8 @@ const ProjectSelector = ({ onSelectProject, onAdminClick }: { onSelectProject: (
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(() => {
-    return localStorage.getItem('sdp_selected_project_id');
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(() => {
+    return localStorage.getItem('sdp_selected_group');
   });
   const [isAdminMode, setIsAdminMode] = useState(() => {
     return localStorage.getItem('sdp_admin_auth') === 'true';
@@ -304,7 +257,7 @@ export default function App() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (!session) {
-        setSelectedProjectId(null);
+        setSelectedGroup(null);
       }
     });
 
@@ -312,12 +265,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (selectedProjectId) {
-      localStorage.setItem('sdp_selected_project_id', selectedProjectId);
+    if (selectedGroup) {
+      localStorage.setItem('sdp_selected_group', selectedGroup);
     } else {
-      localStorage.removeItem('sdp_selected_project_id');
+      localStorage.removeItem('sdp_selected_group');
     }
-  }, [selectedProjectId]);
+  }, [selectedGroup]);
+
+  const handleSelectGroup = (group: string, name?: string) => {
+    if (name) {
+      try { localStorage.setItem('sdp_user_name', name); } catch (e) { /* ignore */ }
+    }
+    setSelectedGroup(group);
+  };
 
   const handleAdminAuthenticated = () => {
     setIsAdminMode(true);
@@ -351,18 +311,18 @@ export default function App() {
           onAuthenticated={handleAdminAuthenticated}
           onCancel={() => setShowPasscodeModal(false)}
         />
-      ) : selectedProjectId ? (
+      ) : selectedGroup ? (
         <AppContent 
-          key={selectedProjectId} 
-          projectId={selectedProjectId} 
+          key={selectedGroup} 
+          selectedGroup={selectedGroup} 
           isAdmin={isAdminMode}
           onExit={() => {
-            setSelectedProjectId(null);
+            setSelectedGroup(null);
           }} 
         />
       ) : (
-        <ProjectSelector 
-          onSelectProject={setSelectedProjectId}
+        <AccessPage 
+          onSelectGroup={handleSelectGroup}
           onAdminClick={() => setShowPasscodeModal(true)}
         />
       )}
@@ -370,9 +330,9 @@ export default function App() {
   );
 }
 
-function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit: () => void; isAdmin: boolean }) {
+function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string; onExit: () => void; isAdmin: boolean }) {
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(() => {
-    const saved = localStorage.getItem(`sdp_tab_${projectId}`);
+    const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
     return (saved as any) || 'PESTEL';
   });
   const [activeForce, setActiveForce] = useState<keyof PortersFiveForcesData>('suppliers');
@@ -425,7 +385,7 @@ function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit:
     date: '',
     companyName: '',
     participants: [],
-    group: ''
+    group: selectedGroup || ''
   });
 
   // Collaboration Refs
@@ -452,11 +412,11 @@ function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit:
 
   // 1. Initial Load: Hybrid Strategy
   useEffect(() => {
-    if (!projectId) return;
+    if (!selectedGroup) return;
 
     const loadData = async () => {
       // Step A: Immediate Local Load (Instant)
-      const saved = localStorage.getItem(`sdp_project_${projectId}`);
+      const saved = localStorage.getItem(`sdp_group_${selectedGroup}`);
       if (saved) {
         try {
           const local = JSON.parse(saved);
@@ -473,9 +433,9 @@ function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit:
       // Step B: Cloud Sync (Reliable)
       try {
         const { data, error } = await supabase
-          .from('projects')
-          .select('data, title')
-          .eq('id', projectId)
+          .from('group_data')
+          .select('data')
+          .eq('group_id', selectedGroup)
           .maybeSingle();
 
         if (error) {
@@ -492,12 +452,6 @@ function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit:
           if (remote.tows) setTowsData(remote.tows);
           if (remote.porters) setPortersData(remote.porters);
           if (remote.meta) setMeta(remote.meta);
-          
-          // Ensure meta group is synced with project title if needed
-          if (data.title && !remote.meta?.group) {
-             setMeta(prev => ({ ...prev, group: data.title }));
-          }
-
           setSyncStatus('synced');
         } else {
           setSyncStatus('synced');
@@ -512,18 +466,18 @@ function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit:
     };
 
     loadData();
-  }, [projectId]);
+  }, [selectedGroup]);
 
-  // 2. Realtime Subscription (Optional for personal projects, but keeping for future multi-user)
+  // 2. Realtime Subscription
   useEffect(() => {
-    if (!projectId || isLoading) return;
+    if (!selectedGroup || isLoading) return;
 
     if (roomChannelRef.current) {
       try { roomChannelRef.current.unsubscribe(); } catch (e) { /* ignore */ }
       roomChannelRef.current = null;
     }
 
-    const channel = supabase.channel(`project:${projectId}`, {
+    const channel = supabase.channel(`room:${selectedGroup}`, {
       config: { presence: { key: clientIdRef.current ?? undefined } }
     });
 
@@ -573,7 +527,7 @@ function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit:
       try { channel.unsubscribe(); } catch (e) { /* ignore */ }
       roomChannelRef.current = null;
     };
-  }, [projectId, isLoading]);
+  }, [selectedGroup, isLoading]);
 
   // 3. Auto-save and Broadcast
   useEffect(() => {
@@ -590,7 +544,7 @@ function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit:
     };
 
     // A. LocalStorage (Immediate safety)
-    localStorage.setItem(`sdp_project_${projectId}`, JSON.stringify(dataToSave));
+    localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
 
     // B. Realtime Broadcast
     const ch = roomChannelRef.current;
@@ -612,12 +566,12 @@ function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit:
     dbUpdateTimeout.current = setTimeout(async () => {
       try {
         const { error } = await supabase
-          .from('projects')
-          .update({ 
+          .from('group_data')
+          .upsert({ 
+            group_id: selectedGroup, 
             data: dataToSave,
             updated_at: new Date().toISOString()
-          })
-          .eq('id', projectId);
+          });
         
         if (error) throw error;
         setSyncStatus('synced');
@@ -628,7 +582,7 @@ function AppContent({ projectId, onExit, isAdmin }: { projectId: string; onExit:
       dbUpdateTimeout.current = null;
     }, 3000);
 
-  }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, projectId, isLoading]);
+  }, [pestelData, mckinseyData, vrioAnalysisData, vrioNotes, towsData, portersData, meta, selectedGroup, isLoading]);
 
   const exportPDF = async () => {
     setIsExporting(true);
