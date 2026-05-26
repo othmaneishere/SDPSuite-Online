@@ -3,8 +3,9 @@ import { supabase } from '../../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 
-export const AuthPage = () => {
+export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
+  // ... rest of state unchanged
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -12,6 +13,7 @@ export const AuthPage = () => {
   const [success, setSuccess] = useState<string | null>(null);
 
   const handleAuth = async (e: React.FormEvent) => {
+    // ... logic unchanged
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -63,6 +65,7 @@ export const AuthPage = () => {
           </p>
 
           <form onSubmit={handleAuth} className="space-y-6">
+            {/* ... fields unchanged ... */}
             <div>
               <label className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
                 Email Address
@@ -128,6 +131,14 @@ export const AuthPage = () => {
               ) : (
                 isLogin ? 'Continue to Dashboard' : 'Create Account'
               )}
+            </button>
+            
+            <button
+              type="button"
+              onClick={onGuestMode}
+              className="w-full px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all cursor-pointer uppercase tracking-tight text-xs"
+            >
+              Continue as Guest (Local Save)
             </button>
           </form>
 

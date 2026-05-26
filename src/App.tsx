@@ -139,7 +139,7 @@ const CorporateHeader = ({
   );
 };
 
-const AccessPage = ({ onSelectGroup, onAdminClick }: { onSelectGroup: (group: string, name: string) => void; onAdminClick: () => void }) => {
+const AccessPage = ({ onSelectGroup, onAdminClick, isGuest, onSignIn }: { onSelectGroup: (group: string, name: string) => void; onAdminClick: () => void, isGuest?: boolean, onSignIn?: () => void }) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [fullName, setFullName] = useState(() => localStorage.getItem('sdp_user_name') || '');
 
@@ -167,6 +167,7 @@ const AccessPage = ({ onSelectGroup, onAdminClick }: { onSelectGroup: (group: st
           </h1>
           <p className="text-center text-gray-600 text-sm mb-8">
             Enter your name and select your group to access the dashboard
+            {isGuest && <span className="block mt-1 text-amber-600 font-bold text-[10px] uppercase italic">Running in Guest Mode (Local Only)</span>}
           </p>
           <div className="space-y-6">
             <div>
@@ -212,13 +213,23 @@ const AccessPage = ({ onSelectGroup, onAdminClick }: { onSelectGroup: (group: st
             SDP_ACCESS_V2.0
           </p>
           <div className="flex flex-col gap-2 mt-4">
-            <button
-              onClick={() => supabase.auth.signOut()}
-              className="w-full px-4 py-2 flex items-center justify-center gap-2 bg-slate-50 text-slate-500 text-xs font-semibold rounded-lg hover:bg-slate-100 transition-colors"
-            >
-              <LogOut size={14} />
-              Sign Out
-            </button>
+            {isGuest ? (
+              <button
+                onClick={onSignIn}
+                className="w-full px-4 py-2 flex items-center justify-center gap-2 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors uppercase"
+              >
+                <Lock size={14} />
+                Sign In to Cloud
+              </button>
+            ) : (
+              <button
+                onClick={() => supabase.auth.signOut()}
+                className="w-full px-4 py-2 flex items-center justify-center gap-2 bg-slate-50 text-slate-500 text-xs font-semibold rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                <LogOut size={14} />
+                Sign Out
+              </button>
+            )}
             <button
               onClick={onAdminClick}
               className="w-full px-4 py-2 flex items-center justify-center gap-2 bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors"
@@ -298,8 +309,12 @@ export default function App() {
     );
   }
 
-  if (!session) {
-    return <AuthPage />;
+  // If no session, we still show the AccessPage, but we allow it to "Continue as Guest" or Sign In
+  if (!session && !localStorage.getItem('sdp_guest_mode')) {
+    return <AuthPage onGuestMode={() => {
+      localStorage.setItem('sdp_guest_mode', 'true');
+      window.location.reload();
+    }} />;
   }
 
   return (
@@ -316,6 +331,7 @@ export default function App() {
           key={selectedGroup} 
           selectedGroup={selectedGroup} 
           isAdmin={isAdminMode}
+          isGuest={!session}
           onExit={() => {
             setSelectedGroup(null);
           }} 
@@ -324,13 +340,18 @@ export default function App() {
         <AccessPage 
           onSelectGroup={handleSelectGroup}
           onAdminClick={() => setShowPasscodeModal(true)}
+          isGuest={!session}
+          onSignIn={() => {
+            localStorage.removeItem('sdp_guest_mode');
+            window.location.reload();
+          }}
         />
       )}
     </ErrorBoundary>
   );
 }
 
-function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string; onExit: () => void; isAdmin: boolean }) {
+function AppContent({ selectedGroup, onExit, isAdmin, isGuest }: { selectedGroup: string; onExit: () => void; isAdmin: boolean; isGuest?: boolean }) {
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(() => {
     const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
     return (saved as any) || 'PESTEL';
