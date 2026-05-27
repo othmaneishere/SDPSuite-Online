@@ -12,52 +12,52 @@ interface AuthLayoutProps {
 
 export const AuthLayout = ({ children, title, subtitle, footer, showLogo = true }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans selection:bg-blue-50 px-6 py-12">
-      <div className="w-full max-w-[540px] flex flex-col items-center text-center">
-        {/* Massive Logo Branding */}
-        {showLogo && (
-          <div className="mb-16">
-            <img 
-              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-              alt="SDP Suite Logo" 
-              className="w-48 h-48 md:w-64 md:h-64 object-contain mx-auto" 
-            />
-            <div className="mt-8">
-              <h1 className="text-4xl font-black tracking-tight text-slate-900">
-                SDP<span className="text-blue-600">Suite</span>
-              </h1>
-              <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.5em] mt-2">Strategic Excellence</p>
+    <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans selection:bg-blue-50 overflow-x-hidden">
+      {/* Left Side: Large Branding */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-24 bg-slate-50/50 border-r border-slate-100">
+        <div className="max-w-md w-full space-y-12 animate-in fade-in slide-in-from-left-6 duration-700">
+          {showLogo && (
+            <div className="space-y-8">
+              <img 
+                src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
+                alt="SDP Suite Logo" 
+                className="w-48 h-48 md:w-64 md:h-64 object-contain" 
+              />
+              <div className="space-y-4">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-none">
+                  SDP<span className="text-blue-600">Suite</span>
+                </h1>
+                <p className="text-sm font-black text-slate-400 uppercase tracking-[0.4em]">Strategic Excellence</p>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Content Section */}
-        <div className="w-full space-y-12">
-          <div className="space-y-3">
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 leading-tight">
+          )}
+          
+          <div className="space-y-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 leading-tight">
               {title}
             </h2>
-            <p className="text-lg text-slate-400 font-medium leading-relaxed">
+            <p className="text-lg text-slate-400 font-medium">
               {subtitle}
             </p>
           </div>
-
-          <div className="w-full text-left">
-            {children}
-          </div>
         </div>
+      </div>
 
-        {/* Minimal Footer */}
-        {footer && (
-          <div className="mt-20 w-full pt-8 border-t border-slate-50 flex flex-col items-center gap-8">
-            <div className="flex flex-wrap justify-center gap-x-12 gap-y-4">
+      {/* Right Side: Simple Form */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-24 bg-white relative">
+        <div className="max-w-[440px] w-full animate-in fade-in slide-in-from-right-6 duration-700 delay-100">
+          {children}
+
+          {footer && (
+            <div className="mt-16 pt-8 border-t border-slate-50 flex flex-wrap items-center gap-x-8 gap-y-4 animate-in fade-in duration-1000 delay-300">
               {footer}
             </div>
-            <div className="text-[9px] font-black text-slate-200 uppercase tracking-[0.3em]">
-              Enterprise Edition v2.0
-            </div>
+          )}
+          
+          <div className="mt-12 text-[9px] font-black text-slate-200 uppercase tracking-[0.3em]">
+            Enterprise Edition v2.0
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
