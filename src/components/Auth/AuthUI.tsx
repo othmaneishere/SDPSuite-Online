@@ -1,6 +1,6 @@
 import { ChevronDown, ArrowRight, Loader2, Mail, Lock, AlertCircle, CheckCircle2, Cloud, User, ShieldCheck } from 'lucide-react';
 import { ReactNode } from 'react';
-import { cn } from '../lib/utils';
+import { cn } from '../../lib/utils';
 
 interface AuthLayoutProps {
   children: ReactNode;
