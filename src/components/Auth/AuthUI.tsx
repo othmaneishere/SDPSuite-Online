@@ -14,38 +14,38 @@ export const AuthLayout = ({ children, title, subtitle, footer }: AuthLayoutProp
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans selection:bg-blue-50">
       {/* Left Column: Fixed Branding */}
-      <div className="w-full md:w-[40%] bg-slate-50/50 p-8 md:p-16 flex flex-col border-r border-slate-100">
-        <div className="flex flex-col items-start gap-12">
-          {/* Logo Top Left */}
+      <div className="w-full md:w-[42%] bg-slate-50/50 p-8 md:p-16 pt-16 md:pt-32 flex flex-col border-r border-slate-100">
+        <div className="flex flex-col items-start gap-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          {/* Larger Logo, Pushed Down */}
           <img 
             src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
             alt="SDP Suite Logo" 
-            className="w-32 h-32 object-contain" 
+            className="w-40 h-40 md:w-52 md:h-52 object-contain" 
           />
           
-          <div className="space-y-4">
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 leading-tight">
-              Strategic Suite Access
+          <div className="space-y-6">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+              Strategic Suite <br /> Access
             </h1>
-            <div className="h-1 w-12 bg-blue-600 rounded-full" />
+            <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
           </div>
         </div>
         
-        <div className="mt-auto pt-12">
-          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">
+        <div className="mt-auto pt-12 opacity-40">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em]">
             Strategic Excellence v2.0
           </p>
         </div>
       </div>
 
       {/* Right Column: Interaction Flow */}
-      <div className="flex-1 flex flex-col p-8 md:p-16 md:justify-center">
-        <div className="max-w-[480px] w-full mx-auto space-y-12">
-          <div className="space-y-2">
-            <h2 className="text-xl font-bold text-slate-900">
+      <div className="flex-1 flex flex-col p-8 md:p-16 pt-16 md:pt-32 md:justify-start">
+        <div className="max-w-[480px] w-full mx-auto space-y-12 animate-in fade-in slide-in-from-right-4 duration-1000 delay-200">
+          <div className="space-y-3">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
               {title}
             </h2>
-            <p className="text-sm text-slate-400 font-medium">
+            <p className="text-sm text-slate-400 font-medium leading-relaxed">
               {subtitle}
             </p>
           </div>
@@ -55,7 +55,7 @@ export const AuthLayout = ({ children, title, subtitle, footer }: AuthLayoutProp
           </div>
 
           {footer && (
-            <div className="pt-8 border-t border-slate-50 flex items-center gap-8">
+            <div className="pt-10 border-t border-slate-100 flex items-center gap-10">
               {footer}
             </div>
           )}
@@ -72,21 +72,21 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const AuthInput = ({ label, icon, ...props }: InputProps) => {
   return (
-    <div className="space-y-2 mb-4">
-      <label className="block text-[10px] font-black text-slate-900 uppercase tracking-[0.1em] pl-1">
+    <div className="space-y-2.5 mb-5">
+      <label className="block text-[10px] font-black text-slate-900 uppercase tracking-[0.15em] pl-1">
         {label}
       </label>
-      <div className="relative">
+      <div className="relative group">
         {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors">
             {icon}
           </div>
         )}
         <input
           {...props}
           className={cn(
-            "w-full bg-slate-50 border border-slate-100 rounded-xl text-slate-800 text-sm font-bold outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50/50",
-            icon ? "pl-12 pr-4 py-4" : "px-4 py-4"
+            "w-full bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm font-bold outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50/50",
+            icon ? "pl-12 pr-4 py-4.5" : "px-4 py-4.5"
           )}
         />
       </div>
@@ -100,19 +100,19 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 
 export const AuthSelect = ({ label, children, ...props }: SelectProps) => {
   return (
-    <div className="space-y-2 mb-4">
-      <label className="block text-[10px] font-black text-slate-900 uppercase tracking-[0.1em] pl-1">
+    <div className="space-y-2.5 mb-5">
+      <label className="block text-[10px] font-black text-slate-900 uppercase tracking-[0.15em] pl-1">
         {label}
       </label>
-      <div className="relative">
+      <div className="relative group">
         <select
           {...props}
-          className="w-full bg-slate-50 border border-slate-100 rounded-xl text-slate-800 text-sm font-bold outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50/50 appearance-none px-4 py-4 cursor-pointer"
+          className="w-full bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm font-bold outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50/50 appearance-none px-4 py-4.5 cursor-pointer"
         >
           {children}
         </select>
         <ChevronDown 
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" 
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 group-hover:text-slate-600 transition-colors pointer-events-none" 
           size={18} 
         />
       </div>
@@ -128,10 +128,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const AuthButton = ({ variant = 'primary', icon, loading, children, className, ...props }: ButtonProps) => {
   const variants = {
-    primary: "bg-slate-900 text-white hover:bg-black",
-    secondary: "bg-blue-600 text-white hover:bg-blue-700",
+    primary: "bg-slate-900 text-white hover:bg-black shadow-lg shadow-slate-200",
+    secondary: "bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-100",
     ghost: "bg-transparent text-slate-400 hover:text-blue-600",
-    outline: "bg-white border border-slate-200 text-slate-600 hover:border-slate-900 hover:text-slate-900 transition-all"
+    outline: "bg-white border border-slate-200 text-slate-600 hover:border-slate-900 hover:text-slate-900 transition-all shadow-sm"
   };
 
   return (
@@ -139,7 +139,7 @@ export const AuthButton = ({ variant = 'primary', icon, loading, children, class
       {...props}
       disabled={loading || props.disabled}
       className={cn(
-        "w-full py-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer uppercase tracking-[0.1em]",
+        "w-full py-4.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer uppercase tracking-[0.15em]",
         variants[variant],
         className
       )}
@@ -169,27 +169,27 @@ export const ModeCard = ({
 }) => (
   <button
     onClick={onClick}
-    className="w-full flex items-center gap-5 p-5 rounded-2xl border border-slate-100 bg-white hover:bg-slate-50/50 hover:border-slate-200 transition-all text-left group"
+    className="w-full flex items-center gap-6 p-6 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50/30 hover:border-slate-300 transition-all text-left group shadow-sm hover:shadow-md"
   >
-    <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+    <div className="w-14 h-14 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors border border-slate-100">
       {icon}
     </div>
     <div className="flex-1">
-      <h3 className="text-sm font-black text-slate-900 tracking-tight">
+      <h3 className="text-base font-black text-slate-900 tracking-tight">
         {title}
       </h3>
-      <p className="text-xs text-slate-400 font-medium leading-tight">
+      <p className="text-sm text-slate-400 font-medium leading-snug">
         {description}
       </p>
     </div>
-    <ArrowRight className="text-slate-200 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" size={16} />
+    <ArrowRight className="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1.5 transition-all" size={20} />
   </button>
 );
 
 export const AuthMessage = ({ type, children }: { type: 'error' | 'success', children: ReactNode }) => {
   return (
     <div className={cn(
-      "flex items-center gap-3 p-4 rounded-xl text-xs font-bold border",
+      "flex items-center gap-3 p-4.5 rounded-xl text-xs font-bold border",
       type === 'error' ? "bg-red-50 text-red-600 border-red-100" : "bg-green-50 text-green-600 border-green-100"
     )}>
       {type === 'error' ? <AlertCircle size={16} className="shrink-0" /> : <CheckCircle2 size={16} className="shrink-0" />}
