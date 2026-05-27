@@ -139,7 +139,28 @@ const CorporateHeader = ({
   );
 };
 
-const AccessPage = ({ onSelectGroup, onAdminClick, isGuest, onSignIn }: { onSelectGroup: (group: string, name: string) => void; onAdminClick: () => void, isGuest?: boolean, onSignIn?: () => void }) => {
+import { 
+  AuthLayout, 
+  AuthInput, 
+  AuthSelect, 
+  AuthButton, 
+  Cloud,
+  User,
+  ShieldCheck,
+  ArrowRight
+} from './components/Auth/AuthUI';
+
+const AccessPage = ({ 
+  onSelectGroup, 
+  onAdminClick, 
+  isGuest, 
+  onSignIn 
+}: { 
+  onSelectGroup: (group: string, name: string) => void; 
+  onAdminClick: () => void, 
+  isGuest?: boolean, 
+  onSignIn?: () => void 
+}) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [fullName, setFullName] = useState(() => localStorage.getItem('sdp_user_name') || '');
 
@@ -151,96 +172,71 @@ const AccessPage = ({ onSelectGroup, onAdminClick, isGuest, onSignIn }: { onSele
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50 flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-          <div className="flex justify-center mb-8">
-            <img 
-              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-              alt="Logo" 
-              className="h-24 w-auto object-contain"
-              crossOrigin="anonymous"
-            />
-          </div>
-          <h1 className="text-3xl font-black text-gray-900 text-center mb-2 tracking-tight">
-            Strategic Suite Access
-          </h1>
-          <p className="text-center text-gray-600 text-sm mb-8">
-            Enter your name and select your group to access the dashboard
-            {isGuest && <span className="block mt-1 text-amber-600 font-bold text-[10px] uppercase italic">Running in Guest Mode (Local Only)</span>}
-          </p>
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="full-name" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
-                Your Name
-              </label>
-              <input
-                id="full-name"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your full name"
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white"
-              />
-            </div>
-            <div>
-              <label htmlFor="group-select" className="block text-sm font-bold uppercase tracking-tight text-gray-900 mb-3">
-                Select Group
-              </label>
-              <select
-                id="group-select"
-                value={selectedValue}
-                onChange={(e) => setSelectedValue(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all bg-white cursor-pointer hover:border-gray-300"
-              >
-                <option value="">-- Choose a group --</option>
-                {Array.from({ length: 11 }, (_, i) => (
-                  <option key={i + 1} value={`Group ${i + 1}`}>
-                    Group {i + 1}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button
-              onClick={handleContinue}
-              disabled={!selectedValue || !fullName.trim()}
-              className="w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 cursor-pointer uppercase tracking-tight"
-            >
-              Continue to Dashboard
-            </button>
-          </div>
-          <p className="text-center text-xs text-gray-400 mt-8 font-mono tracking-widest">
-            SDP_ACCESS_V2.0
-          </p>
-          <div className="flex flex-col gap-2 mt-4">
+    <AuthLayout
+      title="Strategy Workspace"
+      subtitle={isGuest ? "Running in Offline Mode (Local Save Only)" : "Welcome back. Select your team group to begin."}
+      footer={
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-center gap-6">
             {isGuest ? (
               <button
                 onClick={onSignIn}
-                className="w-full px-4 py-2 flex items-center justify-center gap-2 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors uppercase"
+                className="text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-widest transition-colors flex items-center gap-2 cursor-pointer"
               >
-                <Lock size={14} />
-                Sign In to Cloud
+                <Cloud size={14} /> Cloud Access
               </button>
             ) : (
               <button
                 onClick={() => supabase.auth.signOut()}
-                className="w-full px-4 py-2 flex items-center justify-center gap-2 bg-slate-50 text-slate-500 text-xs font-semibold rounded-lg hover:bg-slate-100 transition-colors"
+                className="text-[10px] font-black text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors flex items-center gap-2 cursor-pointer"
               >
-                <LogOut size={14} />
-                Sign Out
+                <LogOut size={14} /> Cloud Logout
               </button>
             )}
             <button
               onClick={onAdminClick}
-              className="w-full px-4 py-2 flex items-center justify-center gap-2 bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+              className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors flex items-center gap-2 cursor-pointer"
             >
-              <Lock size={14} />
-              Admin Access
+              <ShieldCheck size={14} /> Administrator
             </button>
           </div>
         </div>
+      }
+    >
+      <div className="space-y-6">
+        <AuthInput
+          label="Professional Name"
+          type="text"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Enter your full name"
+          icon={<User size={18} />}
+        />
+
+        <AuthSelect
+          label="Assigned Group"
+          value={selectedValue}
+          onChange={(e) => setSelectedValue(e.target.value)}
+        >
+          <option value="">Choose your team...</option>
+          {Array.from({ length: 11 }, (_, i) => (
+            <option key={i + 1} value={`Group ${i + 1}`}>
+              Group {i + 1}
+            </option>
+          ))}
+        </AuthSelect>
+
+        <div className="pt-4">
+          <AuthButton
+            onClick={handleContinue}
+            disabled={!selectedValue || !fullName.trim()}
+            icon={<ArrowRight size={18} />}
+          >
+            Enter Workspace
+          </AuthButton>
+        </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 
