@@ -173,32 +173,23 @@ const AccessPage = ({
 
   return (
     <AuthLayout
-      title="Strategy Workspace"
-      subtitle={isGuest ? "You are exploring in Local Mode." : "Select your group assignment to begin."}
+      title="Strategic Workspace"
+      subtitle={isGuest ? "You are exploring in Local Mode." : "Initialize your team assignment."}
       footer={
-        <>
-          {isGuest ? (
-            <button
-              onClick={onSignIn}
-              className="text-[11px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
-            >
-              <Cloud size={16} /> Cloud Portal
-            </button>
-          ) : (
-            <button
-              onClick={() => supabase.auth.signOut()}
-              className="text-[11px] font-black text-slate-400 hover:text-slate-600 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
-            >
-              <LogOut size={16} /> Sign Out
-            </button>
-          )}
+        <div className="flex items-center gap-12">
+          <button
+            onClick={isGuest ? onSignIn : () => supabase.auth.signOut()}
+            className="text-[11px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
+          >
+            {isGuest ? <><Cloud size={16} /> Cloud Portal</> : <><LogOut size={16} /> Sign Out</>}
+          </button>
           <button
             onClick={onAdminClick}
             className="text-[11px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
           >
-            <ShieldCheck size={16} /> Admin Access
+            <ShieldCheck size={16} /> Administrator
           </button>
-        </>
+        </div>
       }
     >
       <div className="space-y-8">
@@ -226,10 +217,11 @@ const AccessPage = ({
           </AuthSelect>
         </div>
 
-        <div className="pt-4">
+        <div className="pt-2">
           <AuthButton
             onClick={handleContinue}
             disabled={!selectedValue || !fullName.trim()}
+            variant="primary"
             icon={<ArrowRight size={20} />}
           >
             Enter Workspace

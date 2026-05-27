@@ -1,4 +1,4 @@
-import { ChevronDown, ArrowRight, Loader2, Mail, Lock, AlertCircle, CheckCircle2, Cloud, User, ShieldCheck } from 'lucide-react';
+import { ChevronDown, ArrowRight, Loader2, Mail, Lock, AlertCircle, CheckCircle2, Cloud, User, ShieldCheck, Globe, Database } from 'lucide-react';
 import { ReactNode } from 'react';
 import { cn } from '../../lib/utils';
 
@@ -12,52 +12,50 @@ interface AuthLayoutProps {
 
 export const AuthLayout = ({ children, title, subtitle, footer, showLogo = true }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans selection:bg-blue-50 overflow-x-hidden">
-      {/* Left Side: Large Branding */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-24 bg-slate-50/50 border-r border-slate-100">
-        <div className="max-w-md w-full space-y-12 animate-in fade-in slide-in-from-left-6 duration-700">
-          {showLogo && (
-            <div className="space-y-8">
-              <img 
-                src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-                alt="SDP Suite Logo" 
-                className="w-48 h-48 md:w-64 md:h-64 object-contain" 
-              />
-              <div className="space-y-4">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-none">
-                  SDP<span className="text-blue-600">Suite</span>
-                </h1>
-                <p className="text-sm font-black text-slate-400 uppercase tracking-[0.4em]">Strategic Excellence</p>
-              </div>
-            </div>
-          )}
-          
-          <div className="space-y-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 leading-tight">
-              {title}
-            </h2>
-            <p className="text-lg text-slate-400 font-medium">
-              {subtitle}
-            </p>
+    <div className="min-h-screen bg-white flex flex-col items-center font-sans selection:bg-blue-50 px-6 py-12 md:py-20">
+      {/* High-Impact Logo Section */}
+      {showLogo && (
+        <div className="w-full max-w-[540px] flex flex-col items-center mb-16 animate-in fade-in slide-in-from-top-4 duration-1000">
+          <img 
+            src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
+            alt="SDP Suite Logo" 
+            className="w-40 h-40 md:w-56 md:h-56 object-contain" 
+          />
+          <div className="text-center mt-6">
+            <h1 className="text-3xl font-black tracking-tight text-slate-900">
+              SDP<span className="text-blue-600">Suite</span>
+            </h1>
+            <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.6em] mt-1">Strategic Excellence</p>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Right Side: Simple Form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-24 bg-white relative">
-        <div className="max-w-[440px] w-full animate-in fade-in slide-in-from-right-6 duration-700 delay-100">
+      {/* Main Container */}
+      <div className="w-full max-w-[500px] flex flex-col items-center text-center animate-in fade-in duration-1000 delay-200">
+        <div className="w-full space-y-2 mb-12">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900">
+            {title}
+          </h2>
+          <p className="text-base text-slate-400 font-medium">
+            {subtitle}
+          </p>
+        </div>
+
+        <div className="w-full text-left">
           {children}
+        </div>
 
-          {footer && (
-            <div className="mt-16 pt-8 border-t border-slate-50 flex flex-wrap items-center gap-x-8 gap-y-4 animate-in fade-in duration-1000 delay-300">
+        {/* Simplified Footer Navigation */}
+        {footer && (
+          <div className="mt-16 w-full pt-10 border-t border-slate-50 flex flex-col items-center gap-6">
+            <div className="flex flex-wrap justify-center gap-x-10 gap-y-4">
               {footer}
             </div>
-          )}
-          
-          <div className="mt-12 text-[9px] font-black text-slate-200 uppercase tracking-[0.3em]">
-            Enterprise Edition v2.0
+            <div className="text-[9px] font-black text-slate-200 uppercase tracking-[0.4em]">
+              Enterprise Edition v2.0
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -70,8 +68,8 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const AuthInput = ({ label, icon, ...props }: InputProps) => {
   return (
-    <div className="space-y-3 mb-6">
-      <label className="block text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] pl-1">
+    <div className="space-y-2.5 mb-6">
+      <label className="block text-[11px] font-black text-slate-900 uppercase tracking-[0.15em] pl-1">
         {label}
       </label>
       <div className="relative group">
@@ -98,8 +96,8 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 
 export const AuthSelect = ({ label, children, ...props }: SelectProps) => {
   return (
-    <div className="space-y-3 mb-6">
-      <label className="block text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] pl-1">
+    <div className="space-y-2.5 mb-6">
+      <label className="block text-[11px] font-black text-slate-900 uppercase tracking-[0.15em] pl-1">
         {label}
       </label>
       <div className="relative group">
@@ -129,7 +127,7 @@ export const AuthButton = ({ variant = 'primary', icon, loading, children, class
     primary: "bg-slate-900 text-white hover:bg-black",
     secondary: "bg-blue-600 text-white hover:bg-blue-700",
     ghost: "bg-transparent text-slate-400 hover:text-blue-600",
-    outline: "bg-white border-2 border-slate-100 text-slate-500 hover:border-slate-900 hover:text-slate-900 transition-all"
+    outline: "bg-white border-2 border-slate-100 text-slate-500 hover:border-slate-900 hover:text-slate-900 transition-all shadow-sm"
   };
 
   return (
@@ -154,10 +152,56 @@ export const AuthButton = ({ variant = 'primary', icon, loading, children, class
   );
 };
 
+export const ModeCard = ({ 
+  title, 
+  description, 
+  icon, 
+  onClick,
+  active = false
+}: { 
+  title: string; 
+  description: string; 
+  icon: ReactNode; 
+  onClick: () => void;
+  active?: boolean;
+}) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      "w-full flex items-center gap-6 p-6 rounded-3xl border-2 transition-all text-left group",
+      active 
+        ? "bg-blue-50/50 border-blue-600 ring-4 ring-blue-50" 
+        : "bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50"
+    )}
+  >
+    <div className={cn(
+      "w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 transition-colors",
+      active ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-600"
+    )}>
+      {icon}
+    </div>
+    <div className="flex-1">
+      <h3 className={cn(
+        "text-lg font-black tracking-tight",
+        active ? "text-blue-900" : "text-slate-900"
+      )}>
+        {title}
+      </h3>
+      <p className="text-sm text-slate-400 font-medium">
+        {description}
+      </p>
+    </div>
+    <ArrowRight className={cn(
+      "transition-transform",
+      active ? "text-blue-600 translate-x-0" : "text-slate-200 -translate-x-2 group-hover:translate-x-0"
+    )} size={20} />
+  </button>
+);
+
 export const AuthMessage = ({ type, children }: { type: 'error' | 'success', children: ReactNode }) => {
   return (
     <div className={cn(
-      "flex items-center gap-4 p-5 rounded-2xl text-sm font-bold border-2",
+      "flex items-center gap-4 p-5 rounded-2xl text-sm font-bold border-2 animate-in fade-in zoom-in-95 duration-300",
       type === 'error' ? "bg-red-50 text-red-600 border-red-50" : "bg-green-50 text-green-600 border-green-50"
     )}>
       {type === 'error' ? <AlertCircle size={20} className="shrink-0" /> : <CheckCircle2 size={20} className="shrink-0" />}
@@ -166,4 +210,4 @@ export const AuthMessage = ({ type, children }: { type: 'error' | 'success', chi
   );
 };
 
-export { Mail, Lock, Cloud, User, ShieldCheck, ArrowRight };
+export { Mail, Lock, Cloud, User, ShieldCheck, ArrowRight, Globe, Database };
