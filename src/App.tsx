@@ -174,9 +174,9 @@ const AccessPage = ({
   return (
     <AuthLayout
       title="Strategy Workspace"
-      subtitle={isGuest ? "You are currently exploring in Offline Mode. Data will be stored locally." : "Select your team assignment to initialize your strategic workspace."}
+      subtitle={isGuest ? "You are exploring in Local Mode." : "Select your group assignment to begin."}
       footer={
-        <div className="flex items-center gap-12">
+        <>
           {isGuest ? (
             <button
               onClick={onSignIn}
@@ -189,20 +189,20 @@ const AccessPage = ({
               onClick={() => supabase.auth.signOut()}
               className="text-[11px] font-black text-slate-400 hover:text-slate-600 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
             >
-              <LogOut size={16} /> Terminate Session
+              <LogOut size={16} /> Sign Out
             </button>
           )}
           <button
             onClick={onAdminClick}
             className="text-[11px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
           >
-            <ShieldCheck size={16} /> Faculty
+            <ShieldCheck size={16} /> Admin Access
           </button>
-        </div>
+        </>
       }
     >
-      <div className="space-y-10">
-        <div className="space-y-6">
+      <div className="space-y-8">
+        <div className="space-y-1">
           <AuthInput
             label="Consultant Name"
             type="text"

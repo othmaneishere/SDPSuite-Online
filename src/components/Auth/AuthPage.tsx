@@ -42,10 +42,10 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
           }
         });
         if (error) throw error;
-        setSuccess('Account activation initiated. Check your inbox.');
+        setSuccess('Account activation link sent to your email.');
       }
     } catch (err: any) {
-      setError(err.message || 'Verification sequence failed');
+      setError(err.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -54,24 +54,22 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
   return (
     <AuthLayout
       title={isLogin ? "Cloud Workspace" : "Create Account"}
-      subtitle={isLogin ? "Access your high-performance collaborative environment." : "Join the strategic development network."}
+      subtitle={isLogin ? "Sign in to access your dashboard." : "Join the strategic development suite."}
       footer={
-        <div className="flex items-center gap-12">
-          <button
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setError(null);
-              setSuccess(null);
-            }}
-            className="text-[11px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-[0.2em] transition-colors cursor-pointer"
-          >
-            {isLogin ? "Request Access" : "Existing User"}
-          </button>
-        </div>
+        <button
+          onClick={() => {
+            setIsLogin(!isLogin);
+            setError(null);
+            setSuccess(null);
+          }}
+          className="text-[11px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-[0.2em] transition-colors cursor-pointer"
+        >
+          {isLogin ? "Request Access" : "Existing User"}
+        </button>
       }
     >
-      <form onSubmit={handleAuth} className="space-y-10">
-        <div className="space-y-6">
+      <form onSubmit={handleAuth} className="space-y-8">
+        <div className="space-y-1">
           <AuthInput
             label="Corporate Email"
             type="email"
@@ -95,18 +93,18 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
 
         <AnimatePresence mode="wait">
           {error && (
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <AuthMessage type="error">{error}</AuthMessage>
             </motion.div>
           )}
           {success && (
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <AuthMessage type="success">{success}</AuthMessage>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <AuthButton
             type="submit"
             loading={loading}
@@ -116,11 +114,6 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
             {isLogin ? 'Enter Portal' : 'Register'}
           </AuthButton>
           
-          <div className="relative flex items-center justify-center py-2">
-            <span className="absolute inset-x-0 h-px bg-slate-100"></span>
-            <span className="relative bg-white md:bg-transparent px-4 text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Alternate Access</span>
-          </div>
-
           <AuthButton
             type="button"
             onClick={onGuestMode}
