@@ -65,7 +65,7 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
               setError(null);
               setSuccess(null);
             }}
-            className="text-[11px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-[0.2em] transition-colors cursor-pointer"
+            className="text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-[0.2em] transition-colors cursor-pointer"
           >
             Back to Selection
           </button>
@@ -77,32 +77,32 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
           {view === 'selection' ? (
             <motion.div 
               key="selection"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-4"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-3"
             >
               <ModeCard 
                 title="Cloud Workspace"
                 description="Real-time collaboration and cloud backup."
-                icon={<Globe size={32} />}
+                icon={<Globe size={24} />}
                 onClick={() => setView('login')}
               />
               <ModeCard 
                 title="Local Workspace"
                 description="Private session with local browser storage."
-                icon={<Database size={32} />}
+                icon={<Database size={24} />}
                 onClick={onGuestMode}
               />
             </motion.div>
           ) : (
             <motion.div 
               key="auth-form"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
             >
-              <form onSubmit={handleAuth} className="space-y-8">
+              <form onSubmit={handleAuth} className="space-y-6">
                 <div className="space-y-1">
                   <AuthInput
                     label="Corporate Email"
@@ -111,7 +111,7 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@company.com"
                     required
-                    icon={<Mail size={22} />}
+                    icon={<Mail size={18} />}
                   />
 
                   <AuthInput
@@ -121,7 +121,7 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    icon={<Lock size={22} />}
+                    icon={<Lock size={18} />}
                   />
                 </div>
 
@@ -138,12 +138,12 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
                   )}
                 </AnimatePresence>
 
-                <div className="space-y-4 pt-2">
+                <div className="space-y-3">
                   <AuthButton
                     type="submit"
                     loading={loading}
                     variant="secondary"
-                    icon={<ArrowRight size={20} />}
+                    icon={<ArrowRight size={18} />}
                   >
                     {view === 'login' ? 'Sign In' : 'Register'}
                   </AuthButton>
@@ -155,9 +155,9 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
                       setError(null);
                       setSuccess(null);
                     }}
-                    className="w-full text-[10px] font-black text-slate-300 hover:text-slate-600 uppercase tracking-[0.2em] transition-colors"
+                    className="w-full text-[9px] font-black text-slate-300 hover:text-slate-600 uppercase tracking-[0.2em] transition-colors"
                   >
-                    {view === 'login' ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
+                    {view === 'login' ? "Need an account? Sign Up" : "Have an account? Sign In"}
                   </button>
                 </div>
               </form>

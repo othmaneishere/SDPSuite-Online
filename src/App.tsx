@@ -173,26 +173,26 @@ const AccessPage = ({
 
   return (
     <AuthLayout
-      title="Strategic Workspace"
+      title="Strategy Workspace"
       subtitle={isGuest ? "You are exploring in Local Mode." : "Initialize your team assignment."}
       footer={
-        <div className="flex items-center gap-12">
+        <div className="flex items-center gap-10">
           <button
             onClick={isGuest ? onSignIn : () => supabase.auth.signOut()}
-            className="text-[11px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
+            className="text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
           >
-            {isGuest ? <><Cloud size={16} /> Cloud Portal</> : <><LogOut size={16} /> Sign Out</>}
+            {isGuest ? <><Cloud size={14} /> Cloud Portal</> : <><LogOut size={14} /> Sign Out</>}
           </button>
           <button
             onClick={onAdminClick}
-            className="text-[11px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
+            className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
           >
-            <ShieldCheck size={16} /> Administrator
+            <ShieldCheck size={14} /> Admin Access
           </button>
         </div>
       }
     >
-      <div className="space-y-8">
+      <div className="space-y-6">
         <div className="space-y-1">
           <AuthInput
             label="Consultant Name"
@@ -200,7 +200,7 @@ const AccessPage = ({
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Enter your full name"
-            icon={<User size={22} />}
+            icon={<User size={18} />}
           />
 
           <AuthSelect
@@ -222,7 +222,7 @@ const AccessPage = ({
             onClick={handleContinue}
             disabled={!selectedValue || !fullName.trim()}
             variant="primary"
-            icon={<ArrowRight size={20} />}
+            icon={<ArrowRight size={18} />}
           >
             Enter Workspace
           </AuthButton>
