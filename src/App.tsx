@@ -174,63 +174,63 @@ const AccessPage = ({
   return (
     <AuthLayout
       title="Strategy Workspace"
-      subtitle={isGuest ? "Running in Offline Mode (Local Save Only)" : "Welcome back. Select your team group to begin."}
+      subtitle={isGuest ? "You are currently exploring in Offline Mode. Data will be stored locally." : "Select your team assignment to initialize your strategic workspace."}
       footer={
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-center gap-6">
-            {isGuest ? (
-              <button
-                onClick={onSignIn}
-                className="text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-widest transition-colors flex items-center gap-2 cursor-pointer"
-              >
-                <Cloud size={14} /> Cloud Access
-              </button>
-            ) : (
-              <button
-                onClick={() => supabase.auth.signOut()}
-                className="text-[10px] font-black text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors flex items-center gap-2 cursor-pointer"
-              >
-                <LogOut size={14} /> Cloud Logout
-              </button>
-            )}
+        <div className="flex items-center gap-12">
+          {isGuest ? (
             <button
-              onClick={onAdminClick}
-              className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors flex items-center gap-2 cursor-pointer"
+              onClick={onSignIn}
+              className="text-[11px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
             >
-              <ShieldCheck size={14} /> Administrator
+              <Cloud size={16} /> Cloud Portal
             </button>
-          </div>
+          ) : (
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="text-[11px] font-black text-slate-400 hover:text-slate-600 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
+            >
+              <LogOut size={16} /> Terminate Session
+            </button>
+          )}
+          <button
+            onClick={onAdminClick}
+            className="text-[11px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
+          >
+            <ShieldCheck size={16} /> Faculty
+          </button>
         </div>
       }
     >
-      <div className="space-y-6">
-        <AuthInput
-          label="Professional Name"
-          type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          placeholder="Enter your full name"
-          icon={<User size={18} />}
-        />
+      <div className="space-y-10">
+        <div className="space-y-6">
+          <AuthInput
+            label="Consultant Name"
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Enter your full name"
+            icon={<User size={22} />}
+          />
 
-        <AuthSelect
-          label="Assigned Group"
-          value={selectedValue}
-          onChange={(e) => setSelectedValue(e.target.value)}
-        >
-          <option value="">Choose your team...</option>
-          {Array.from({ length: 11 }, (_, i) => (
-            <option key={i + 1} value={`Group ${i + 1}`}>
-              Group {i + 1}
-            </option>
-          ))}
-        </AuthSelect>
+          <AuthSelect
+            label="Assigned Group"
+            value={selectedValue}
+            onChange={(e) => setSelectedValue(e.target.value)}
+          >
+            <option value="">Choose your team...</option>
+            {Array.from({ length: 11 }, (_, i) => (
+              <option key={i + 1} value={`Group ${i + 1}`}>
+                Group {i + 1}
+              </option>
+            ))}
+          </AuthSelect>
+        </div>
 
         <div className="pt-4">
           <AuthButton
             onClick={handleContinue}
             disabled={!selectedValue || !fullName.trim()}
-            icon={<ArrowRight size={18} />}
+            icon={<ArrowRight size={20} />}
           >
             Enter Workspace
           </AuthButton>

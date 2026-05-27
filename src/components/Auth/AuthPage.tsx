@@ -42,10 +42,10 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
           }
         });
         if (error) throw error;
-        setSuccess('Cloud account initiated. Please check your email for verification.');
+        setSuccess('Account activation initiated. Check your inbox.');
       }
     } catch (err: any) {
-      setError(err.message || 'Authentication sequence failed');
+      setError(err.message || 'Verification sequence failed');
     } finally {
       setLoading(false);
     }
@@ -53,87 +53,81 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
 
   return (
     <AuthLayout
-      title={isLogin ? "Cloud Portal" : "Join the Cloud"}
-      subtitle={isLogin ? "Access your collaborative strategy workspace" : "Create an enterprise account to begin"}
+      title={isLogin ? "Cloud Workspace" : "Create Account"}
+      subtitle={isLogin ? "Access your high-performance collaborative environment." : "Join the strategic development network."}
       footer={
-        <div className="space-y-4">
+        <div className="flex items-center gap-12">
           <button
             onClick={() => {
               setIsLogin(!isLogin);
               setError(null);
               setSuccess(null);
             }}
-            className="text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-widest transition-colors cursor-pointer"
+            className="text-[11px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-[0.2em] transition-colors cursor-pointer"
           >
-            {isLogin ? "Need cloud access? Request Account" : 'Return to Cloud Sign In'}
+            {isLogin ? "Request Access" : "Existing User"}
           </button>
         </div>
       }
     >
-      <form onSubmit={handleAuth} className="space-y-6">
-        <AuthInput
-          label="Enterprise Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="name@company.com"
-          required
-          icon={<Mail size={18} />}
-        />
+      <form onSubmit={handleAuth} className="space-y-10">
+        <div className="space-y-6">
+          <AuthInput
+            label="Corporate Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@company.com"
+            required
+            icon={<Mail size={22} />}
+          />
 
-        <AuthInput
-          label="Access Key"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          required
-          icon={<Lock size={18} />}
-        />
+          <AuthInput
+            label="Security Key"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+            icon={<Lock size={22} />}
+          />
+        </div>
 
         <AnimatePresence mode="wait">
           {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               <AuthMessage type="error">{error}</AuthMessage>
             </motion.div>
           )}
           {success && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
               <AuthMessage type="success">{success}</AuthMessage>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="pt-2 space-y-4">
+        <div className="space-y-6">
           <AuthButton
             type="submit"
             loading={loading}
-            variant="secondary"
-            icon={<ArrowRight size={18} />}
+            variant="primary"
+            icon={<ArrowRight size={20} />}
           >
-            {isLogin ? 'Enter Workspace' : 'Initialize Account'}
+            {isLogin ? 'Enter Portal' : 'Register'}
           </AuthButton>
           
           <div className="relative flex items-center justify-center py-2">
             <span className="absolute inset-x-0 h-px bg-slate-100"></span>
-            <span className="relative bg-white px-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">or</span>
+            <span className="relative bg-white md:bg-transparent px-4 text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Alternate Access</span>
           </div>
 
           <AuthButton
             type="button"
             onClick={onGuestMode}
             variant="outline"
-            icon={<User size={18} />}
+            icon={<User size={20} />}
           >
-            Local Workspace
+            Local Session
           </AuthButton>
         </div>
       </form>
