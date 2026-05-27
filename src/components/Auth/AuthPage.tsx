@@ -106,17 +106,17 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
               <form onSubmit={handleAuth} className="space-y-6">
                 <div className="space-y-1">
                   <AuthInput
-                    label="Corporate Email"
+                    label="Email Address"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@company.com"
+                    placeholder="name@example.com"
                     required
                     icon={<Mail size={18} />}
                   />
 
                   <AuthInput
-                    label="Security Key"
+                    label="Password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

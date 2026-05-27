@@ -173,7 +173,7 @@ const AccessPage = ({
 
   return (
     <AuthLayout
-      title="Strategy Workspace"
+      title="Workspace Access"
       subtitle={isGuest ? "You are exploring in Local Mode." : "Initialize your team assignment."}
       footer={
         <div className="flex items-center gap-10">
@@ -195,11 +195,11 @@ const AccessPage = ({
       <div className="space-y-6">
         <div className="space-y-1">
           <AuthInput
-            label="Consultant Name"
+            label="Full Name"
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            placeholder="Enter your full name"
+            placeholder="Enter your name"
             icon={<User size={18} />}
           />
 
