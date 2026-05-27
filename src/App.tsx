@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 're
 import React from 'react';
 import { FileText, Settings2, Network, Files, ChevronDown, LogOut, Trash2, BookOpen, Users, Lock, WifiOff, CloudCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { PasscodeModal, AdminDashboard } from './components/Admin';
 import { AuthPage } from './components/Auth/AuthPage';
@@ -242,6 +243,9 @@ export default function App() {
   });
   const [showPasscodeModal, setShowPasscodeModal] = useState(false);
   const [initializing, setInitializing] = useState(true);
+  
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Initial session check
@@ -271,22 +275,42 @@ export default function App() {
     }
   }, [selectedGroup]);
 
+  // Unified navigation logic
+  useEffect(() => {
+    if (initializing) return;
+
+    const isGuest = localStorage.getItem('sdp_guest_mode') === 'true';
+    const hasAuth = !!session || isGuest;
+    const path = location.pathname;
+
+    if (!hasAuth && path !== '/auth') {
+      navigate('/auth', { replace: true });
+    } else if (hasAuth && !selectedGroup && path !== '/access' && !isAdminMode) {
+      navigate('/access', { replace: true });
+    } else if (selectedGroup && path !== '/workspace' && !isAdminMode) {
+      navigate('/workspace', { replace: true });
+    }
+  }, [session, selectedGroup, initializing, isAdminMode, location.pathname]);
+
   const handleSelectGroup = (group: string, name?: string) => {
     if (name) {
       try { localStorage.setItem('sdp_user_name', name); } catch (e) { /* ignore */ }
     }
     setSelectedGroup(group);
+    navigate('/workspace');
   };
 
   const handleAdminAuthenticated = () => {
     setIsAdminMode(true);
     setShowPasscodeModal(false);
     localStorage.setItem('sdp_admin_auth', 'true');
+    navigate('/admin');
   };
 
   const handleAdminLogout = () => {
     setIsAdminMode(false);
     localStorage.removeItem('sdp_admin_auth');
+    navigate('/access');
   };
 
   if (initializing) {
@@ -297,42 +321,58 @@ export default function App() {
     );
   }
 
-  // If no session, we still show the AccessPage, but we allow it to "Continue as Guest" or Sign In
-  if (!session && !localStorage.getItem('sdp_guest_mode')) {
-    return <AuthPage onGuestMode={() => {
-      localStorage.setItem('sdp_guest_mode', 'true');
-      window.location.reload();
-    }} />;
-  }
-
   return (
     <ErrorBoundary>
-      {isAdminMode ? (
-        <AdminDashboard onLogout={handleAdminLogout} />
-      ) : showPasscodeModal ? (
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/auth" element={
+            <AuthPage onGuestMode={() => {
+              localStorage.setItem('sdp_guest_mode', 'true');
+              navigate('/access');
+            }} />
+          } />
+          
+          <Route path="/access" element={
+            <AccessPage 
+              onSelectGroup={handleSelectGroup}
+              onAdminClick={() => setShowPasscodeModal(true)}
+              isGuest={!session}
+              onSignIn={() => {
+                localStorage.removeItem('sdp_guest_mode');
+                navigate('/auth');
+              }}
+            />
+          } />
+
+          <Route path="/workspace" element={
+            selectedGroup ? (
+              <AppContent 
+                key={selectedGroup} 
+                selectedGroup={selectedGroup} 
+                isAdmin={isAdminMode}
+                isGuest={!session}
+                onExit={() => {
+                  setSelectedGroup(null);
+                  navigate('/access');
+                }} 
+              />
+            ) : <Navigate to="/access" replace />
+          } />
+
+          <Route path="/admin" element={
+            isAdminMode ? (
+              <AdminDashboard onLogout={handleAdminLogout} />
+            ) : <Navigate to="/access" replace />
+          } />
+
+          <Route path="/" element={<Navigate to="/access" replace />} />
+        </Routes>
+      </AnimatePresence>
+
+      {showPasscodeModal && (
         <PasscodeModal 
           onAuthenticated={handleAdminAuthenticated}
           onCancel={() => setShowPasscodeModal(false)}
-        />
-      ) : selectedGroup ? (
-        <AppContent 
-          key={selectedGroup} 
-          selectedGroup={selectedGroup} 
-          isAdmin={isAdminMode}
-          isGuest={!session}
-          onExit={() => {
-            setSelectedGroup(null);
-          }} 
-        />
-      ) : (
-        <AccessPage 
-          onSelectGroup={handleSelectGroup}
-          onAdminClick={() => setShowPasscodeModal(true)}
-          isGuest={!session}
-          onSignIn={() => {
-            localStorage.removeItem('sdp_guest_mode');
-            window.location.reload();
-          }}
         />
       )}
     </ErrorBoundary>
