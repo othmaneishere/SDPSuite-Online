@@ -57,6 +57,7 @@ export const AuthPage = ({ onGuestMode }: { onGuestMode: () => void }) => {
     <AuthLayout
       title={view === 'selection' ? "Choose Workspace" : view === 'login' ? "Cloud Portal" : "Create Account"}
       subtitle={view === 'selection' ? "Select how you would like to manage your session." : "Enter your cloud credentials to continue."}
+      centerHeader={view === 'selection'}
       footer={
         view !== 'selection' ? (
           <button

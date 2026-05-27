@@ -8,9 +8,10 @@ interface AuthLayoutProps {
   subtitle: string;
   footer?: ReactNode;
   showLogo?: boolean;
+  centerHeader?: boolean;
 }
 
-export const AuthLayout = ({ children, title, subtitle, footer }: AuthLayoutProps) => {
+export const AuthLayout = ({ children, title, subtitle, footer, centerHeader = false }: AuthLayoutProps) => {
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans selection:bg-blue-50">
       {/* Left Column: Fixed Branding */}
@@ -41,11 +42,11 @@ export const AuthLayout = ({ children, title, subtitle, footer }: AuthLayoutProp
       {/* Right Column: Interaction Flow */}
       <div className="flex-1 flex flex-col p-8 md:p-16 pt-16 md:pt-32 md:justify-start">
         <div className="max-w-[480px] w-full mx-auto space-y-12 animate-in fade-in slide-in-from-right-4 duration-1000 delay-200">
-          <div className="space-y-3">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+          <div className={cn("space-y-3", centerHeader ? "text-center" : "text-left")}>
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
               {title}
             </h2>
-            <p className="text-sm text-slate-400 font-medium leading-relaxed">
+            <p className="text-base text-slate-400 font-medium leading-relaxed">
               {subtitle}
             </p>
           </div>
@@ -55,7 +56,7 @@ export const AuthLayout = ({ children, title, subtitle, footer }: AuthLayoutProp
           </div>
 
           {footer && (
-            <div className="pt-10 border-t border-slate-100 flex items-center gap-10">
+            <div className="pt-10 border-t border-slate-100 flex items-center justify-center gap-10">
               {footer}
             </div>
           )}
@@ -169,20 +170,19 @@ export const ModeCard = ({
 }) => (
   <button
     onClick={onClick}
-    className="w-full flex items-center gap-6 p-6 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50/30 hover:border-slate-300 transition-all text-left group shadow-sm hover:shadow-md"
+    className="w-full flex flex-col items-center gap-4 p-8 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50/30 hover:border-slate-300 transition-all text-center group shadow-sm hover:shadow-md"
   >
-    <div className="w-14 h-14 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors border border-slate-100">
+    <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors border border-slate-100">
       {icon}
     </div>
-    <div className="flex-1">
-      <h3 className="text-base font-black text-slate-900 tracking-tight">
+    <div className="space-y-1">
+      <h3 className="text-lg font-black text-slate-900 tracking-tight">
         {title}
       </h3>
       <p className="text-sm text-slate-400 font-medium leading-snug">
         {description}
       </p>
     </div>
-    <ArrowRight className="text-slate-300 group-hover:text-blue-600 group-hover:translate-x-1.5 transition-all" size={20} />
   </button>
 );
 
