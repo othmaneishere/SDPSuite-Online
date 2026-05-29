@@ -187,7 +187,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
           
           <div className="flex justify-center mt-6">
             <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-200 overflow-x-auto">
-              {(['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER', 'SUMMARY'] as const).map(tab => (
+              {(['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab as any)}
@@ -196,7 +196,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
                     activeTab === tab ? "bg-brand-blue text-white shadow-md" : "text-gray-500 hover:text-gray-800"
                   )}
                 >
-                  {tab === 'PORTER' ? "Porter's 5 Forces" : tab === 'TOWS' ? 'Confrontation Matrix' : tab === 'SUMMARY' ? 'Summary' : tab === 'McKinsey' ? 'McKinsey 7-S' : `${tab} Analysis`}
+                  {tab === 'PORTER' ? "Porter's 5 Forces" : tab === 'TOWS' ? 'Confrontation Matrix' : tab === 'McKinsey' ? 'McKinsey 7-S' : `${tab} Analysis`}
                 </button>
               ))}
             </div>

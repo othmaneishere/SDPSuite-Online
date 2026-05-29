@@ -1,5 +1,6 @@
 import { ChevronDown, ArrowRight, Loader2, User, ShieldCheck } from 'lucide-react';
 import { ReactNode } from 'react';
+import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 
 interface AuthLayoutProps {
@@ -7,61 +8,56 @@ interface AuthLayoutProps {
   title: string;
   subtitle: string;
   footer?: ReactNode;
-  showLogo?: boolean;
-  centerHeader?: boolean;
 }
 
-export const AuthLayout = ({ children, title, subtitle, footer, centerHeader = false }: AuthLayoutProps) => {
+export const AuthLayout = ({ children, title, subtitle, footer }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans selection:bg-blue-50">
-      {/* Left Column: Fixed Branding */}
-      <div className="w-full md:w-[42%] bg-slate-50/50 p-8 md:p-16 pt-16 md:pt-32 flex flex-col border-r border-slate-100">
-        <div className="flex flex-col items-start gap-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          {/* Larger Logo, Pushed Down */}
-          <img 
-            src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
-            alt="SDP Suite Logo" 
-            className="w-40 h-40 md:w-52 md:h-52 object-contain" 
-          />
-          
-          <div className="space-y-6">
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
-              Strategic Suite <br /> Access
-            </h1>
-            <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6 selection:bg-blue-50 font-sans">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="w-full max-w-[480px]"
+      >
+        <div className="bg-white rounded-[40px] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+          {/* Logo Section */}
+          <div className="pt-12 pb-4 flex justify-center">
+            <img 
+              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png" 
+              alt="SDP Suite Logo" 
+              className="w-32 h-32 object-contain" 
+            />
+          </div>
+
+          <div className="px-8 md:px-12 pb-12">
+            <div className="text-center space-y-3 mb-10">
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none uppercase italic">
+                {title}
+              </h1>
+              <p className="text-sm text-slate-400 font-medium tracking-wide">
+                {subtitle}
+              </p>
+              <div className="h-1.5 w-12 bg-blue-600 rounded-full mx-auto mt-4" />
+            </div>
+
+            <div className="w-full">
+              {children}
+            </div>
+
+            {footer && (
+              <div className="mt-10 pt-8 border-t border-slate-50 flex items-center justify-center gap-10">
+                {footer}
+              </div>
+            )}
           </div>
         </div>
         
-        <div className="mt-auto pt-12 opacity-40">
+        <div className="mt-8 text-center opacity-30">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em]">
             Strategic Excellence v2.0
           </p>
         </div>
-      </div>
-
-      {/* Right Column: Interaction Flow */}
-      <div className="flex-1 flex flex-col p-8 md:p-16 pt-16 md:pt-32 md:justify-start">
-        <div className="max-w-[480px] w-full mx-auto space-y-12 animate-in fade-in slide-in-from-right-4 duration-1000 delay-200">
-          <div className={cn("space-y-3", centerHeader ? "text-center" : "text-left")}>
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
-              {title}
-            </h2>
-            <p className="text-base text-slate-400 font-medium leading-relaxed">
-              {subtitle}
-            </p>
-          </div>
-
-          <div className="w-full">
-            {children}
-          </div>
-
-          {footer && (
-            <div className="pt-10 border-t border-slate-100 flex items-center justify-center gap-10">
-              {footer}
-            </div>
-          )}
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

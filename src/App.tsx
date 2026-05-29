@@ -17,8 +17,7 @@ import {
   VRIOAnalysisTable, 
   TOWSWorksheet, 
   PortersFiveForces,
-  ConfrontationMatrixGuide,
-  StrategicSummary
+  ConfrontationMatrixGuide
 } from './components/Worksheets';
 
 // Error Boundary Component for stability
@@ -330,7 +329,7 @@ export default function App() {
 }
 
 function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string; onExit: () => void; isAdmin: boolean }) {
-  const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER' | 'SUMMARY'>(() => {
+  const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(() => {
     const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
     return (saved as any) || 'PESTEL';
   });
@@ -853,8 +852,6 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
             <button onClick={() => setActiveTab('VRIO')} className={cn("px-4 md:px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer", activeTab === 'VRIO' ? "bg-[#1f2937] text-white shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}><FileText size={18} /> VRIO Framework</button>
             <button onClick={() => setActiveTab('TOWS')} className={cn("px-4 md:px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer", activeTab === 'TOWS' ? "bg-yellow-200 text-gray-900 shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}><Network size={18} /> Confrontation Matrix</button>
             <button onClick={() => setActiveTab('PORTER')} className={cn("px-4 md:px-6 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer", activeTab === 'PORTER' ? "bg-[#4f39f6] text-white shadow-md" : "bg-transparent text-gray-500 hover:text-gray-800")}><Files size={18} /> Porter's 5 Forces</button>
-            <div className="w-px h-6 bg-gray-200 mx-2" />
-            <button onClick={() => setActiveTab('SUMMARY')} className={cn("px-4 md:px-6 py-2 rounded-lg text-sm font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer", activeTab === 'SUMMARY' ? "bg-brand-blue text-white shadow-md animate-pulse" : "bg-white text-brand-blue border border-brand-blue/20 hover:bg-brand-blue/5")}><Files size={18} /> Strategic Summary</button>
           </div>
         </div>
 
@@ -865,11 +862,11 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
               {activeTab === 'TOWS' && <ConfrontationMatrixGuide />}
               <div className="mb-12">
                 <div className="flex items-end justify-between border-b-2 border-gray-50 pb-6">
-                  <h2 className={cn("text-4xl font-black uppercase tracking-tighter text-gray-900 inline-block", activeTab === 'VRIO' ? "border-b-[12px] border-black pb-2" : activeTab === 'TOWS' ? "border-b-[12px] border-[#FFD666] pb-2" : activeTab === 'PORTER' ? "border-b-[12px] border-indigo-600 pb-2" : activeTab === 'SUMMARY' ? "border-b-[12px] border-brand-blue pb-2" : "")}>
-                    {activeTab === 'PESTEL' ? 'PESTEL Analysis' : activeTab === 'McKinsey' ? 'McKinsey 7-S Framework' : activeTab === 'VRIO' ? 'VRIO Framework' : activeTab === 'TOWS' ? 'Confrontation Matrix' : activeTab === 'PORTER' ? "Porter's Five Forces" : "Strategic Summary Report"}
+                  <h2 className={cn("text-4xl font-black uppercase tracking-tighter text-gray-900 inline-block", activeTab === 'VRIO' ? "border-b-[12px] border-black pb-2" : activeTab === 'TOWS' ? "border-b-[12px] border-[#FFD666] pb-2" : activeTab === 'PORTER' ? "border-b-[12px] border-indigo-600 pb-2" : "")}>
+                    {activeTab === 'PESTEL' ? 'PESTEL Analysis' : activeTab === 'McKinsey' ? 'McKinsey 7-S Framework' : activeTab === 'VRIO' ? 'VRIO Framework' : activeTab === 'TOWS' ? 'Confrontation Matrix' : "Porter's Five Forces"}
                   </h2>
                   <div className="text-[10px] font-mono text-gray-400 font-bold tracking-widest bg-gray-50 px-3 py-1 rounded-full">
-                    FRAMEWORK_ID: {activeTab === 'PESTEL' ? 'ENV_MACRO_01' : activeTab === 'McKinsey' ? 'ORG_ALIG_02' : activeTab === 'VRIO' ? 'COMP_ADV_03' : activeTab === 'TOWS' ? 'STRAT_MAT_04' : activeTab === 'PORTER' ? 'IND_COMP_05' : 'STRAT_SUM_06'}
+                    FRAMEWORK_ID: {activeTab === 'PESTEL' ? 'ENV_MACRO_01' : activeTab === 'McKinsey' ? 'ORG_ALIG_02' : activeTab === 'VRIO' ? 'COMP_ADV_03' : activeTab === 'TOWS' ? 'STRAT_MAT_04' : 'IND_COMP_05'}
                   </div>
                 </div>
               </div>
@@ -889,16 +886,8 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
                     <div className="space-y-12">
                       <TOWSWorksheet data={towsData} setData={setTowsData} meta={meta} setMeta={setMeta} />
                     </div>
-                  ) : activeTab === 'PORTER' ? (
-                    <PortersFiveForces data={portersData} setData={setPortersData} activeForce={activeForce} setActiveForce={setActiveForce} />
                   ) : (
-                    <StrategicSummary 
-                      pestelData={pestelData}
-                      mckinseyData={mckinseyData}
-                      vrioData={vrioAnalysisData}
-                      towsData={towsData}
-                      portersData={portersData}
-                    />
+                    <PortersFiveForces data={portersData} setData={setPortersData} activeForce={activeForce} setActiveForce={setActiveForce} />
                   )}
                 </motion.div>
               </AnimatePresence>
@@ -940,17 +929,6 @@ function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string;
             <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-[12px] border-[#FFD666] pb-2 mb-8">Confrontation Matrix</h2>
             <TOWSWorksheet data={towsData} setData={() => {}} meta={meta} setMeta={() => {}} />
           </div>
-        </div>
-        <div className="print-section bg-white p-12 w-[297mm]">
-          <CorporateHeader meta={meta} setMeta={setMeta} selectedGroup={selectedGroup} participants={meta.participants} />
-          <h2 className="text-4xl font-bold uppercase tracking-tight text-gray-900 border-b-[12px] border-brand-blue pb-2 mb-8">Strategic Summary Report</h2>
-          <StrategicSummary 
-            pestelData={pestelData}
-            mckinseyData={mckinseyData}
-            vrioData={vrioAnalysisData}
-            towsData={towsData}
-            portersData={portersData}
-          />
         </div>
       </div>
     </div>

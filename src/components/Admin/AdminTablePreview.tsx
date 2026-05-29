@@ -4,8 +4,7 @@ import {
   VRIOAnalysisTable, 
   VRIOFramework, 
   TOWSWorksheet, 
-  PortersFiveForces,
-  StrategicSummary
+  PortersFiveForces
 } from '../Worksheets';
 import { PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData } from '../../types';
 import { useState } from 'react';
@@ -29,28 +28,11 @@ export const AdminTablePreview = ({
            activeTab === 'McKinsey' ? 'McKinsey 7-S Framework' : 
            activeTab === 'VRIO' ? 'VRIO Framework' :
            activeTab === 'TOWS' ? 'Confrontation Matrix' :
-           activeTab === 'SUMMARY' ? 'Strategic Summary' :
            "Porter's Five Forces"}
         </h2>
       </div>
       
       <div className="p-8 overflow-auto">
-        {activeTab === 'SUMMARY' && (
-          <StrategicSummary 
-            pestelData={data.pestel || []}
-            mckinseyData={data.mckinsey || {}}
-            vrioData={data.vrio || []}
-            towsData={data.tows || { opportunities: [], threats: [], strengths: [], weaknesses: [], scores: {}, notes: {} }}
-            portersData={data.porters || {
-              newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-              buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-              suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-              substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-              rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-            }}
-          />
-        )}
-
         {activeTab === 'PESTEL' && (
           <PESTELWorksheet data={data.pestel || []} setData={() => {}} />
         )}
