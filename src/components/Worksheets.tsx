@@ -402,7 +402,7 @@ export const MatrixCell = React.memo(
         <div className="group/cell relative border-b border-gray-400/30 p-1">
           <div className="relative">
             <select
-              value={score}
+              value={String(score)}
               onChange={(e) => onScoreChange(e.target.value)}
               className={cn(
                 'w-full cursor-pointer appearance-none rounded-md border border-black/5 bg-white/40 py-1.5 pr-6 pl-2 text-[10px] font-black tracking-tighter uppercase transition-colors outline-none hover:bg-white/60',
@@ -460,17 +460,18 @@ export const TOWSWorksheet = ({
   const weaknesses = getSection('weaknesses');
 
   const updateRow = (section: TOWSRow['section'], updatedRow: TOWSRow) => {
-    const exists = data.some((r) => r.section === section);
+    const safeData = Array.isArray(data) ? data : [];
+    const exists = safeData.some((r) => r.section === section);
     if (exists) {
-      setData(data.map((r) => (r.section === section ? updatedRow : r)));
+      setData(safeData.map((r) => (r.section === section ? updatedRow : r)));
     } else {
-      setData([...data, updatedRow]);
+      setData([...safeData, updatedRow]);
     }
   };
 
   const updateList = (section: TOWSRow['section'], index: number, value: string) => {
     const row = getSection(section);
-    const newData = [...row.data];
+    const newData = Array.isArray(row.data) ? [...row.data] : ['', '', ''];
     newData[index] = value;
     updateRow(section, { ...row, data: newData });
   };
