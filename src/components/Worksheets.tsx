@@ -441,7 +441,7 @@ export const TOWSWorksheet = ({
   setData,
 }: {
   data: TOWSRow[];
-  setData: (d: TOWSRow[]) => void;
+  setData: (d: TOWSRow[] | ((prev: TOWSRow[]) => TOWSRow[])) => void;
 }) => {
   // Helper to find or create rows for sections
   const getSection = (section: TOWSRow['section']) => {
@@ -460,13 +460,15 @@ export const TOWSWorksheet = ({
   const weaknesses = getSection('weaknesses');
 
   const updateRow = (section: TOWSRow['section'], updatedRow: TOWSRow) => {
-    const safeData = Array.isArray(data) ? data : [];
-    const exists = safeData.some((r) => r.section === section);
-    if (exists) {
-      setData(safeData.map((r) => (r.section === section ? updatedRow : r)));
-    } else {
-      setData([...safeData, updatedRow]);
-    }
+    setData((prevData) => {
+      const safeData = Array.isArray(prevData) ? prevData : [];
+      const exists = safeData.some((r) => r.section === section);
+      if (exists) {
+        return safeData.map((r) => (r.section === section ? updatedRow : r));
+      } else {
+        return [...safeData, updatedRow];
+      }
+    });
   };
 
   const updateList = (section: TOWSRow['section'], index: number, value: string) => {
