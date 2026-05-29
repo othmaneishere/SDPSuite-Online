@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
 import React from 'react';
+import { ManualSaveButton } from './components/ManualSaveButton';
 import {
   FileText,
   Settings2,
@@ -85,6 +86,8 @@ const CorporateHeader = ({
   participants = [],
   isAdmin = false,
   onRemoveParticipant,
+  onForceSave,
+  isSyncing,
 }: {
   meta: MetaData;
   setMeta: (m: MetaData) => void;
@@ -93,6 +96,8 @@ const CorporateHeader = ({
   participants?: string[];
   isAdmin?: boolean;
   onRemoveParticipant?: (name: string) => void;
+  onForceSave?: () => Promise<void>;
+  isSyncing?: boolean;
 }) => {
   return (
     <div
@@ -110,6 +115,7 @@ const CorporateHeader = ({
             crossOrigin="anonymous"
           />
         </div>
+        {onForceSave && <ManualSaveButton onSave={onForceSave} isSyncing={!!isSyncing} />}
       </div>
 
       {!hideMeta && (
@@ -634,9 +640,55 @@ function AppContent({
     };
   }, [selectedGroup, isLoading]);
 
+  // Ref for manual save tracking
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const forceSave = async () => {
+    setSyncStatus('syncing');
+    setIsSyncing(true);
+    const tasks = [];
+
+    // Compare and prepare upserts
+    if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
+        tasks.push(supabase.from('pestel_rows').upsert(pestelData.map(d => ({ group_id: selectedGroup, row_key: d.id, content: d }))));
+        lastPestelRef.current = pestelData;
+    }
+    if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
+        tasks.push(supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, content: mckinseyData }));
+        lastMcKinseyRef.current = mckinseyData;
+    }
+    if (JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) || vrioNotes !== lastVrioNotesRef.current) {
+        tasks.push(supabase.from('vrio_rows').upsert(vrioAnalysisData.map(d => ({ group_id: selectedGroup, row_key: d.id, content: d }))));
+        tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: { ...meta, vrioNotes } }));
+        lastVrioRef.current = vrioAnalysisData;
+        lastVrioNotesRef.current = vrioNotes;
+    }
+    if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
+        tasks.push(supabase.from('tows_rows').upsert(towsData.map(d => ({ group_id: selectedGroup, row_key: d.section, content: d }))));
+        lastTowsRef.current = towsData;
+    }
+    if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
+        tasks.push(supabase.from('porter_rows').upsert(portersData.map(d => ({ group_id: selectedGroup, row_key: d.force, content: d }))));
+        lastPorterRef.current = portersData;
+    }
+    if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
+        tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }));
+        lastMetaRef.current = meta;
+    }
+
+    if (tasks.length > 0) {
+        await Promise.all(tasks);
+    }
+
+    setSyncStatus('synced');
+    setIsSyncing(false);
+    setLastSaved(new Date());
+  };
+
   // 3. Auto-save and Broadcast
   useEffect(() => {
     if (isLoading) return;
+    // ... rest of useEffect
 
     const dataToSave = {
       pestel: pestelData,
@@ -668,45 +720,11 @@ function AppContent({
     // C. Database Sync (Persistent Cloud)
     if (dbUpdateTimeout.current) clearTimeout(dbUpdateTimeout.current);
 
+    // C. Database Sync (Persistent Cloud)
+    if (dbUpdateTimeout.current) clearTimeout(dbUpdateTimeout.current);
     dbUpdateTimeout.current = setTimeout(async () => {
-      setSyncStatus('syncing');
       try {
-        const tasks = [];
-
-        // Compare and prepare upserts
-        if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
-            tasks.push(supabase.from('pestel_rows').upsert(pestelData.map(d => ({ group_id: selectedGroup, row_key: d.id, content: d }))));
-            lastPestelRef.current = pestelData;
-        }
-        if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
-            tasks.push(supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, row_key: 'main', content: mckinseyData }));
-            lastMcKinseyRef.current = mckinseyData;
-        }
-        if (JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) || vrioNotes !== lastVrioNotesRef.current) {
-            tasks.push(supabase.from('vrio_rows').upsert(vrioAnalysisData.map(d => ({ group_id: selectedGroup, row_key: d.id, content: d }))));
-            tasks.push(supabase.from('vrio_rows').upsert({ group_id: selectedGroup, row_key: 'notes', content: vrioNotes }));
-            lastVrioRef.current = vrioAnalysisData;
-            lastVrioNotesRef.current = vrioNotes;
-        }
-        if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
-            tasks.push(supabase.from('tows_rows').upsert(towsData.map(d => ({ group_id: selectedGroup, row_key: d.section, content: d }))));
-            lastTowsRef.current = towsData;
-        }
-        if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
-            tasks.push(supabase.from('porter_rows').upsert(portersData.map(d => ({ group_id: selectedGroup, row_key: d.force, content: d }))));
-            lastPorterRef.current = portersData;
-        }
-        if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
-            tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }));
-            lastMetaRef.current = meta;
-        }
-
-        if (tasks.length > 0) {
-            await Promise.all(tasks);
-        }
-
-        setSyncStatus('synced');
-        setLastSaved(new Date());
+        await forceSave();
       } catch (err) {
         console.warn('Cloud save failed - progress saved locally', err);
         setSyncStatus('offline');
@@ -1130,6 +1148,8 @@ function AppContent({
                 setMeta={setMeta}
                 selectedGroup={selectedGroup}
                 participants={meta.participants}
+                onForceSave={forceSave}
+                isSyncing={isSyncing}
                 isAdmin={isAdmin}
                 onRemoveParticipant={(name: string) =>
                   setMeta({
