@@ -3,7 +3,7 @@ import { LogOut, Activity } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { AdminGroupSelector } from './AdminGroupSelector';
 import { AdminTablePreview } from './AdminTablePreview';
-import { GroupData } from '../../types';
+import { GroupData, PESTELRow, VRIORow, TOWSRow, PorterRow, MetaData } from '../../types';
 import { cn } from '../../lib/utils';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -37,18 +37,35 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
       const groupList = Array.from(selectedGroups);
       if (groupList.length === 0) return;
 
-      const { data } = await supabase
-        .from('group_data')
-        .select('group_id, data')
-        .in('group_id', groupList);
+      const newData: Record<string, GroupData> = {};
 
-      if (data) {
-        const newData: Record<string, GroupData> = {};
-        data.forEach((row) => {
-          newData[row.group_id] = row.data;
-        });
-        setGroupsData((prev) => ({ ...prev, ...newData }));
+      for (const group of groupList) {
+        const [pestel, vrio, tows, porter, meta] = await Promise.all([
+          supabase.from('pestel_rows').select('content').eq('group_id', group),
+          supabase.from('vrio_rows').select('content').eq('group_id', group),
+          supabase.from('tows_rows').select('content').eq('group_id', group),
+          supabase.from('porter_rows').select('content').eq('group_id', group),
+          supabase.from('meta_data').select('content').eq('group_id', group).single(),
+        ]);
+
+        newData[group] = {
+          pestel: pestel.data?.map((r) => r.content as PESTELRow) || [],
+          vrio: vrio.data?.map((r) => r.content as VRIORow) || [],
+          vrioNotes: '', // TODO: Fetch vrio notes from a new table if needed
+          tows: tows.data?.map((r) => r.content as TOWSRow) || [],
+          porters: porter.data?.map((r) => r.content as PorterRow) || [],
+          mckinsey: {}, // TODO: Fetch mckinsey data from a new table if needed
+          meta: (meta.data?.content as MetaData) || {
+            module: '',
+            cohort: '',
+            date: '',
+            companyName: '',
+            participants: [],
+            group: group,
+          },
+        };
       }
+      setGroupsData((prev) => ({ ...prev, ...newData }));
     };
 
     fetchSelectedData();
@@ -107,9 +124,13 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
 
     setIsDeleting(true);
     try {
-      const { error } = await supabase.from('group_data').delete().eq('group_id', currentGroup);
-
-      if (error) throw error;
+      await Promise.all([
+        supabase.from('pestel_rows').delete().eq('group_id', currentGroup),
+        supabase.from('vrio_rows').delete().eq('group_id', currentGroup),
+        supabase.from('tows_rows').delete().eq('group_id', currentGroup),
+        supabase.from('porter_rows').delete().eq('group_id', currentGroup),
+        supabase.from('meta_data').delete().eq('group_id', currentGroup),
+      ]);
 
       // Broadcast empty data to reset any online users in that group
       const channel = channelsRef.current.get(currentGroup);

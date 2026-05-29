@@ -7,9 +7,15 @@ export type PESTELData = {
   potential: string;
 };
 
-export type McKinsey7SData = Record<string, Record<string, string>>;
+// New Granular Types
+export type RowBase = {
+  id: string;
+  updatedAt?: string;
+};
 
-export type VRIOAnalysisData = {
+export type PESTELRow = PESTELData & RowBase;
+
+export type VRIORow = {
   id: string;
   resource: string;
   type: string;
@@ -18,7 +24,24 @@ export type VRIOAnalysisData = {
   r: string;
   i: string;
   o: string;
-};
+} & RowBase;
+
+export type TOWSRow = {
+  section: 'opportunities' | 'threats' | 'strengths' | 'weaknesses';
+  data: string[];
+  scores: Record<string, number | string>;
+  notes: Record<string, string>;
+} & RowBase;
+
+export type PorterRow = {
+  force: 'newEntrants' | 'buyers' | 'suppliers' | 'substitutes' | 'rivalry';
+  analysis: string;
+  impact: 'Low' | 'Medium' | 'High';
+  scorecard: Record<number, boolean | null>;
+  further: Array<{ col1: string; col2: string; col3: string; col4?: string }>;
+} & RowBase;
+
+export type McKinsey7SData = Record<string, Record<string, string>>;
 
 export type TOWSMatrixData = {
   opportunities: string[];
@@ -54,11 +77,11 @@ export type MetaData = {
 };
 
 export interface GroupData {
-  pestel: PESTELData[];
+  pestel: PESTELRow[];
   mckinsey: McKinsey7SData;
-  vrio: VRIOAnalysisData[];
+  vrio: VRIORow[];
   vrioNotes: string;
-  tows: TOWSMatrixData;
-  porters: PortersFiveForcesData;
+  tows: TOWSRow[];
+  porters: PorterRow[];
   meta: MetaData;
 }

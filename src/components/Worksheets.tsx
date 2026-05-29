@@ -2,11 +2,11 @@ import React from 'react';
 import { ChevronDown, Database, Files, Network, FileText, Settings2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import {
-  PESTELData,
+  PESTELRow,
   McKinsey7SData,
-  VRIOAnalysisData,
-  TOWSMatrixData,
-  PortersFiveForcesData,
+  VRIORow,
+  TOWSRow,
+  PorterRow,
 } from '../types';
 
 export const ConfrontationMatrixGuide = () => (
@@ -203,8 +203,8 @@ export const PESTELWorksheet = ({
   data,
   setData,
 }: {
-  data: PESTELData[];
-  setData: (d: PESTELData[]) => void;
+  data: PESTELRow[];
+  setData: (d: PESTELRow[]) => void;
 }) => {
   const categories = [
     'Political',
@@ -215,7 +215,7 @@ export const PESTELWorksheet = ({
     'Legal',
   ] as const;
 
-  const updateItem = (id: string, field: keyof PESTELData, value: string) => {
+  const updateItem = (id: string, field: keyof PESTELRow, value: string) => {
     setData(data.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
@@ -440,103 +440,131 @@ export const TOWSWorksheet = ({
   data,
   setData,
 }: {
-  data: TOWSMatrixData;
-  setData: (d: TOWSMatrixData) => void;
+  data: TOWSRow[];
+  setData: (d: TOWSRow[]) => void;
 }) => {
-  const updateList = (
-    type: 'opportunities' | 'threats' | 'strengths' | 'weaknesses',
-    index: number,
-    value: string,
-  ) => {
-    const newList = [...data[type]];
-    newList[index] = value;
-    setData({ ...data, [type]: newList });
+  // Helper to find or create rows for sections
+  const getSection = (section: TOWSRow['section']) => {
+    return data.find((r) => r.section === section) || {
+      id: section,
+      section,
+      data: ['', '', ''],
+      scores: {},
+      notes: {},
+    };
+  };
+
+  const opportunities = getSection('opportunities');
+  const threats = getSection('threats');
+  const strengths = getSection('strengths');
+  const weaknesses = getSection('weaknesses');
+
+  const updateRow = (section: TOWSRow['section'], updatedRow: TOWSRow) => {
+    const exists = data.some((r) => r.section === section);
+    if (exists) {
+      setData(data.map((r) => (r.section === section ? updatedRow : r)));
+    } else {
+      setData([...data, updatedRow]);
+    }
+  };
+
+  const updateList = (section: TOWSRow['section'], index: number, value: string) => {
+    const row = getSection(section);
+    const newData = [...row.data];
+    newData[index] = value;
+    updateRow(section, { ...row, data: newData });
   };
 
   const updateScore = (
-    rowType: 'strengths' | 'weaknesses',
+    rowSection: 'strengths' | 'weaknesses',
     rowIndex: number,
-    colType: 'opportunities' | 'threats',
+    colSection: 'opportunities' | 'threats',
     colIndex: number,
     value: string,
   ) => {
-    let finalValue: number = parseInt(value);
-    if (isNaN(finalValue)) finalValue = 0;
-
-    setData({
-      ...data,
+    const row = getSection(rowSection);
+    const finalValue = parseInt(value) || 0;
+    
+    // The matrix scores are shared, but they are stored in the TOWSRow object.
+    // This is a bit ambiguous in the type definition, but we'll assume they are stored in the row object.
+    updateRow(rowSection, {
+      ...row,
       scores: {
-        ...data.scores,
-        [`${rowType}-${rowIndex}-${colType}-${colIndex}`]: finalValue,
+        ...row.scores,
+        [`${rowIndex}-${colSection}-${colIndex}`]: finalValue,
       },
     });
   };
 
   const updateNote = (
-    rowType: 'strengths' | 'weaknesses',
+    rowSection: 'strengths' | 'weaknesses',
     rowIndex: number,
-    colType: 'opportunities' | 'threats',
+    colSection: 'opportunities' | 'threats',
     colIndex: number,
     value: string,
   ) => {
-    setData({
-      ...data,
+    const row = getSection(rowSection);
+    updateRow(rowSection, {
+      ...row,
       notes: {
-        ...data.notes,
-        [`${rowType}-${rowIndex}-${colType}-${colIndex}`]: value,
+        ...row.notes,
+        [`${rowIndex}-${colSection}-${colIndex}`]: value,
       },
     });
   };
 
   const getScore = (
-    rowType: 'strengths' | 'weaknesses',
+    rowSection: 'strengths' | 'weaknesses',
     rowIndex: number,
-    colType: 'opportunities' | 'threats',
+    colSection: 'opportunities' | 'threats',
     colIndex: number,
   ) => {
-    return data.scores[`${rowType}-${rowIndex}-${colType}-${colIndex}`] ?? 0;
+    const row = getSection(rowSection);
+    return row.scores[`${rowIndex}-${colSection}-${colIndex}`] ?? 0;
   };
 
   const getNote = (
-    rowType: 'strengths' | 'weaknesses',
+    rowSection: 'strengths' | 'weaknesses',
     rowIndex: number,
-    colType: 'opportunities' | 'threats',
+    colSection: 'opportunities' | 'threats',
     colIndex: number,
   ) => {
-    return data.notes[`${rowType}-${rowIndex}-${colType}-${colIndex}`] ?? '';
+    const row = getSection(rowSection);
+    return row.notes[`${rowIndex}-${colSection}-${colIndex}`] ?? '';
   };
 
   const getScoreNumber = (
-    rowType: 'strengths' | 'weaknesses',
+    rowSection: 'strengths' | 'weaknesses',
     rowIndex: number,
-    colType: 'opportunities' | 'threats',
+    colSection: 'opportunities' | 'threats',
     colIndex: number,
   ) => {
-    const val = getScore(rowType, rowIndex, colType, colIndex);
+    const val = getScore(rowSection, rowIndex, colSection, colIndex);
     const num = parseInt(String(val));
     return isNaN(num) ? 0 : num;
   };
 
-  const getRowTotal = (rowType: 'strengths' | 'weaknesses', rowIndex: number) => {
+  const getRowTotal = (rowSection: 'strengths' | 'weaknesses', rowIndex: number) => {
     let total = 0;
-    (['opportunities', 'threats'] as ('opportunities' | 'threats')[]).forEach((colType) => {
+    (['opportunities', 'threats'] as ('opportunities' | 'threats')[]).forEach((colSection) => {
       for (let i = 0; i < 3; i++) {
-        total += getScoreNumber(rowType, rowIndex, colType, i);
+        total += getScoreNumber(rowSection, rowIndex, colSection, i);
       }
     });
     return total;
   };
 
-  const getColTotal = (colType: 'opportunities' | 'threats', colIndex: number) => {
+  const getColTotal = (colSection: 'opportunities' | 'threats', colIndex: number) => {
     let total = 0;
-    (['strengths', 'weaknesses'] as ('strengths' | 'weaknesses')[]).forEach((rowType) => {
+    (['strengths', 'weaknesses'] as ('strengths' | 'weaknesses')[]).forEach((rowSection) => {
       for (let i = 0; i < 3; i++) {
-        total += getScoreNumber(rowType, i, colType, colIndex);
+        total += getScoreNumber(rowSection, i, colSection, colIndex);
       }
     });
     return total;
   };
-
+  
+  // ... (getBgColor, getTextColor remain the same, they don't depend on data)
   const getBgColor = (scoreValue: string | number) => {
     const score = parseInt(String(scoreValue));
     if (isNaN(score)) return 'bg-white';
@@ -576,7 +604,7 @@ export const TOWSWorksheet = ({
               className="flex items-center justify-center border-r border-black p-2 last:border-r-0"
             >
               <textarea
-                value={data.opportunities[i]}
+                value={opportunities.data[i]}
                 onChange={(e) => updateList('opportunities', i, e.target.value)}
                 className="flex h-full w-full resize-none items-center justify-center bg-transparent p-1 text-center text-[12px] leading-tight font-bold outline-none"
                 placeholder="..."
@@ -592,7 +620,7 @@ export const TOWSWorksheet = ({
               className="flex items-center justify-center border-r border-black p-2 last:border-r-0"
             >
               <textarea
-                value={data.threats[i]}
+                value={threats.data[i]}
                 onChange={(e) => updateList('threats', i, e.target.value)}
                 className="flex h-full w-full resize-none items-center justify-center bg-transparent p-1 text-center text-[12px] leading-tight font-bold outline-none"
                 placeholder="..."
@@ -616,7 +644,7 @@ export const TOWSWorksheet = ({
               className="flex h-[100px] items-center justify-center border-b border-black p-2 text-center last:border-b-0"
             >
               <textarea
-                value={data.strengths[i]}
+                value={strengths.data[i]}
                 onChange={(e) => updateList('strengths', i, e.target.value)}
                 className="flex h-full w-full resize-none items-center justify-center bg-transparent p-1 text-center text-[12px] font-bold outline-none"
                 placeholder="..."
@@ -685,7 +713,7 @@ export const TOWSWorksheet = ({
               className="flex h-[100px] items-center justify-center border-b border-black p-2 text-center last:border-b-0"
             >
               <textarea
-                value={data.weaknesses[i]}
+                value={weaknesses.data[i]}
                 onChange={(e) => updateList('weaknesses', i, e.target.value)}
                 className="flex h-full w-full resize-none items-center justify-center bg-transparent p-1 text-center text-[12px] font-bold outline-none"
                 placeholder="..."
@@ -812,12 +840,12 @@ export const VRIOAnalysisTable = ({
   notes,
   setNotes,
 }: {
-  data: VRIOAnalysisData[];
-  setData: (d: VRIOAnalysisData[]) => void;
+  data: VRIORow[];
+  setData: (d: VRIORow[]) => void;
   notes: string;
   setNotes: (n: string) => void;
 }) => {
-  const updateItem = (id: string, field: keyof VRIOAnalysisData, value: string) => {
+  const updateItem = (id: string, field: keyof VRIORow, value: string) => {
     setData(data.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
@@ -1134,12 +1162,12 @@ export const PortersFiveForces = ({
   activeForce,
   setActiveForce,
 }: {
-  data: PortersFiveForcesData;
-  setData: (d: PortersFiveForcesData) => void;
-  activeForce: keyof PortersFiveForcesData;
-  setActiveForce: (f: keyof PortersFiveForcesData) => void;
+  data: PorterRow[];
+  setData: (d: PorterRow[]) => void;
+  activeForce: PorterRow['force'];
+  setActiveForce: (f: PorterRow['force']) => void;
 }) => {
-  const forceConfigs: Record<keyof PortersFiveForcesData, ForceConfig> = {
+  const forceConfigs: Record<PorterRow['force'], ForceConfig> = {
     suppliers: {
       title: 'Bargaining Power of Suppliers',
       color: 'bg-amber-50',
@@ -1247,25 +1275,35 @@ export const PortersFiveForces = ({
   };
 
   const currentConfig = forceConfigs[activeForce];
-  const currentData = data[activeForce];
+  const currentData = data.find((r) => r.force === activeForce) || {
+    id: activeForce,
+    force: activeForce,
+    analysis: '',
+    impact: 'Low',
+    scorecard: {},
+    further: [],
+  };
+
+  const updateData = (updatedRow: PorterRow) => {
+    const exists = data.some((r) => r.force === activeForce);
+    if (exists) {
+      setData(data.map((r) => (r.force === activeForce ? updatedRow : r)));
+    } else {
+      setData([...data, updatedRow]);
+    }
+  };
 
   const updateScorecard = (index: number, val: boolean) => {
-    setData({
-      ...data,
-      [activeForce]: {
-        ...currentData,
-        scorecard: { ...currentData.scorecard, [index]: val },
-      },
+    updateData({
+      ...currentData,
+      scorecard: { ...currentData.scorecard, [index]: val },
     });
   };
 
   const updateFurther = (rowIndex: number, colKey: string, val: string) => {
     const newFurther = [...currentData.further];
     newFurther[rowIndex] = { ...newFurther[rowIndex], [colKey]: val };
-    setData({
-      ...data,
-      [activeForce]: { ...currentData, further: newFurther },
-    });
+    updateData({ ...currentData, further: newFurther });
   };
 
   return (
@@ -1275,7 +1313,7 @@ export const PortersFiveForces = ({
         {Object.entries(forceConfigs).map(([key, config]) => (
           <button
             key={key}
-            onClick={() => setActiveForce(key as keyof PortersFiveForcesData)}
+            onClick={() => setActiveForce(key as PorterRow['force'])}
             className={cn(
               'cursor-pointer rounded-xl px-4 py-2 text-[10px] font-black tracking-widest uppercase transition-all',
               activeForce === key
@@ -1286,147 +1324,6 @@ export const PortersFiveForces = ({
             {config.title.split('of ').pop()?.split('Among ').pop() || config.title}
           </button>
         ))}
-      </div>
-
-      <div
-        className={cn(
-          'space-y-12 rounded-[40px] border p-12 shadow-2xl transition-all',
-          currentConfig.color,
-          currentConfig.borderColor,
-        )}
-      >
-        {/* Header */}
-        <div className="flex flex-col gap-2">
-          <h2
-            className={cn(
-              'text-3xl font-black tracking-tighter uppercase italic',
-              currentConfig.textColor,
-            )}
-          >
-            {currentConfig.title}
-          </h2>
-          <p className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase">
-            Strategic Assessment Worksheet
-          </p>
-        </div>
-
-        {/* Self Assessment Scorecard */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <h3 className="text-lg font-black text-gray-900 uppercase italic">
-              Self Assessment Scorecard
-            </h3>
-            <div className="h-px flex-1 bg-gray-100" />
-          </div>
-          <p className="border-l-4 border-gray-200 pl-4 text-xs leading-relaxed text-gray-500 italic">
-            {currentConfig.info}
-          </p>
-          <div className="space-y-2">
-            {currentConfig.questions.map((q, idx) => (
-              <div
-                key={idx}
-                className="group flex items-center gap-6 rounded-xl border border-white/60 bg-white/40 p-3 transition-all hover:bg-white/80"
-              >
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => updateScorecard(idx, true)}
-                    className={cn(
-                      'cursor-pointer rounded-lg border-2 px-4 py-1.5 text-[10px] font-black uppercase transition-all',
-                      currentData.scorecard[idx] === true
-                        ? 'border-green-600 bg-green-600 text-white shadow-sm'
-                        : 'border-gray-300 bg-white text-gray-400 hover:border-green-500 hover:text-green-600',
-                    )}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => updateScorecard(idx, false)}
-                    className={cn(
-                      'cursor-pointer rounded-lg border-2 px-4 py-1.5 text-[10px] font-black uppercase transition-all',
-                      currentData.scorecard[idx] === false
-                        ? 'border-red-600 bg-red-600 text-white shadow-sm'
-                        : 'border-gray-300 bg-white text-gray-400 hover:border-red-500 hover:text-red-600',
-                    )}
-                  >
-                    No
-                  </button>
-                </div>
-                <p className="text-xs leading-tight font-semibold text-gray-700">
-                  <span className="mr-2 text-gray-300">{idx + 1}.</span>
-                  {q}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Further Assessment Table */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <h3 className="text-lg font-black text-gray-900 uppercase italic">
-              Further Assessment
-            </h3>
-            <div className="h-px flex-1 bg-gray-100" />
-          </div>
-          <div className="overflow-hidden rounded-xl border-2 border-black bg-white shadow-lg">
-            <table className="w-full border-collapse">
-              <thead className="border-b-2 border-black bg-gray-100">
-                <tr>
-                  {currentConfig.tableHeaders.map((h, i) => (
-                    <th
-                      key={i}
-                      className="border-r-2 border-black p-4 text-center text-[10px] leading-tight font-black tracking-[0.1em] text-gray-900 uppercase last:border-0"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y-2 divide-black">
-                {activeForce === 'newEntrants' && currentConfig.customRows
-                  ? currentConfig.customRows.map((q: string, idx: number) => (
-                      <tr key={idx} className="group">
-                        <td className="w-1/3 border-r-2 border-black bg-gray-50 p-6 text-[11px] leading-tight font-black tracking-tight text-gray-900 uppercase italic">
-                          {q}
-                        </td>
-                        <td className="p-0">
-                          <textarea
-                            value={currentData.further[idx]?.col2 || ''}
-                            onChange={(e) => updateFurther(idx, 'col2', e.target.value)}
-                            className="h-32 w-full resize-none border-none bg-transparent p-6 text-sm leading-relaxed font-medium transition-all outline-none focus:bg-indigo-50/20"
-                            placeholder="Analysis and strategic response..."
-                          />
-                        </td>
-                      </tr>
-                    ))
-                  : currentData.further.map((row, idx) => (
-                      <tr key={idx} className="group h-32">
-                        {['col1', 'col2', 'col3', 'col4']
-                          .slice(0, currentConfig.tableHeaders.length)
-                          .map((col, cIdx) => (
-                            <td
-                              key={col}
-                              className="relative border-r-2 border-black p-0 last:border-0"
-                            >
-                              <textarea
-                                value={(row as Record<string, string | undefined>)[col] || ''}
-                                onChange={(e) => updateFurther(idx, col, e.target.value)}
-                                className="h-full w-full resize-none border-none bg-transparent p-6 pt-8 text-xs leading-relaxed font-semibold transition-all outline-none focus:bg-indigo-50/20"
-                                placeholder={cIdx === 0 ? 'Identify...' : 'Analysis...'}
-                              />
-                              {cIdx === 0 && (
-                                <span className="absolute top-2 left-3 text-[10px] font-black text-gray-200 uppercase transition-colors group-hover:text-gray-400">
-                                  #{idx + 1}
-                                </span>
-                              )}
-                            </td>
-                          ))}
-                      </tr>
-                    ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
     </div>
   );

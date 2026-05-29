@@ -6,11 +6,11 @@ import {
   TOWSWorksheet,
   PortersFiveForces,
 } from '../Worksheets';
-import { PortersFiveForcesData, GroupData } from '../../types';
+import { GroupData, PorterRow } from '../../types';
 import { useState } from 'react';
 
 export const AdminTablePreview = ({ activeTab, data }: { activeTab: string; data?: GroupData }) => {
-  const [activeForce, setActiveForce] = useState<keyof PortersFiveForcesData>('suppliers');
+  const [activeForce, setActiveForce] = useState<PorterRow['force']>('suppliers');
 
   if (!data)
     return (
@@ -54,31 +54,14 @@ export const AdminTablePreview = ({ activeTab, data }: { activeTab: string; data
 
         {activeTab === 'TOWS' && (
           <TOWSWorksheet
-            data={
-              data.tows || {
-                opportunities: [],
-                threats: [],
-                strengths: [],
-                weaknesses: [],
-                scores: {},
-                notes: {},
-              }
-            }
+            data={data.tows || []}
             setData={() => {}}
           />
         )}
 
         {activeTab === 'PORTER' && (
           <PortersFiveForces
-            data={
-              data.porters || {
-                newEntrants: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-                buyers: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-                suppliers: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-                substitutes: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-                rivalry: { analysis: '', impact: 'Medium', scorecard: {}, further: [] },
-              }
-            }
+            data={data.porters || []}
             setData={() => {}}
             activeForce={activeForce}
             setActiveForce={setActiveForce}

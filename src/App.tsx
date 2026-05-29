@@ -21,11 +21,13 @@ import { cn } from './lib/utils';
 import {
   MetaData,
   PESTELData,
+  PESTELRow,
   McKinsey7SData,
-  VRIOAnalysisData,
-  TOWSMatrixData,
-  PortersFiveForcesData,
+  VRIORow,
+  TOWSRow,
+  PorterRow,
   GroupData,
+  PortersFiveForcesData,
 } from './types';
 
 import {
@@ -417,7 +419,7 @@ function AppContent({
     })),
   );
   const [mckinseyData, setMckinseyData] = useState<McKinsey7SData>({});
-  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIOAnalysisData[]>(
+  const [vrioAnalysisData, setVrioAnalysisData] = useState<VRIORow[]>(
     Array.from({ length: 8 }, (_, i) => ({
       id: `res-${i}`,
       resource: '',
@@ -430,46 +432,8 @@ function AppContent({
     })),
   );
   const [vrioNotes, setVrioNotes] = useState('');
-  const [towsData, setTowsData] = useState<TOWSMatrixData>({
-    opportunities: Array(3).fill(''),
-    threats: Array(3).fill(''),
-    strengths: Array(3).fill(''),
-    weaknesses: Array(3).fill(''),
-    scores: {},
-    notes: {},
-  });
-  const [portersData, setPortersData] = useState<PortersFiveForcesData>({
-    newEntrants: {
-      analysis: '',
-      impact: 'Medium',
-      scorecard: {},
-      further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })),
-    },
-    buyers: {
-      analysis: '',
-      impact: 'Medium',
-      scorecard: {},
-      further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })),
-    },
-    suppliers: {
-      analysis: '',
-      impact: 'Medium',
-      scorecard: {},
-      further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })),
-    },
-    substitutes: {
-      analysis: '',
-      impact: 'Medium',
-      scorecard: {},
-      further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })),
-    },
-    rivalry: {
-      analysis: '',
-      impact: 'Medium',
-      scorecard: {},
-      further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })),
-    },
-  });
+  const [towsData, setTowsData] = useState<TOWSRow[]>([]);
+  const [portersData, setPortersData] = useState<PorterRow[]>([]);
   const [meta, setMeta] = useState<MetaData>({
     module: '',
     cohort: '',
@@ -484,6 +448,15 @@ function AppContent({
   const dbUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
   const clientIdRef = useRef<string | null>(null);
   const displayNameRef = useRef<string | null>(null);
+
+  // Refs for tracking changes
+  const lastPestelRef = useRef<PESTELData[]>([]);
+  const lastMcKinseyRef = useRef<McKinsey7SData>({});
+  const lastVrioRef = useRef<VRIORow[]>([]);
+  const lastVrioNotesRef = useRef<string>('');
+  const lastTowsRef = useRef<TOWSRow[]>([]);
+  const lastPorterRef = useRef<PorterRow[]>([]);
+  const lastMetaRef = useRef<MetaData | null>(null);
 
   // Initialize collaboration IDs once on mount
   useEffect(() => {
@@ -515,13 +488,13 @@ function AppContent({
       if (saved) {
         try {
           const local = JSON.parse(saved);
-          if (local.pestel) setPestelData(local.pestel);
-          if (local.mckinsey) setMckinseyData(local.mckinsey);
-          if (local.vrio) setVrioAnalysisData(local.vrio);
-          if (local.vrioNotes) setVrioNotes(local.vrioNotes || '');
-          if (local.tows) setTowsData(local.tows);
-          if (local.porters) setPortersData(local.porters);
-          if (local.meta) setMeta(local.meta);
+          if (local.pestel) { setPestelData(local.pestel); lastPestelRef.current = local.pestel; }
+          if (local.mckinsey) { setMckinseyData(local.mckinsey); lastMcKinseyRef.current = local.mckinsey; }
+          if (local.vrio) { setVrioAnalysisData(local.vrio); lastVrioRef.current = local.vrio; }
+          if (local.vrioNotes) { setVrioNotes(local.vrioNotes || ''); lastVrioNotesRef.current = local.vrioNotes || ''; }
+          if (local.tows) { setTowsData(local.tows); lastTowsRef.current = local.tows; }
+          if (local.porters) { setPortersData(local.porters); lastPorterRef.current = local.porters; }
+          if (local.meta) { setMeta(local.meta); lastMetaRef.current = local.meta; }
         } catch (e) {
           console.error('Failed to parse local backup', e);
         }
@@ -529,30 +502,51 @@ function AppContent({
 
       // Step B: Cloud Sync (Reliable)
       try {
-        const { data, error } = await supabase
-          .from('group_data')
-          .select('data')
-          .eq('group_id', selectedGroup)
-          .maybeSingle();
+        const [
+          { data: pestel, error: pestelErr },
+          { data: vrio, error: vrioErr },
+          { data: tows, error: towsErr },
+          { data: porter, error: porterErr },
+          { data: mckinsey, error: mckinseyErr },
+          { data: meta, error: metaErr },
+        ] = await Promise.all([
+          supabase.from('pestel_rows').select('content').eq('group_id', selectedGroup),
+          supabase.from('vrio_rows').select('content').eq('group_id', selectedGroup),
+          supabase.from('tows_rows').select('content').eq('group_id', selectedGroup),
+          supabase.from('porter_rows').select('content').eq('group_id', selectedGroup),
+          supabase.from('mckinsey_rows').select('content').eq('group_id', selectedGroup),
+          supabase.from('group_meta').select('content').eq('group_id', selectedGroup).maybeSingle(),
+        ]);
 
-        if (error) {
-          console.error('Supabase fetch error:', error);
-          throw error;
+        if (pestelErr || vrioErr || towsErr || porterErr || mckinseyErr || metaErr) {
+          throw new Error('Supabase fetch error');
         }
 
-        if (data?.data) {
-          const remote = data.data;
-          if (remote.pestel) setPestelData(remote.pestel);
-          if (remote.mckinsey) setMckinseyData(remote.mckinsey);
-          if (remote.vrio) setVrioAnalysisData(remote.vrio);
-          if (remote.vrioNotes) setVrioNotes(remote.vrioNotes || '');
-          if (remote.tows) setTowsData(remote.tows);
-          if (remote.porters) setPortersData(remote.porters);
-          if (remote.meta) setMeta(remote.meta);
-          setSyncStatus('synced');
-        } else {
-          setSyncStatus('synced');
+        if (pestel && pestel.length > 0) { 
+            const data = pestel.map((r: { content: PESTELRow }) => r.content);
+            setPestelData(data); lastPestelRef.current = data;
         }
+        if (vrio && vrio.length > 0) {
+            const data = vrio.map((r: { content: VRIORow }) => r.content);
+            setVrioAnalysisData(data); lastVrioRef.current = data;
+        }
+        if (tows && tows.length > 0) {
+            const data = tows.map((r: { content: TOWSRow }) => r.content);
+            setTowsData(data); lastTowsRef.current = data;
+        }
+        if (porter && porter.length > 0) {
+            const data = porter.map((r: { content: PorterRow }) => r.content);
+            setPortersData(data); lastPorterRef.current = data;
+        }
+        if (mckinsey && mckinsey.length > 0) {
+            const data = mckinsey[0].content;
+            setMckinseyData(data); lastMcKinseyRef.current = data;
+        }
+        if (meta?.content) {
+            setMeta(meta.content); lastMetaRef.current = meta.content;
+        }
+        
+        setSyncStatus('synced');
       } catch (err: unknown) {
         const e = err as { message?: string; details?: string };
         const errorMsg = e?.message || e?.details || JSON.stringify(e);
@@ -677,13 +671,40 @@ function AppContent({
     dbUpdateTimeout.current = setTimeout(async () => {
       setSyncStatus('syncing');
       try {
-        const { error } = await supabase.from('group_data').upsert({
-          group_id: selectedGroup,
-          data: dataToSave,
-          updated_at: new Date().toISOString(),
-        });
+        const tasks = [];
 
-        if (error) throw error;
+        // Compare and prepare upserts
+        if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
+            tasks.push(supabase.from('pestel_rows').upsert(pestelData.map(d => ({ group_id: selectedGroup, row_key: d.id, content: d }))));
+            lastPestelRef.current = pestelData;
+        }
+        if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
+            tasks.push(supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, row_key: 'main', content: mckinseyData }));
+            lastMcKinseyRef.current = mckinseyData;
+        }
+        if (JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) || vrioNotes !== lastVrioNotesRef.current) {
+            tasks.push(supabase.from('vrio_rows').upsert(vrioAnalysisData.map(d => ({ group_id: selectedGroup, row_key: d.id, content: d }))));
+            tasks.push(supabase.from('vrio_rows').upsert({ group_id: selectedGroup, row_key: 'notes', content: vrioNotes }));
+            lastVrioRef.current = vrioAnalysisData;
+            lastVrioNotesRef.current = vrioNotes;
+        }
+        if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
+            tasks.push(supabase.from('tows_rows').upsert(towsData.map(d => ({ group_id: selectedGroup, row_key: d.section, content: d }))));
+            lastTowsRef.current = towsData;
+        }
+        if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
+            tasks.push(supabase.from('porter_rows').upsert(portersData.map(d => ({ group_id: selectedGroup, row_key: d.force, content: d }))));
+            lastPorterRef.current = portersData;
+        }
+        if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
+            tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }));
+            lastMetaRef.current = meta;
+        }
+
+        if (tasks.length > 0) {
+            await Promise.all(tasks);
+        }
+
         setSyncStatus('synced');
         setLastSaved(new Date());
       } catch (err) {
@@ -703,6 +724,7 @@ function AppContent({
     selectedGroup,
     isLoading,
   ]);
+
 
   const exportPDF = async () => {
     setIsExporting(true);
@@ -889,47 +911,20 @@ function AppContent({
         );
         setVrioNotes('');
       } else if (activeTab === 'TOWS') {
-        setTowsData({
-          opportunities: Array(3).fill(''),
-          threats: Array(3).fill(''),
-          strengths: Array(3).fill(''),
-          weaknesses: Array(3).fill(''),
-          scores: {},
-          notes: {},
-        });
+        setTowsData([
+          { id: 'opportunities', section: 'opportunities', data: Array(3).fill(''), scores: {}, notes: {} },
+          { id: 'threats', section: 'threats', data: Array(3).fill(''), scores: {}, notes: {} },
+          { id: 'strengths', section: 'strengths', data: Array(3).fill(''), scores: {}, notes: {} },
+          { id: 'weaknesses', section: 'weaknesses', data: Array(3).fill(''), scores: {}, notes: {} },
+        ]);
       } else if (activeTab === 'PORTER') {
-        setPortersData({
-          newEntrants: {
-            analysis: '',
-            impact: 'Medium',
-            scorecard: {},
-            further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })),
-          },
-          buyers: {
-            analysis: '',
-            impact: 'Medium',
-            scorecard: {},
-            further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })),
-          },
-          suppliers: {
-            analysis: '',
-            impact: 'Medium',
-            scorecard: {},
-            further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })),
-          },
-          substitutes: {
-            analysis: '',
-            impact: 'Medium',
-            scorecard: {},
-            further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })),
-          },
-          rivalry: {
-            analysis: '',
-            impact: 'Medium',
-            scorecard: {},
-            further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })),
-          },
-        });
+        setPortersData([
+          { id: 'newEntrants', force: 'newEntrants', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+          { id: 'buyers', force: 'buyers', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+          { id: 'suppliers', force: 'suppliers', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+          { id: 'substitutes', force: 'substitutes', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+          { id: 'rivalry', force: 'rivalry', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+        ]);
       }
     }
   };
