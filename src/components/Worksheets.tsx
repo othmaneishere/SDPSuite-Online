@@ -1326,6 +1326,65 @@ export const PortersFiveForces = ({
           </button>
         ))}
       </div>
+
+      {/* Content */}
+      <div className={cn('rounded-2xl border p-6', currentConfig.borderColor, currentConfig.color)}>
+        <h3 className={cn('mb-4 text-xl font-black uppercase', currentConfig.textColor)}>
+          {currentConfig.title}
+        </h3>
+        <p className="mb-6 text-sm text-gray-600">{currentConfig.info}</p>
+        
+        {/* Analysis textarea */}
+        <textarea
+          value={currentData.analysis}
+          onChange={(e) => updateData({ ...currentData, analysis: e.target.value })}
+          className="mb-6 h-24 w-full rounded-xl border border-gray-200 bg-white p-4 text-sm"
+          placeholder="Enter your analysis here..."
+        />
+
+        {/* Scorecard table */}
+        <div className="space-y-2 mb-6">
+          {currentConfig.questions.map((q, i) => (
+            <div key={i} className="flex items-center gap-4 border-b border-gray-200 pb-2">
+              <span className="flex-1 text-sm">{q}</span>
+              <input
+                type="checkbox"
+                checked={!!currentData.scorecard[i]}
+                onChange={(e) => updateScorecard(i, e.target.checked)}
+                className="h-5 w-5"
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Further Analysis Table */}
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-200">
+            <thead>
+              <tr className="bg-gray-100">
+                {currentConfig.tableHeaders.map((h, i) => (
+                  <th key={i} className="p-2 text-left text-xs font-bold border border-gray-200">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {currentData.further.map((row, i) => (
+                <tr key={i}>
+                  {Object.keys(row).map((colKey) => (
+                    <td key={colKey} className="p-1 border border-gray-200">
+                      <input 
+                        value={row[colKey as keyof typeof row] || ''}
+                        onChange={(e) => updateFurther(i, colKey, e.target.value)}
+                        className="w-full rounded border border-gray-200 p-1 text-sm bg-white"
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
