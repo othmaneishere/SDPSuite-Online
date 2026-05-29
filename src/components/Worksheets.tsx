@@ -1379,36 +1379,41 @@ export const PortersFiveForces = ({
         </div>
 
         {/* Further Assessment Table */}
-        <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="w-12 p-4 text-[10px] font-black text-gray-400">#</th>
-                {currentConfig.tableHeaders.map((h, i) => (
-                  <th key={i} className="p-4 text-left text-xs font-black uppercase tracking-wider text-gray-900 border-l border-gray-200">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {currentData.further.map((row, idx) => (
-                <tr key={idx} className="group hover:bg-gray-50/50 transition-colors">
-                  <td className="p-4 text-[10px] font-black text-gray-300 text-center border-r border-gray-200">#{idx + 1}</td>
-                  {(['col1', 'col2', 'col3', 'col4'] as const).slice(0, currentConfig.tableHeaders.length).map((col) => (
-                    <td key={col} className="p-2 border-r border-gray-200 last:border-0">
-                      <textarea
-                        value={row[col] || ''}
-                        onChange={(e) => updateFurther(idx, col, e.target.value)}
-                        className="w-full h-20 p-3 text-xs font-medium bg-transparent outline-none resize-none placeholder:text-gray-300"
-                        placeholder="Analysis..."
-                      />
-                    </td>
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <h3 className="text-lg font-black uppercase italic text-gray-900">Further Assessment</h3>
+            <div className="h-px flex-1 bg-gray-100" />
+          </div>
+          <div className="overflow-hidden rounded-xl border-2 border-black bg-white shadow-lg">
+            <table className="w-full border-collapse">
+              <thead className="bg-gray-100 border-b-2 border-black">
+                <tr>
+                  {currentConfig.tableHeaders.map((h, i) => (
+                    <th key={i} className="p-4 text-[10px] font-black uppercase tracking-[0.1em] text-gray-900 border-r-2 border-black last:border-0 text-center leading-tight">
+                      {h}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y-2 divide-black">
+                {[0, 1, 2, 3, 4].map((idx) => (
+                  <tr key={idx} className="group h-32">
+                    {(['col1', 'col2', 'col3', 'col4'] as const).slice(0, currentConfig.tableHeaders.length).map((col, cIdx) => (
+                      <td key={col} className="p-0 border-r-2 border-black last:border-0 relative">
+                        <textarea
+                          value={(currentData.further[idx] as any)?.[col] || ''}
+                          onChange={(e) => updateFurther(idx, col, e.target.value)}
+                          className="w-full h-full p-6 pt-8 text-xs font-semibold bg-transparent outline-none resize-none border-none focus:bg-indigo-50/20 transition-all leading-relaxed"
+                          placeholder={cIdx === 0 ? "Identify..." : "Analysis..."}
+                        />
+                        {cIdx === 0 && <span className="absolute top-2 left-3 text-[10px] font-black text-gray-200 uppercase group-hover:text-gray-400 transition-colors">#{idx + 1}</span>}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
