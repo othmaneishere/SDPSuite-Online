@@ -6,16 +6,10 @@ import {
   TOWSWorksheet,
   PortersFiveForces,
 } from '../Worksheets';
-import {
-  PESTELData,
-  McKinsey7SData,
-  VRIOAnalysisData,
-  TOWSMatrixData,
-  PortersFiveForcesData,
-} from '../../types';
+import { PortersFiveForcesData, GroupData } from '../../types';
 import { useState } from 'react';
 
-export const AdminTablePreview = ({ activeTab, data }: { activeTab: string; data: any }) => {
+export const AdminTablePreview = ({ activeTab, data }: { activeTab: string; data?: GroupData }) => {
   const [activeForce, setActiveForce] = useState<keyof PortersFiveForcesData>('suppliers');
 
   if (!data)
@@ -71,8 +65,6 @@ export const AdminTablePreview = ({ activeTab, data }: { activeTab: string; data
               }
             }
             setData={() => {}}
-            meta={data.meta || {}}
-            setMeta={() => {}}
           />
         )}
 

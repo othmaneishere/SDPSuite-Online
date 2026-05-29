@@ -52,3 +52,13 @@ export type MetaData = {
   participants: string[];
   group: string;
 };
+
+export interface GroupData {
+  pestel: PESTELData[];
+  mckinsey: McKinsey7SData;
+  vrio: VRIOAnalysisData[];
+  vrioNotes: string;
+  tows: TOWSMatrixData;
+  porters: PortersFiveForcesData;
+  meta: MetaData;
+}

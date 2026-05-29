@@ -5,15 +5,14 @@ import {
   Settings2,
   Network,
   Files,
-  ChevronDown,
   LogOut,
   Trash2,
   BookOpen,
   Users,
-  Lock,
   WifiOff,
   CloudCheck,
 } from 'lucide-react';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import { motion, AnimatePresence } from 'motion/react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from './lib/supabase';
@@ -28,6 +27,7 @@ import {
   VRIOAnalysisData,
   TOWSMatrixData,
   PortersFiveForcesData,
+  GroupData,
 } from './types';
 
 import {
@@ -206,7 +206,7 @@ const AccessPage = ({
     if (selectedValue && fullName.trim()) {
       try {
         localStorage.setItem('sdp_user_name', fullName.trim());
-      } catch (e) {
+      } catch {
         /* ignore */
       }
       onSelectGroup(selectedValue, fullName.trim());
@@ -276,7 +276,6 @@ export default function App() {
     return localStorage.getItem('sdp_admin_auth') === 'true';
   });
   const [showPasscodeModal, setShowPasscodeModal] = useState(false);
-  const [initializing, setInitializing] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -291,8 +290,6 @@ export default function App() {
 
   // Unified navigation logic
   useEffect(() => {
-    if (initializing) return;
-
     const path = location.pathname;
 
     if (!selectedGroup && path !== '/access' && !isAdminMode) {
@@ -300,13 +297,13 @@ export default function App() {
     } else if (selectedGroup && path !== '/workspace' && !isAdminMode) {
       navigate('/workspace', { replace: true });
     }
-  }, [selectedGroup, initializing, isAdminMode, location.pathname]);
+  }, [selectedGroup, isAdminMode, location.pathname, navigate]);
 
   const handleSelectGroup = (group: string, name?: string) => {
     if (name) {
       try {
         localStorage.setItem('sdp_user_name', name);
-      } catch (e) {
+      } catch {
         /* ignore */
       }
     }
@@ -326,14 +323,6 @@ export default function App() {
     localStorage.removeItem('sdp_admin_auth');
     navigate('/access');
   };
-
-  if (initializing) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-      </div>
-    );
-  }
 
   return (
     <ErrorBoundary>
@@ -405,7 +394,8 @@ function AppContent({
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(
     () => {
       const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
-      return (saved as any) || 'PESTEL';
+      const validTabs = ['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'];
+      return (validTabs.includes(saved || '') ? saved : 'PESTEL') as 'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER';
     },
   );
   const [activeForce, setActiveForce] = useState<keyof PortersFiveForcesData>('suppliers');
@@ -421,7 +411,7 @@ function AppContent({
   const [pestelData, setPestelData] = useState<PESTELData[]>(
     ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map((cat) => ({
       id: cat,
-      category: cat as any,
+      category: cat as PESTELData['category'],
       description: '',
       impact: '',
       probability: '',
@@ -504,7 +494,7 @@ function AppContent({
       id = 'user-' + Math.random().toString(36).slice(2, 9);
       try {
         localStorage.setItem('sdp_client_id', id);
-      } catch (e) {
+      } catch {
         /* ignore */
       }
     }
@@ -514,7 +504,7 @@ function AppContent({
     displayNameRef.current = (name as string) || id || 'guest';
   }, []);
 
-  const roomChannelRef = useRef<any>(null);
+  const roomChannelRef = useRef<RealtimeChannel | null>(null);
   const lastReceivedRef = useRef<string>('');
 
   // 1. Initial Load: Hybrid Strategy
@@ -565,8 +555,9 @@ function AppContent({
         } else {
           setSyncStatus('synced');
         }
-      } catch (err: any) {
-        const errorMsg = err?.message || err?.details || JSON.stringify(err);
+      } catch (err: unknown) {
+        const e = err as { message?: string; details?: string };
+        const errorMsg = e?.message || e?.details || JSON.stringify(e);
         console.warn(`Supabase fetch failed (${errorMsg}) - entering offline mode.`, err);
         setSyncStatus('offline');
       } finally {
@@ -584,7 +575,7 @@ function AppContent({
     if (roomChannelRef.current) {
       try {
         roomChannelRef.current.unsubscribe();
-      } catch (e) {
+      } catch {
         /* ignore */
       }
       roomChannelRef.current = null;
@@ -598,7 +589,7 @@ function AppContent({
       .on('presence', { event: 'sync' }, () => {
         try {
           const state = channel.presenceState();
-          const presences = Object.values(state).flat() as any[];
+          const presences = Object.values(state).flat() as { name?: string; client?: string }[];
           const names = presences.map((p) => p?.name || p?.client).filter(Boolean);
           setMeta(
             (prev) => ({ ...(prev || {}), participants: Array.from(new Set(names)) }) as MetaData,
@@ -607,14 +598,14 @@ function AppContent({
           console.error('Presence parse error', err);
         }
       })
-      .on('broadcast', { event: 'update_data' }, ({ payload }: any) => {
+      .on('broadcast', { event: 'update_data' }, ({ payload }: { payload: { senderId: string; data: GroupData } }) => {
         try {
           if (!payload || payload.senderId === clientIdRef.current) return;
           const payloadStr = JSON.stringify(payload.data || {});
           if (payloadStr === lastReceivedRef.current) return;
           lastReceivedRef.current = payloadStr;
 
-          const remote = payload.data || {};
+          const remote: GroupData = payload.data;
           if (remote.pestel) setPestelData(remote.pestel);
           if (remote.mckinsey) setMckinseyData(remote.mckinsey);
           if (remote.vrio) setVrioAnalysisData(remote.vrio);
@@ -644,7 +635,7 @@ function AppContent({
     return () => {
       try {
         channel.unsubscribe();
-      } catch (e) {
+      } catch {
         /* ignore */
       }
       roomChannelRef.current = null;
@@ -867,7 +858,7 @@ function AppContent({
           ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(
             (cat) => ({
               id: cat,
-              category: cat as any,
+              category: cat as PESTELData['category'],
               description: '',
               impact: '',
               probability: '',
@@ -1210,12 +1201,7 @@ function AppContent({
                     </div>
                   ) : activeTab === 'TOWS' ? (
                     <div className="space-y-12">
-                      <TOWSWorksheet
-                        data={towsData}
-                        setData={setTowsData}
-                        meta={meta}
-                        setMeta={setMeta}
-                      />
+                      <TOWSWorksheet data={towsData} setData={setTowsData} />
                     </div>
                   ) : (
                     <PortersFiveForces
@@ -1310,7 +1296,7 @@ function AppContent({
             <h2 className="mb-8 border-b-[12px] border-[#FFD666] pb-2 text-4xl font-bold tracking-tight text-gray-900 uppercase">
               Confrontation Matrix
             </h2>
-            <TOWSWorksheet data={towsData} setData={() => {}} meta={meta} setMeta={() => {}} />
+            <TOWSWorksheet data={towsData} setData={() => {}} />
           </div>
         </div>
       </div>

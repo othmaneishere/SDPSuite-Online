@@ -7,7 +7,6 @@ import {
   VRIOAnalysisData,
   TOWSMatrixData,
   PortersFiveForcesData,
-  MetaData,
 } from '../types';
 
 export const ConfrontationMatrixGuide = () => (
@@ -440,13 +439,9 @@ export const MatrixCell = React.memo(
 export const TOWSWorksheet = ({
   data,
   setData,
-  meta,
-  setMeta,
 }: {
   data: TOWSMatrixData;
   setData: (d: TOWSMatrixData) => void;
-  meta: MetaData;
-  setMeta: (m: MetaData) => void;
 }) => {
   const updateList = (
     type: 'opportunities' | 'threats' | 'strengths' | 'weaknesses',
@@ -524,9 +519,9 @@ export const TOWSWorksheet = ({
 
   const getRowTotal = (rowType: 'strengths' | 'weaknesses', rowIndex: number) => {
     let total = 0;
-    ['opportunities', 'threats'].forEach((colType) => {
+    (['opportunities', 'threats'] as ('opportunities' | 'threats')[]).forEach((colType) => {
       for (let i = 0; i < 3; i++) {
-        total += getScoreNumber(rowType, rowIndex, colType as any, i);
+        total += getScoreNumber(rowType, rowIndex, colType, i);
       }
     });
     return total;
@@ -534,9 +529,9 @@ export const TOWSWorksheet = ({
 
   const getColTotal = (colType: 'opportunities' | 'threats', colIndex: number) => {
     let total = 0;
-    ['strengths', 'weaknesses'].forEach((rowType) => {
+    (['strengths', 'weaknesses'] as ('strengths' | 'weaknesses')[]).forEach((rowType) => {
       for (let i = 0; i < 3; i++) {
-        total += getScoreNumber(rowType as any, i, colType, colIndex);
+        total += getScoreNumber(rowType, i, colType, colIndex);
       }
     });
     return total;
@@ -1122,6 +1117,17 @@ export const VRIOFramework = () => {
   );
 };
 
+type ForceConfig = {
+  title: string;
+  color: string;
+  textColor: string;
+  borderColor: string;
+  info: string;
+  questions: string[];
+  tableHeaders: string[];
+  customRows?: string[];
+};
+
 export const PortersFiveForces = ({
   data,
   setData,
@@ -1133,7 +1139,7 @@ export const PortersFiveForces = ({
   activeForce: keyof PortersFiveForcesData;
   setActiveForce: (f: keyof PortersFiveForcesData) => void;
 }) => {
-  const forceConfigs = {
+  const forceConfigs: Record<keyof PortersFiveForcesData, ForceConfig> = {
     suppliers: {
       title: 'Bargaining Power of Suppliers',
       color: 'bg-amber-50',
@@ -1269,7 +1275,7 @@ export const PortersFiveForces = ({
         {Object.entries(forceConfigs).map(([key, config]) => (
           <button
             key={key}
-            onClick={() => setActiveForce(key as any)}
+            onClick={() => setActiveForce(key as keyof PortersFiveForcesData)}
             className={cn(
               'cursor-pointer rounded-xl px-4 py-2 text-[10px] font-black tracking-widest uppercase transition-all',
               activeForce === key
@@ -1313,7 +1319,7 @@ export const PortersFiveForces = ({
             <div className="h-px flex-1 bg-gray-100" />
           </div>
           <p className="border-l-4 border-gray-200 pl-4 text-xs leading-relaxed text-gray-500 italic">
-            {(currentConfig as any).info}
+            {currentConfig.info}
           </p>
           <div className="space-y-2">
             {currentConfig.questions.map((q, idx) => (
@@ -1377,8 +1383,8 @@ export const PortersFiveForces = ({
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-black">
-                {activeForce === 'newEntrants' && 'customRows' in currentConfig
-                  ? (currentConfig as any).customRows.map((q: string, idx: number) => (
+                {activeForce === 'newEntrants' && currentConfig.customRows
+                  ? currentConfig.customRows.map((q: string, idx: number) => (
                       <tr key={idx} className="group">
                         <td className="w-1/3 border-r-2 border-black bg-gray-50 p-6 text-[11px] leading-tight font-black tracking-tight text-gray-900 uppercase italic">
                           {q}
@@ -1403,7 +1409,7 @@ export const PortersFiveForces = ({
                               className="relative border-r-2 border-black p-0 last:border-0"
                             >
                               <textarea
-                                value={(row as any)[col] || ''}
+                                value={(row as Record<string, string | undefined>)[col] || ''}
                                 onChange={(e) => updateFurther(idx, col, e.target.value)}
                                 className="h-full w-full resize-none border-none bg-transparent p-6 pt-8 text-xs leading-relaxed font-semibold transition-all outline-none focus:bg-indigo-50/20"
                                 placeholder={cIdx === 0 ? 'Identify...' : 'Analysis...'}

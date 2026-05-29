@@ -1,27 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { LogOut, Users, Activity } from 'lucide-react';
+import { LogOut, Activity } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { AdminGroupSelector } from './AdminGroupSelector';
 import { AdminTablePreview } from './AdminTablePreview';
-import {
-  PESTELData,
-  McKinsey7SData,
-  VRIOAnalysisData,
-  TOWSMatrixData,
-  PortersFiveForcesData,
-  MetaData,
-} from '../../types';
+import { GroupData } from '../../types';
 import { cn } from '../../lib/utils';
-
-export interface GroupData {
-  pestel: PESTELData[];
-  mckinsey: McKinsey7SData;
-  vrio: VRIOAnalysisData[];
-  vrioNotes: string;
-  tows: TOWSMatrixData;
-  porters: PortersFiveForcesData;
-  meta: MetaData;
-}
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [groups, setGroups] = useState<string[]>([]);
@@ -32,7 +16,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [groupsData, setGroupsData] = useState<Record<string, GroupData>>({});
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  const channelsRef = useRef<Map<string, any>>(new Map());
+  const channelsRef = useRef<Map<string, RealtimeChannel>>(new Map());
 
   // Load all available groups
   useEffect(() => {
@@ -53,7 +37,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
       const groupList = Array.from(selectedGroups);
       if (groupList.length === 0) return;
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('group_data')
         .select('group_id, data')
         .in('group_id', groupList);
@@ -75,7 +59,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
     selectedGroups.forEach((group) => {
       if (!channelsRef.current.has(group)) {
         const channel = supabase.channel(`room:${group}`);
-        channel.on('broadcast', { event: 'update_data' }, ({ payload }: any) => {
+        channel.on('broadcast', { event: 'update_data' }, ({ payload }: { payload: { data: GroupData } }) => {
           setGroupsData((prev) => ({
             ...prev,
             [group]: payload.data,
@@ -86,11 +70,13 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
       }
     });
 
+    const channels = channelsRef.current;
+
     return () => {
-      channelsRef.current.forEach((channel, group) => {
+      channels.forEach((channel, group) => {
         if (!selectedGroups.has(group)) {
           channel.unsubscribe();
-          channelsRef.current.delete(group);
+          channels.delete(group);
         }
       });
     };
@@ -213,7 +199,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
               {(['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'] as const).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab as any)}
+                  onClick={() => setActiveTab(tab)}
                   className={cn(
                     'rounded-lg px-6 py-2 text-sm font-bold whitespace-nowrap transition-all',
                     activeTab === tab
