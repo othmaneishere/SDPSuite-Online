@@ -404,6 +404,10 @@ function AppContent({
       return (validTabs.includes(saved || '') ? saved : 'PESTEL') as 'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER';
     },
   );
+
+  useEffect(() => {
+    localStorage.setItem(`sdp_tab_${selectedGroup}`, activeTab);
+  }, [activeTab, selectedGroup]);
   const [activeForce, setActiveForce] = useState<keyof PortersFiveForcesData>('suppliers');
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
