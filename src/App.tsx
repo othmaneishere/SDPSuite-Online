@@ -5,12 +5,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { PasscodeModal, AdminDashboard } from './components/Admin';
-import { AuthPage } from './components/Auth/AuthPage';
 import { jsPDF } from 'jspdf';
 import { toPng, toJpeg } from 'html-to-image';
 import { cn } from './lib/utils';
 import { MetaData, PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData } from './types';
-import { Session } from '@supabase/supabase-js';
 
 import { 
   PESTELWorksheet, 
@@ -145,7 +143,6 @@ import {
   AuthInput, 
   AuthSelect, 
   AuthButton, 
-  Cloud,
   User,
   ShieldCheck,
   ArrowRight
@@ -153,14 +150,10 @@ import {
 
 const AccessPage = ({ 
   onSelectGroup, 
-  onAdminClick, 
-  isGuest, 
-  onSignIn 
+  onAdminClick 
 }: { 
   onSelectGroup: (group: string, name: string) => void; 
-  onAdminClick: () => void, 
-  isGuest?: boolean, 
-  onSignIn?: () => void 
+  onAdminClick: () => void 
 }) => {
   const [selectedValue, setSelectedValue] = useState('');
   const [fullName, setFullName] = useState(() => localStorage.getItem('sdp_user_name') || '');
@@ -175,15 +168,9 @@ const AccessPage = ({
   return (
     <AuthLayout
       title="Workspace Access"
-      subtitle={isGuest ? "You are exploring in Local Mode." : "Initialize your team assignment."}
+      subtitle="Initialize your team assignment."
       footer={
         <div className="flex items-center gap-10">
-          <button
-            onClick={isGuest ? onSignIn : () => supabase.auth.signOut()}
-            className="text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
-          >
-            {isGuest ? <><Cloud size={14} /> Cloud Portal</> : <><LogOut size={14} /> Sign Out</>}
-          </button>
           <button
             onClick={onAdminClick}
             className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 cursor-pointer"
@@ -234,7 +221,6 @@ const AccessPage = ({
 };
 
 export default function App() {
-  const [session, setSession] = useState<Session | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(() => {
     return localStorage.getItem('sdp_selected_group');
   });
@@ -242,30 +228,10 @@ export default function App() {
     return localStorage.getItem('sdp_admin_auth') === 'true';
   });
   const [showPasscodeModal, setShowPasscodeModal] = useState(false);
-  const [initializing, setInitializing] = useState(true);
+  const [initializing, setInitializing] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setInitializing(false);
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        setSelectedGroup(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   useEffect(() => {
     if (selectedGroup) {
@@ -279,18 +245,14 @@ export default function App() {
   useEffect(() => {
     if (initializing) return;
 
-    const isGuest = localStorage.getItem('sdp_guest_mode') === 'true';
-    const hasAuth = !!session || isGuest;
     const path = location.pathname;
 
-    if (!hasAuth && path !== '/auth') {
-      navigate('/auth', { replace: true });
-    } else if (hasAuth && !selectedGroup && path !== '/access' && !isAdminMode) {
+    if (!selectedGroup && path !== '/access' && !isAdminMode) {
       navigate('/access', { replace: true });
     } else if (selectedGroup && path !== '/workspace' && !isAdminMode) {
       navigate('/workspace', { replace: true });
     }
-  }, [session, selectedGroup, initializing, isAdminMode, location.pathname]);
+  }, [selectedGroup, initializing, isAdminMode, location.pathname]);
 
   const handleSelectGroup = (group: string, name?: string) => {
     if (name) {
@@ -325,22 +287,10 @@ export default function App() {
     <ErrorBoundary>
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
-          <Route path="/auth" element={
-            <AuthPage onGuestMode={() => {
-              localStorage.setItem('sdp_guest_mode', 'true');
-              navigate('/access');
-            }} />
-          } />
-          
           <Route path="/access" element={
             <AccessPage 
               onSelectGroup={handleSelectGroup}
               onAdminClick={() => setShowPasscodeModal(true)}
-              isGuest={!session}
-              onSignIn={() => {
-                localStorage.removeItem('sdp_guest_mode');
-                navigate('/auth');
-              }}
             />
           } />
 
@@ -350,7 +300,6 @@ export default function App() {
                 key={selectedGroup} 
                 selectedGroup={selectedGroup} 
                 isAdmin={isAdminMode}
-                isGuest={!session}
                 onExit={() => {
                   setSelectedGroup(null);
                   navigate('/access');
@@ -379,7 +328,7 @@ export default function App() {
   );
 }
 
-function AppContent({ selectedGroup, onExit, isAdmin, isGuest }: { selectedGroup: string; onExit: () => void; isAdmin: boolean; isGuest?: boolean }) {
+function AppContent({ selectedGroup, onExit, isAdmin }: { selectedGroup: string; onExit: () => void; isAdmin: boolean }) {
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(() => {
     const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
     return (saved as any) || 'PESTEL';
@@ -849,7 +798,7 @@ function AppContent({ selectedGroup, onExit, isAdmin, isGuest }: { selectedGroup
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-50 text-amber-600 rounded-full text-[9px] font-black uppercase tracking-tighter border border-amber-100 animate-pulse">
-                  <WifiOff size={12} /> Local Mode
+                  <WifiOff size={12} /> Offline Mode
                 </div>
               )}
             </div>

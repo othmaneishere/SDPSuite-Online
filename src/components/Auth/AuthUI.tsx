@@ -1,4 +1,4 @@
-import { ChevronDown, ArrowRight, Loader2, Mail, Lock, AlertCircle, CheckCircle2, Cloud, User, ShieldCheck, Globe, Database } from 'lucide-react';
+import { ChevronDown, ArrowRight, Loader2, User, ShieldCheck } from 'lucide-react';
 import { ReactNode } from 'react';
 import { cn } from '../../lib/utils';
 
@@ -157,45 +157,4 @@ export const AuthButton = ({ variant = 'primary', icon, loading, children, class
   );
 };
 
-export const ModeCard = ({ 
-  title, 
-  description, 
-  icon, 
-  onClick
-}: { 
-  title: string; 
-  description: string; 
-  icon: ReactNode; 
-  onClick: () => void;
-}) => (
-  <button
-    onClick={onClick}
-    className="w-full flex flex-col items-center gap-4 p-8 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50/30 hover:border-slate-300 transition-all text-center group shadow-sm hover:shadow-md"
-  >
-    <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors border border-slate-100">
-      {icon}
-    </div>
-    <div className="space-y-1">
-      <h3 className="text-lg font-black text-slate-900 tracking-tight">
-        {title}
-      </h3>
-      <p className="text-sm text-slate-400 font-medium leading-snug">
-        {description}
-      </p>
-    </div>
-  </button>
-);
-
-export const AuthMessage = ({ type, children }: { type: 'error' | 'success', children: ReactNode }) => {
-  return (
-    <div className={cn(
-      "flex items-center gap-3 p-4.5 rounded-xl text-xs font-bold border",
-      type === 'error' ? "bg-red-50 text-red-600 border-red-100" : "bg-green-50 text-green-600 border-green-100"
-    )}>
-      {type === 'error' ? <AlertCircle size={16} className="shrink-0" /> : <CheckCircle2 size={16} className="shrink-0" />}
-      <span className="leading-tight">{children}</span>
-    </div>
-  );
-};
-
-export { Mail, Lock, Cloud, User, ShieldCheck, ArrowRight, Globe, Database };
+export { User, ShieldCheck, ArrowRight };
