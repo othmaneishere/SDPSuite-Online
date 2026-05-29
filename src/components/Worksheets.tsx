@@ -445,7 +445,7 @@ export const TOWSWorksheet = ({
 }) => {
   // Helper to find or create rows for sections
   const getSection = (section: TOWSRow['section']) => {
-    return data.find((r) => r.section === section) || {
+    return (Array.isArray(data) ? data : []).find((r) => r.section === section) || {
       id: section,
       section,
       data: ['', '', ''],
@@ -1275,7 +1275,7 @@ export const PortersFiveForces = ({
   };
 
   const currentConfig = forceConfigs[activeForce];
-  const currentData = data.find((r) => r.force === activeForce) || {
+  const currentData = (Array.isArray(data) ? data : []).find((r) => r.force === activeForce) || {
     id: activeForce,
     force: activeForce,
     analysis: '',
@@ -1285,11 +1285,12 @@ export const PortersFiveForces = ({
   };
 
   const updateData = (updatedRow: PorterRow) => {
-    const exists = data.some((r) => r.force === activeForce);
+    const safeData = Array.isArray(data) ? data : [];
+    const exists = safeData.some((r) => r.force === activeForce);
     if (exists) {
-      setData(data.map((r) => (r.force === activeForce ? updatedRow : r)));
+      setData(safeData.map((r) => (r.force === activeForce ? updatedRow : r)));
     } else {
-      setData([...data, updatedRow]);
+      setData([...safeData, updatedRow]);
     }
   };
 
