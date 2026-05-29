@@ -17,7 +17,8 @@ import {
   VRIOAnalysisTable, 
   TOWSWorksheet, 
   PortersFiveForces,
-  ConfrontationMatrixGuide
+  ConfrontationMatrixGuide,
+  StrategicSummary
 } from './components/Worksheets';
 
 // Error Boundary Component for stability
