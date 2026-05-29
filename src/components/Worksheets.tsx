@@ -1343,39 +1343,65 @@ export const PortersFiveForces = ({
         />
 
         {/* Scorecard table */}
-        <div className="space-y-2 mb-6">
-          {currentConfig.questions.map((q, i) => (
-            <div key={i} className="flex items-center gap-4 border-b border-gray-200 pb-2">
-              <span className="flex-1 text-sm">{q}</span>
-              <input
-                type="checkbox"
-                checked={!!currentData.scorecard[i]}
-                onChange={(e) => updateScorecard(i, e.target.checked)}
-                className="h-5 w-5"
-              />
+        <div className="space-y-3 mb-6">
+          {currentConfig.questions.map((q, idx) => (
+            <div key={idx} className="grid grid-cols-[1fr_auto] items-center gap-6 p-4 bg-white/50 rounded-2xl border border-gray-100 hover:border-gray-200 transition-all">
+              <p className="text-sm font-semibold text-gray-700 leading-tight">
+                <span className="text-gray-300 mr-3">{idx + 1}.</span>
+                {q}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => updateScorecard(idx, true)}
+                  className={cn(
+                    "px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 cursor-pointer",
+                    currentData.scorecard[idx] === true 
+                      ? "bg-green-600 border-green-600 text-white shadow-sm" 
+                      : "bg-white border-gray-200 text-gray-400 hover:border-green-500 hover:text-green-600"
+                  )}
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => updateScorecard(idx, false)}
+                  className={cn(
+                    "px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 cursor-pointer",
+                    currentData.scorecard[idx] === false 
+                      ? "bg-red-600 border-red-600 text-white shadow-sm" 
+                      : "bg-white border-gray-200 text-gray-400 hover:border-red-500 hover:text-red-600"
+                  )}
+                >
+                  No
+                </button>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Further Analysis Table */}
-        <div className="mt-6 overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-200">
+        {/* Further Assessment Table */}
+        <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <table className="w-full border-collapse">
             <thead>
-              <tr className="bg-gray-100">
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="w-12 p-4 text-[10px] font-black text-gray-400">#</th>
                 {currentConfig.tableHeaders.map((h, i) => (
-                  <th key={i} className="p-2 text-left text-xs font-bold border border-gray-200">{h}</th>
+                  <th key={i} className="p-4 text-left text-xs font-black uppercase tracking-wider text-gray-900 border-l border-gray-200">
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
-            <tbody>
-              {currentData.further.map((row, i) => (
-                <tr key={i}>
-                  {Object.keys(row).map((colKey) => (
-                    <td key={colKey} className="p-1 border border-gray-200">
-                      <input 
-                        value={row[colKey as keyof typeof row] || ''}
-                        onChange={(e) => updateFurther(i, colKey, e.target.value)}
-                        className="w-full rounded border border-gray-200 p-1 text-sm bg-white"
+            <tbody className="divide-y divide-gray-200">
+              {currentData.further.map((row, idx) => (
+                <tr key={idx} className="group hover:bg-gray-50/50 transition-colors">
+                  <td className="p-4 text-[10px] font-black text-gray-300 text-center border-r border-gray-200">#{idx + 1}</td>
+                  {(['col1', 'col2', 'col3', 'col4'] as const).slice(0, currentConfig.tableHeaders.length).map((col) => (
+                    <td key={col} className="p-2 border-r border-gray-200 last:border-0">
+                      <textarea
+                        value={row[col] || ''}
+                        onChange={(e) => updateFurther(idx, col, e.target.value)}
+                        className="w-full h-20 p-3 text-xs font-medium bg-transparent outline-none resize-none placeholder:text-gray-300"
+                        placeholder="Analysis..."
                       />
                     </td>
                   ))}
