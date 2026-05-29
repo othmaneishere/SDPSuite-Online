@@ -22,6 +22,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>('PESTEL');
   const [groupsData, setGroupsData] = useState<Record<string, GroupData>>({});
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const channelsRef = useRef<Map<string, any>>(new Map());
 
   // Load all available groups
@@ -97,6 +98,48 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
     setSelectedGroups(newSelected);
   };
 
+  const handleClearGroupData = async () => {
+    const currentGroup = Array.from(selectedGroups)[0];
+    if (!currentGroup) return;
+
+    if (!confirm(`Are you sure you want to PERMANENTLY CLEAR all data for ${currentGroup}? This cannot be undone.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('group_data')
+        .delete()
+        .eq('group_id', currentGroup);
+
+      if (error) throw error;
+
+      // Broadcast empty data to reset any online users in that group
+      const channel = channelsRef.current.get(currentGroup);
+      if (channel) {
+        channel.send({
+          type: 'broadcast',
+          event: 'update_data',
+          payload: { senderId: 'admin', data: {} }
+        });
+      }
+
+      setGroupsData(prev => {
+        const next = { ...prev };
+        delete next[currentGroup];
+        return next;
+      });
+
+      alert(`${currentGroup} data has been cleared.`);
+    } catch (err) {
+      console.error('Failed to clear data:', err);
+      alert('Error clearing data. Please check console.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -121,10 +164,21 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
             <div className="h-10 w-px bg-gray-200 mx-2" />
             <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase">Admin Monitor</h1>
           </div>
-          <button onClick={onLogout} className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-100 transition-all">
-            <LogOut size={18} />
-            Logout
-          </button>
+          <div className="flex items-center gap-4">
+            {currentGroup && (
+              <button 
+                onClick={handleClearGroupData}
+                disabled={isDeleting}
+                className="flex items-center gap-2 px-4 py-3 text-red-400 hover:text-red-600 font-bold text-[10px] uppercase tracking-widest transition-all"
+              >
+                {isDeleting ? 'Clearing...' : 'Clear Group Data'}
+              </button>
+            )}
+            <button onClick={onLogout} className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-100 transition-all">
+              <LogOut size={18} />
+              Logout
+            </button>
+          </div>
         </div>
 
         {/* Navigation/Selector */}
@@ -133,16 +187,16 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
           
           <div className="flex justify-center mt-6">
             <div className="flex bg-white rounded-xl p-1 shadow-sm border border-gray-200 overflow-x-auto">
-              {(['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'] as const).map(tab => (
+              {(['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER', 'SUMMARY'] as const).map(tab => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => setActiveTab(tab as any)}
                   className={cn(
                     "px-6 py-2 rounded-lg text-sm font-bold transition-all whitespace-nowrap",
                     activeTab === tab ? "bg-brand-blue text-white shadow-md" : "text-gray-500 hover:text-gray-800"
                   )}
                 >
-                  {tab === 'PORTER' ? "Porter's 5 Forces" : tab === 'TOWS' ? 'Confrontation Matrix' : tab === 'McKinsey' ? 'McKinsey 7-S' : `${tab} Analysis`}
+                  {tab === 'PORTER' ? "Porter's 5 Forces" : tab === 'TOWS' ? 'Confrontation Matrix' : tab === 'SUMMARY' ? 'Summary' : tab === 'McKinsey' ? 'McKinsey 7-S' : `${tab} Analysis`}
                 </button>
               ))}
             </div>

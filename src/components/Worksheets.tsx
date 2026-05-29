@@ -3,6 +3,127 @@ import { ChevronDown, Database, Files, Network, FileText, Settings2 } from 'luci
 import { cn } from '../lib/utils';
 import { PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData, MetaData } from '../types';
 
+export const StrategicSummary = ({ 
+  pestelData, 
+  mckinseyData, 
+  vrioData, 
+  towsData, 
+  portersData 
+}: { 
+  pestelData: PESTELData[];
+  mckinseyData: McKinsey7SData;
+  vrioData: VRIOAnalysisData[];
+  towsData: TOWSMatrixData;
+  portersData: PortersFiveForcesData;
+}) => {
+  const highImpactPestel = pestelData.filter(d => d.impact === 'High' || d.impact === 'Very High');
+  const sustainableResources = vrioData.filter(d => d.v === 'Yes' && d.r === 'Yes' && d.i === 'Yes' && d.o === 'Yes');
+  
+  return (
+    <div className="space-y-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* PESTEL Insights */}
+        <div className="p-6 bg-white border-2 border-brand-blue/20 rounded-2xl shadow-sm">
+          <h3 className="text-sm font-black uppercase tracking-widest text-brand-blue mb-4 flex items-center gap-2">
+            <FileText size={16} /> Key Macro Factors
+          </h3>
+          <div className="space-y-3">
+            {highImpactPestel.length > 0 ? (
+              highImpactPestel.map(d => (
+                <div key={d.id} className="p-3 bg-brand-blue/5 rounded-xl border border-brand-blue/10">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold text-brand-blue uppercase">{d.category}</span>
+                    <span className="text-[10px] px-2 py-0.5 bg-brand-blue text-white rounded-full font-black uppercase">{d.impact}</span>
+                  </div>
+                  <p className="text-xs text-gray-700 font-medium line-clamp-2">{d.description || 'No description provided'}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-gray-400 italic">No high impact factors identified in PESTEL.</p>
+            )}
+          </div>
+        </div>
+
+        {/* VRIO Insights */}
+        <div className="p-6 bg-white border-2 border-gray-900/10 rounded-2xl shadow-sm">
+          <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 mb-4 flex items-center gap-2">
+            <Database size={16} /> Strategic Assets
+          </h3>
+          <div className="space-y-3">
+            {sustainableResources.length > 0 ? (
+              sustainableResources.map(d => (
+                <div key={d.id} className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-black text-gray-900 truncate">{d.resource}</span>
+                  </div>
+                  <p className="text-[10px] text-green-600 font-black uppercase tracking-tighter">Sustainable Competitive Advantage</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-gray-400 italic">No sustainable advantages identified in VRIO.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Porters Insights */}
+        <div className="p-6 bg-white border-2 border-indigo-100 rounded-2xl shadow-sm">
+          <h3 className="text-sm font-black uppercase tracking-widest text-indigo-600 mb-4 flex items-center gap-2">
+            <Network size={16} /> Industry Forces
+          </h3>
+          <div className="grid grid-cols-1 gap-2">
+            {Object.entries(portersData).map(([key, force]) => (
+              <div key={key} className="flex items-center justify-between p-2 bg-indigo-50/50 rounded-lg border border-indigo-100">
+                <span className="text-[10px] font-bold text-indigo-700 uppercase">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                <span className={cn(
+                  "text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-tighter",
+                  force.impact === 'High' ? "bg-red-100 text-red-600" : 
+                  force.impact === 'Medium' ? "bg-amber-100 text-amber-600" : 
+                  "bg-green-100 text-green-600"
+                )}>
+                  {force.impact}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* TOWS Strategic Directions */}
+      <div className="p-8 bg-yellow-50/30 border-2 border-yellow-200 rounded-[32px] shadow-sm">
+        <h3 className="text-lg font-black uppercase tracking-tight text-gray-900 mb-8 flex items-center gap-2">
+          <Network size={20} className="text-yellow-500" /> Strategic Priorities (TOWS)
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <h4 className="text-xs font-black text-green-600 uppercase tracking-widest flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500" /> Aggressive Opportunities (S-O)
+            </h4>
+            <div className="space-y-2">
+              {Object.entries(towsData.scores).filter(([k]) => k.startsWith('s') && k.includes('-o')).slice(0, 3).map(([key, val]) => (
+                <div key={key} className="p-3 bg-white border border-green-100 rounded-xl">
+                  <p className="text-xs text-gray-700 leading-relaxed font-medium italic underline decoration-green-100">{towsData.notes[key] || 'No specific action defined.'}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-4">
+            <h4 className="text-xs font-black text-red-600 uppercase tracking-widest flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500" /> Survival Threats (W-T)
+            </h4>
+            <div className="space-y-2">
+              {Object.entries(towsData.scores).filter(([k]) => k.startsWith('w') && k.includes('-t')).slice(0, 3).map(([key, val]) => (
+                <div key={key} className="p-3 bg-white border border-red-100 rounded-xl">
+                  <p className="text-xs text-gray-700 leading-relaxed font-medium italic underline decoration-red-100">{towsData.notes[key] || 'No specific action defined.'}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const ConfrontationMatrixGuide = () => (
   <div className="mb-12 p-8 bg-gray-50 rounded-2xl border border-gray-200 print:bg-white print:border-gray-100">
     <h3 className="font-black text-2xl mb-8 text-black border-b-4 border-black inline-block pb-1">
