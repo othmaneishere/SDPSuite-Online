@@ -1,75 +1,112 @@
 import React from 'react';
 import { ChevronDown, Database, Files, Network, FileText, Settings2 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { PESTELData, McKinsey7SData, VRIOAnalysisData, TOWSMatrixData, PortersFiveForcesData, MetaData } from '../types';
+import {
+  PESTELData,
+  McKinsey7SData,
+  VRIOAnalysisData,
+  TOWSMatrixData,
+  PortersFiveForcesData,
+  MetaData,
+} from '../types';
 
 export const ConfrontationMatrixGuide = () => (
-  <div className="mb-12 p-8 bg-gray-50 rounded-2xl border border-gray-200 print:bg-white print:border-gray-100">
-    <h3 className="font-black text-2xl mb-8 text-black border-b-4 border-black inline-block pb-1">
+  <div className="mb-12 rounded-2xl border border-gray-200 bg-gray-50 p-8 print:border-gray-100 print:bg-white">
+    <h3 className="mb-8 inline-block border-b-4 border-black pb-1 text-2xl font-black text-black">
       CONFRONTATION MATRIX FAST GUIDE
     </h3>
-    
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+
+    <div className="grid grid-cols-1 gap-12 xl:grid-cols-2">
       <div className="space-y-6">
-        <h4 className="font-bold text-lg text-black uppercase tracking-tight flex items-center gap-2">
-          <div className="w-2 h-6 bg-black" />
+        <h4 className="flex items-center gap-2 text-lg font-bold tracking-tight text-black uppercase">
+          <div className="h-6 w-2 bg-black" />
           STEPS TO BUILD THE CONFRONTATION MATRIX
         </h4>
-        
+
         <div className="space-y-4">
           <section>
-            <p className="font-bold text-sm mb-1 uppercase tracking-wider">1. Start with your SWOT</p>
-            <p className="text-gray-600 leading-relaxed text-sm">
-              Use your completed SWOT analysis (Strengths, Weaknesses, Opportunities, Threats). <span className="font-semibold text-black">This is the input of the matrix.</span>
+            <p className="mb-1 text-sm font-bold tracking-wider uppercase">
+              1. Start with your SWOT
+            </p>
+            <p className="text-sm leading-relaxed text-gray-600">
+              Use your completed SWOT analysis (Strengths, Weaknesses, Opportunities, Threats).{' '}
+              <span className="font-semibold text-black">This is the input of the matrix.</span>
             </p>
           </section>
 
           <section>
-            <p className="font-bold text-sm mb-1 uppercase tracking-wider">2. Select key factors</p>
-            <p className="text-gray-600 leading-relaxed text-sm">
-              Take the 3 most important items from each category. <span className="font-semibold text-black">Keeps the matrix clear and easy to analyze.</span>
+            <p className="mb-1 text-sm font-bold tracking-wider uppercase">2. Select key factors</p>
+            <p className="text-sm leading-relaxed text-gray-600">
+              Take the 3 most important items from each category.{' '}
+              <span className="font-semibold text-black">
+                Keeps the matrix clear and easy to analyze.
+              </span>
             </p>
           </section>
 
           <section>
-            <p className="font-bold text-sm mb-1 uppercase tracking-wider">3. Build the matrix structure</p>
-            <p className="text-gray-600 leading-relaxed text-sm">
-              Put internal factors (S, W) → <span className="font-semibold text-black">vertically</span>. Put external factors (O, T) → <span className="font-semibold text-black">horizontally</span>. You are confronting internal vs external.
+            <p className="mb-1 text-sm font-bold tracking-wider uppercase">
+              3. Build the matrix structure
+            </p>
+            <p className="text-sm leading-relaxed text-gray-600">
+              Put internal factors (S, W) →{' '}
+              <span className="font-semibold text-black">vertically</span>. Put external factors (O,
+              T) → <span className="font-semibold text-black">horizontally</span>. You are
+              confronting internal vs external.
             </p>
           </section>
 
           <section>
-            <p className="font-bold text-sm mb-1 uppercase tracking-wider">4. Analyze each combination</p>
-            <p className="text-gray-600 leading-relaxed text-sm mb-2 italic underline decoration-gray-200">
+            <p className="mb-1 text-sm font-bold tracking-wider uppercase">
+              4. Analyze each combination
+            </p>
+            <p className="mb-2 text-sm leading-relaxed text-gray-600 italic underline decoration-gray-200">
               Evaluate how the internal factor performs in the external environment
             </p>
-            <div className="pl-4 border-l-2 border-gray-200 space-y-1">
+            <div className="space-y-1 border-l-2 border-gray-200 pl-4">
               <p className="text-sm font-medium">• Does it create value?</p>
               <p className="text-sm font-medium">• Does it create risk?</p>
             </div>
           </section>
 
           <section>
-            <p className="font-bold text-sm mb-1 uppercase tracking-wider">5. Interpret each pairing (Strategic meaning)</p>
-            <p className="text-gray-600 leading-relaxed text-sm mb-4">
-              For every combination, ask the strategic question: <span className="font-semibold text-black text-xs uppercase bg-gray-100 px-1">"What does this pairing mean?"</span>
+            <p className="mb-1 text-sm font-bold tracking-wider uppercase">
+              5. Interpret each pairing (Strategic meaning)
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-3 bg-white border border-gray-100 rounded-lg">
-                <p className="font-bold text-xs mb-1 text-green-700">Strength + Opportunity (S/O)</p>
-                <p className="text-[11px] text-gray-500">Exploit an opportunity using a strength → aggressive/growth strategy.</p>
+            <p className="mb-4 text-sm leading-relaxed text-gray-600">
+              For every combination, ask the strategic question:{' '}
+              <span className="bg-gray-100 px-1 text-xs font-semibold text-black uppercase">
+                "What does this pairing mean?"
+              </span>
+            </p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="rounded-lg border border-gray-100 bg-white p-3">
+                <p className="mb-1 text-xs font-bold text-green-700">
+                  Strength + Opportunity (S/O)
+                </p>
+                <p className="text-[11px] text-gray-500">
+                  Exploit an opportunity using a strength → aggressive/growth strategy.
+                </p>
               </div>
-              <div className="p-3 bg-white border border-gray-100 rounded-lg">
-                <p className="font-bold text-xs mb-1 text-blue-700">Strength + Threat (S/T)</p>
-                <p className="text-[11px] text-gray-500">Use a strength to counter a threat → defensive strategy.</p>
+              <div className="rounded-lg border border-gray-100 bg-white p-3">
+                <p className="mb-1 text-xs font-bold text-blue-700">Strength + Threat (S/T)</p>
+                <p className="text-[11px] text-gray-500">
+                  Use a strength to counter a threat → defensive strategy.
+                </p>
               </div>
-              <div className="p-3 bg-white border border-gray-100 rounded-lg">
-                <p className="font-bold text-xs mb-1 text-amber-700">Weakness + Opportunity (W/O)</p>
-                <p className="text-[11px] text-gray-500">Improve weakness to seize opportunity → improvement strategy.</p>
+              <div className="rounded-lg border border-gray-100 bg-white p-3">
+                <p className="mb-1 text-xs font-bold text-amber-700">
+                  Weakness + Opportunity (W/O)
+                </p>
+                <p className="text-[11px] text-gray-500">
+                  Improve weakness to seize opportunity → improvement strategy.
+                </p>
               </div>
-              <div className="p-3 bg-white border border-gray-100 rounded-lg">
-                <p className="font-bold text-xs mb-1 text-red-700">Weakness + Threat (W/T)</p>
-                <p className="text-[11px] text-gray-500">Address weakness to survive threat → survival strategy.</p>
+              <div className="rounded-lg border border-gray-100 bg-white p-3">
+                <p className="mb-1 text-xs font-bold text-red-700">Weakness + Threat (W/T)</p>
+                <p className="text-[11px] text-gray-500">
+                  Address weakness to survive threat → survival strategy.
+                </p>
               </div>
             </div>
           </section>
@@ -78,57 +115,84 @@ export const ConfrontationMatrixGuide = () => (
 
       <div className="space-y-8">
         <div className="space-y-6">
-          <h4 className="font-bold text-lg text-black uppercase tracking-tight flex items-center gap-2">
-            <div className="w-2 h-6 bg-black" />
+          <h4 className="flex items-center gap-2 text-lg font-bold tracking-tight text-black uppercase">
+            <div className="h-6 w-2 bg-black" />
             SCORING & VISUALIZATION
           </h4>
-          
+
           <div className="space-y-4">
             <section>
-              <p className="font-bold text-sm mb-2">6. Assign scores</p>
+              <p className="mb-2 text-sm font-bold">6. Assign scores</p>
               <div className="flex flex-wrap gap-2">
-                {['+2 (Very Positive)', '+1 (Positive)', '0 (Neutral)', '-1 (Negative)', '-2 (Very Negative)'].map(s => (
-                  <span key={s} className="px-2 py-1 bg-white border border-gray-200 rounded text-[10px] font-bold text-gray-600">{s}</span>
+                {[
+                  '+2 (Very Positive)',
+                  '+1 (Positive)',
+                  '0 (Neutral)',
+                  '-1 (Negative)',
+                  '-2 (Very Negative)',
+                ].map((s) => (
+                  <span
+                    key={s}
+                    className="rounded border border-gray-200 bg-white px-2 py-1 text-[10px] font-bold text-gray-600"
+                  >
+                    {s}
+                  </span>
                 ))}
               </div>
             </section>
 
             <section>
-              <p className="font-bold text-sm mb-2">7. Highlight results</p>
+              <p className="mb-2 text-sm font-bold">7. Highlight results</p>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#C6E0B4]" />
-                  <span><span className="font-bold text-black">Positive (+1 to +2)</span> = opportunities</span>
+                  <div className="h-3 w-3 rounded-full bg-[#C6E0B4]" />
+                  <span>
+                    <span className="font-bold text-black">Positive (+1 to +2)</span> =
+                    opportunities
+                  </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#FFF2CC]" />
-                  <span><span className="font-bold text-black">Neutral (0)</span> = no significant impact / limited strategic relevance</span>
+                  <div className="h-3 w-3 rounded-full bg-[#FFF2CC]" />
+                  <span>
+                    <span className="font-bold text-black">Neutral (0)</span> = no significant
+                    impact / limited strategic relevance
+                  </span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#F4B084]" />
-                  <span><span className="font-bold text-black">Negative (-1 to -2)</span> = problems</span>
+                  <div className="h-3 w-3 rounded-full bg-[#F4B084]" />
+                  <span>
+                    <span className="font-bold text-black">Negative (-1 to -2)</span> = problems
+                  </span>
                 </li>
               </ul>
-              <p className="text-[11px] text-gray-400 mt-4 leading-relaxed italic border-l-4 border-gray-100 pl-4">
-                The matrix becomes a visual map of market fit: where to act immediately (positive), what to monitor (neutral), and what to fix urgently (negative).
+              <p className="mt-4 border-l-4 border-gray-100 pl-4 text-[11px] leading-relaxed text-gray-400 italic">
+                The matrix becomes a visual map of market fit: where to act immediately (positive),
+                what to monitor (neutral), and what to fix urgently (negative).
               </p>
             </section>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-gray-200">
-          <h4 className="font-bold text-sm text-black uppercase tracking-widest mb-4">Key Takeaways</h4>
-          <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600">
+        <div className="border-t border-gray-200 pt-6">
+          <h4 className="mb-4 text-sm font-bold tracking-widest text-black uppercase">
+            Key Takeaways
+          </h4>
+          <ul className="list-disc space-y-1 pl-5 text-sm text-gray-600">
             <li>Quick overview of market position.</li>
             <li>Don’t need all green → every business has weaknesses.</li>
             <li>Helps adjust marketing, focus on strengths, and address risks.</li>
           </ul>
         </div>
 
-        <div className="p-4 bg-black text-white rounded-xl">
-          <h4 className="font-bold text-xs uppercase tracking-[0.2em] mb-2 text-gray-400">Final Insight & Priorities</h4>
+        <div className="rounded-xl bg-black p-4 text-white">
+          <h4 className="mb-2 text-xs font-bold tracking-[0.2em] text-gray-400 uppercase">
+            Final Insight & Priorities
+          </h4>
           <p className="text-[11px] leading-relaxed opacity-90">
-            The confrontation matrix is a fast strategic decision tool that bridges analysis and action by turning strategic diagnosis into clear growth and performance priorities. It clarifies positioning, highlights gaps, and enables prioritization of impactful combinations.
+            The confrontation matrix is a fast strategic decision tool that bridges analysis and
+            action by turning strategic diagnosis into clear growth and performance priorities. It
+            clarifies positioning, highlights gaps, and enables prioritization of impactful
+            combinations.
           </p>
         </div>
       </div>
@@ -136,72 +200,93 @@ export const ConfrontationMatrixGuide = () => (
   </div>
 );
 
-export const PESTELWorksheet = ({ data, setData }: { data: PESTELData[]; setData: (d: PESTELData[]) => void }) => {
-  const categories = ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'] as const;
+export const PESTELWorksheet = ({
+  data,
+  setData,
+}: {
+  data: PESTELData[];
+  setData: (d: PESTELData[]) => void;
+}) => {
+  const categories = [
+    'Political',
+    'Economic',
+    'Social',
+    'Technological',
+    'Environmental',
+    'Legal',
+  ] as const;
 
   const updateItem = (id: string, field: keyof PESTELData, value: string) => {
-    setData(data.map(item => item.id === id ? { ...item, [field]: value } : item));
+    setData(data.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
   return (
-    <div className="overflow-x-auto w-full">
-      <table className="w-full border-collapse border-b-2 border-l-2 border-r-2 border-black text-xs md:text-sm">
+    <div className="w-full overflow-x-auto">
+      <table className="w-full border-collapse border-r-2 border-b-2 border-l-2 border-black text-xs md:text-sm">
         <thead>
           <tr className="bg-brand-blue text-black">
-            <th className="w-20 md:w-32 border border-black p-2 md:p-4 bg-white"></th>
-            <th className="border border-black p-2 md:p-4 text-center font-bold text-base w-full">Description</th>
-            <th className="w-20 md:w-32 border border-black p-2 md:p-4 text-center font-bold">Impact</th>
-            <th className="w-20 md:w-32 border border-black p-2 md:p-4 text-center font-bold">Probability</th>
-            <th className="w-32 md:w-64 border border-black p-2 md:p-4 text-center font-bold leading-tight">
-              Potential as<br />
-              Opportunity or<br />
+            <th className="w-20 border border-black bg-white p-2 md:w-32 md:p-4"></th>
+            <th className="w-full border border-black p-2 text-center text-base font-bold md:p-4">
+              Description
+            </th>
+            <th className="w-20 border border-black p-2 text-center font-bold md:w-32 md:p-4">
+              Impact
+            </th>
+            <th className="w-20 border border-black p-2 text-center font-bold md:w-32 md:p-4">
+              Probability
+            </th>
+            <th className="w-32 border border-black p-2 text-center leading-tight font-bold md:w-64 md:p-4">
+              Potential as
+              <br />
+              Opportunity or
+              <br />
               Threat
             </th>
           </tr>
         </thead>
         <tbody>
           {categories.map((cat) => {
-            const item = data.find(d => d.category === cat) || {
+            const item = data.find((d) => d.category === cat) || {
               id: cat,
               category: cat,
               description: '',
               impact: '',
               probability: '',
-              potential: ''
+              potential: '',
             };
-            
+
             return (
               <tr key={cat} className="group">
-                <td className="border border-black p-2 md:p-4 font-bold text-center bg-gray-50 align-middle">
+                <td className="border border-black bg-gray-50 p-2 text-center align-middle font-bold md:p-4">
                   {cat}
                 </td>
-                <td className="border border-black p-0 relative">
+                <td className="relative border border-black p-0">
                   <textarea
                     value={item.description}
                     onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                    className="w-full h-32 md:h-40 p-2 md:p-4 bg-transparent outline-hidden resize-none translate-z-0 relative z-10 text-xs md:text-sm leading-tight whitespace-pre-wrap"
+                    className="relative z-10 h-32 w-full translate-z-0 resize-none bg-transparent p-2 text-xs leading-tight whitespace-pre-wrap outline-hidden md:h-40 md:p-4 md:text-sm"
                     placeholder={`Enter ${cat.toLowerCase()} factors...`}
                   />
                 </td>
                 <td className="border border-black p-0">
-                  <textarea 
+                  <textarea
                     value={item.impact}
                     onChange={(e) => updateItem(item.id, 'impact', e.target.value)}
-                    className="w-full h-32 md:h-40 p-1 md:p-2 text-center outline-hidden resize-none bg-transparent"
+                    className="h-32 w-full resize-none bg-transparent p-1 text-center outline-hidden md:h-40 md:p-2"
                   />
                 </td>
                 <td className="border border-black p-0">
-                  <textarea 
+                  <textarea
                     value={item.probability}
                     onChange={(e) => updateItem(item.id, 'probability', e.target.value)}
-                    className="w-full h-32 md:h-40 p-1 md:p-2 text-center outline-hidden resize-none bg-transparent"
+                    className="h-32 w-full resize-none bg-transparent p-1 text-center outline-hidden md:h-40 md:p-2"
                   />
                 </td>
                 <td className="border border-black p-0">
-                  <textarea 
+                  <textarea
                     value={item.potential}
                     onChange={(e) => updateItem(item.id, 'potential', e.target.value)}
-                    className="w-full h-32 md:h-40 p-1 md:p-2 text-center outline-hidden resize-none bg-transparent"
+                    className="h-32 w-full resize-none bg-transparent p-1 text-center outline-hidden md:h-40 md:p-2"
                   />
                 </td>
               </tr>
@@ -213,7 +298,13 @@ export const PESTELWorksheet = ({ data, setData }: { data: PESTELData[]; setData
   );
 };
 
-export const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; setData: (d: McKinsey7SData) => void }) => {
+export const McKinseyWorksheet = ({
+  data,
+  setData,
+}: {
+  data: McKinsey7SData;
+  setData: (d: McKinsey7SData) => void;
+}) => {
   const elements = [
     { key: 'sharedValues', label: 'Shared Values' },
     { key: 'strategy', label: 'Strategy' },
@@ -221,7 +312,7 @@ export const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; set
     { key: 'systems', label: 'Systems' },
     { key: 'style', label: 'Style' },
     { key: 'staff', label: 'Staff' },
-    { key: 'skills', label: 'Skills' }
+    { key: 'skills', label: 'Skills' },
   ] as const;
 
   const updateGrid = (rowKey: string, colKey: string, value: string) => {
@@ -229,19 +320,22 @@ export const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; set
       ...data,
       [rowKey]: {
         ...(data[rowKey] || {}),
-        [colKey]: value
-      }
+        [colKey]: value,
+      },
     });
   };
 
   return (
-    <div className="overflow-x-auto w-full">
-      <table className="w-full border-collapse border-b-2 border-l-2 border-r-2 border-black table-auto">
+    <div className="w-full overflow-x-auto">
+      <table className="w-full table-auto border-collapse border-r-2 border-b-2 border-l-2 border-black">
         <thead>
           <tr className="bg-brand-peach">
-            <th className="w-24 md:w-40 border border-black p-2 md:p-4 bg-white"></th>
-            {elements.map(el => (
-              <th key={el.key} className="border border-black p-2 md:p-4 text-center font-bold text-[8px] md:text-[10px] uppercase tracking-tight w-16 md:w-24">
+            <th className="w-24 border border-black bg-white p-2 md:w-40 md:p-4"></th>
+            {elements.map((el) => (
+              <th
+                key={el.key}
+                className="w-16 border border-black p-2 text-center text-[8px] font-bold tracking-tight uppercase md:w-24 md:p-4 md:text-[10px]"
+              >
                 {el.label}
               </th>
             ))}
@@ -250,25 +344,25 @@ export const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; set
         <tbody>
           {elements.map((rowEl, rowIndex) => (
             <tr key={rowEl.key}>
-              <td className="border border-black p-2 md:p-4 font-bold text-center bg-gray-50 text-[8px] md:text-[10px] uppercase tracking-tight align-middle min-h-[64px] md:min-h-[96px]">
+              <td className="min-h-[64px] border border-black bg-gray-50 p-2 text-center align-middle text-[8px] font-bold tracking-tight uppercase md:min-h-[96px] md:p-4 md:text-[10px]">
                 {rowEl.label}
               </td>
               {elements.map((colEl, colIndex) => {
                 const isDiagonal = rowIndex === colIndex;
                 const cellValue = data[rowEl.key]?.[colEl.key] || '';
-                
+
                 return (
-                  <td 
-                    key={colEl.key} 
+                  <td
+                    key={colEl.key}
                     className={cn(
-                      "border border-black p-0 relative min-h-[64px] md:min-h-[96px]",
-                      isDiagonal && "bg-brand-peach"
+                      'relative min-h-[64px] border border-black p-0 md:min-h-[96px]',
+                      isDiagonal && 'bg-brand-peach',
                     )}
                   >
                     <textarea
                       value={cellValue}
                       onChange={(e) => updateGrid(rowEl.key, colEl.key, e.target.value)}
-                      className="w-full h-full min-h-[64px] md:min-h-[96px] p-1 md:p-2 bg-transparent outline-hidden resize-none text-[8px] md:text-[10px] leading-tight font-medium"
+                      className="h-full min-h-[64px] w-full resize-none bg-transparent p-1 text-[8px] leading-tight font-medium outline-hidden md:min-h-[96px] md:p-2 md:text-[10px]"
                       placeholder="..."
                     />
                   </td>
@@ -282,102 +376,147 @@ export const McKinseyWorksheet = ({ data, setData }: { data: McKinsey7SData; set
   );
 };
 
-export const MatrixCell = React.memo(({
-  score,
-  note,
-  onScoreChange,
-  onNoteChange,
-  getBgColor,
-  getTextColor
-}: {
-  score: string | number;
-  note: string;
-  onScoreChange: (val: string) => void;
-  onNoteChange: (val: string) => void;
-  getBgColor: (s: string | number) => string;
-  getTextColor: (s: string | number) => string;
-}) => {
-  return (
-    <div className={cn(
-      "border border-gray-400 h-[100px] flex flex-col transition-all duration-300 shadow-sm hover:shadow-md", 
-      getBgColor(score)
-    )}>
-      {/* Top Section: Dropdown with Custom Styling */}
-      <div className="border-b border-gray-400/30 p-1 relative group/cell">
-        <div className="relative">
-          <select
-            value={score}
-            onChange={(e) => onScoreChange(e.target.value)}
-            className={cn(
-              "w-full bg-white/40 hover:bg-white/60 transition-colors font-black text-[10px] uppercase tracking-tighter outline-none cursor-pointer py-1.5 pl-2 pr-6 appearance-none border border-black/5 rounded-md",
-              getTextColor(score)
-            )}
-          >
-            <option value="-2">Very Negative (-2)</option>
-            <option value="-1">Negative (-1)</option>
-            <option value="0">Neutral (0)</option>
-            <option value="1">Positive (+1)</option>
-            <option value="2">Very Positive (+2)</option>
-          </select>
-          <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 flex items-center">
-            <ChevronDown size={14} className={cn(getTextColor(score))} />
+export const MatrixCell = React.memo(
+  ({
+    score,
+    note,
+    onScoreChange,
+    onNoteChange,
+    getBgColor,
+    getTextColor,
+  }: {
+    score: string | number;
+    note: string;
+    onScoreChange: (val: string) => void;
+    onNoteChange: (val: string) => void;
+    getBgColor: (s: string | number) => string;
+    getTextColor: (s: string | number) => string;
+  }) => {
+    return (
+      <div
+        className={cn(
+          'flex h-[100px] flex-col border border-gray-400 shadow-sm transition-all duration-300 hover:shadow-md',
+          getBgColor(score),
+        )}
+      >
+        {/* Top Section: Dropdown with Custom Styling */}
+        <div className="group/cell relative border-b border-gray-400/30 p-1">
+          <div className="relative">
+            <select
+              value={score}
+              onChange={(e) => onScoreChange(e.target.value)}
+              className={cn(
+                'w-full cursor-pointer appearance-none rounded-md border border-black/5 bg-white/40 py-1.5 pr-6 pl-2 text-[10px] font-black tracking-tighter uppercase transition-colors outline-none hover:bg-white/60',
+                getTextColor(score),
+              )}
+            >
+              <option value="-2">Very Negative (-2)</option>
+              <option value="-1">Negative (-1)</option>
+              <option value="0">Neutral (0)</option>
+              <option value="1">Positive (+1)</option>
+              <option value="2">Very Positive (+2)</option>
+            </select>
+            <div className="pointer-events-none absolute top-1/2 right-1.5 flex -translate-y-1/2 items-center opacity-50">
+              <ChevronDown size={14} className={cn(getTextColor(score))} />
+            </div>
           </div>
         </div>
-      </div>
-      
-      {/* Bottom Section: Textarea */}
-      <div className="flex-1 p-0.5">
-        <textarea
-          value={note}
-          onChange={(e) => onNoteChange(e.target.value)}
-          className="w-full h-full p-1.5 text-[10px] leading-tight bg-transparent outline-none resize-none placeholder:text-gray-400/50 font-medium focus:bg-white/30 transition-colors"
-          placeholder="Add strategic notes..."
-          rows={2}
-        />
-      </div>
-    </div>
-  );
-});
 
-export const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatrixData; setData: (d: TOWSMatrixData) => void; meta: MetaData; setMeta: (m: MetaData) => void }) => {
-  const updateList = (type: 'opportunities' | 'threats' | 'strengths' | 'weaknesses', index: number, value: string) => {
+        {/* Bottom Section: Textarea */}
+        <div className="flex-1 p-0.5">
+          <textarea
+            value={note}
+            onChange={(e) => onNoteChange(e.target.value)}
+            className="h-full w-full resize-none bg-transparent p-1.5 text-[10px] leading-tight font-medium transition-colors outline-none placeholder:text-gray-400/50 focus:bg-white/30"
+            placeholder="Add strategic notes..."
+            rows={2}
+          />
+        </div>
+      </div>
+    );
+  },
+);
+
+export const TOWSWorksheet = ({
+  data,
+  setData,
+  meta,
+  setMeta,
+}: {
+  data: TOWSMatrixData;
+  setData: (d: TOWSMatrixData) => void;
+  meta: MetaData;
+  setMeta: (m: MetaData) => void;
+}) => {
+  const updateList = (
+    type: 'opportunities' | 'threats' | 'strengths' | 'weaknesses',
+    index: number,
+    value: string,
+  ) => {
     const newList = [...data[type]];
     newList[index] = value;
     setData({ ...data, [type]: newList });
   };
 
-  const updateScore = (rowType: 'strengths' | 'weaknesses', rowIndex: number, colType: 'opportunities' | 'threats', colIndex: number, value: string) => {
+  const updateScore = (
+    rowType: 'strengths' | 'weaknesses',
+    rowIndex: number,
+    colType: 'opportunities' | 'threats',
+    colIndex: number,
+    value: string,
+  ) => {
     let finalValue: number = parseInt(value);
     if (isNaN(finalValue)) finalValue = 0;
-    
+
     setData({
       ...data,
       scores: {
         ...data.scores,
-        [`${rowType}-${rowIndex}-${colType}-${colIndex}`]: finalValue
-      }
+        [`${rowType}-${rowIndex}-${colType}-${colIndex}`]: finalValue,
+      },
     });
   };
 
-  const updateNote = (rowType: 'strengths' | 'weaknesses', rowIndex: number, colType: 'opportunities' | 'threats', colIndex: number, value: string) => {
+  const updateNote = (
+    rowType: 'strengths' | 'weaknesses',
+    rowIndex: number,
+    colType: 'opportunities' | 'threats',
+    colIndex: number,
+    value: string,
+  ) => {
     setData({
       ...data,
       notes: {
         ...data.notes,
-        [`${rowType}-${rowIndex}-${colType}-${colIndex}`]: value
-      }
+        [`${rowType}-${rowIndex}-${colType}-${colIndex}`]: value,
+      },
     });
   };
 
-  const getScore = (rowType: 'strengths' | 'weaknesses', rowIndex: number, colType: 'opportunities' | 'threats', colIndex: number) => {
+  const getScore = (
+    rowType: 'strengths' | 'weaknesses',
+    rowIndex: number,
+    colType: 'opportunities' | 'threats',
+    colIndex: number,
+  ) => {
     return data.scores[`${rowType}-${rowIndex}-${colType}-${colIndex}`] ?? 0;
   };
 
-  const getNote = (rowType: 'strengths' | 'weaknesses', rowIndex: number, colType: 'opportunities' | 'threats', colIndex: number) => {
-    return data.notes[`${rowType}-${rowIndex}-${colType}-${colIndex}`] ?? "";
+  const getNote = (
+    rowType: 'strengths' | 'weaknesses',
+    rowIndex: number,
+    colType: 'opportunities' | 'threats',
+    colIndex: number,
+  ) => {
+    return data.notes[`${rowType}-${rowIndex}-${colType}-${colIndex}`] ?? '';
   };
 
-  const getScoreNumber = (rowType: 'strengths' | 'weaknesses', rowIndex: number, colType: 'opportunities' | 'threats', colIndex: number) => {
+  const getScoreNumber = (
+    rowType: 'strengths' | 'weaknesses',
+    rowIndex: number,
+    colType: 'opportunities' | 'threats',
+    colIndex: number,
+  ) => {
     const val = getScore(rowType, rowIndex, colType, colIndex);
     const num = parseInt(String(val));
     return isNaN(num) ? 0 : num;
@@ -421,182 +560,226 @@ export const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatr
   };
 
   return (
-    <div className="bg-white p-12 rounded-xl border border-gray-100 overflow-x-auto min-w-[1100px]">
+    <div className="min-w-[1100px] overflow-x-auto rounded-xl border border-gray-100 bg-white p-12">
       <div className="grid grid-cols-[50px_160px_1fr_20px_1fr_100px] gap-0">
-        
         {/* ROW 1: Opportunities/Threats Headers */}
         <div className="col-span-2" />
-        <div className="bg-black text-[#FFD666] py-3 text-center font-bold text-2xl uppercase tracking-wider mb-2 mx-1 border border-black">
+        <div className="mx-1 mb-2 border border-black bg-black py-3 text-center text-2xl font-bold tracking-wider text-[#FFD666] uppercase">
           Opportunities
         </div>
         <div /> {/* Gap col */}
-        <div className="bg-black text-[#FFD666] py-3 text-center font-bold text-2xl uppercase tracking-wider mb-2 mx-1 border border-black">
+        <div className="mx-1 mb-2 border border-black bg-black py-3 text-center text-2xl font-bold tracking-wider text-[#FFD666] uppercase">
           Threats
         </div>
         <div />
-
         {/* ROW 2: Opportunity/Threat Item Headers */}
         <div className="col-span-2" />
-        <div className="grid grid-cols-3 border border-black h-36 bg-[#D9D9D9] mx-1">
-          {[0, 1, 2].map(i => (
-            <div key={i} className="border-r border-black last:border-r-0 p-2 flex items-center justify-center">
+        <div className="mx-1 grid h-36 grid-cols-3 border border-black bg-[#D9D9D9]">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="flex items-center justify-center border-r border-black p-2 last:border-r-0"
+            >
               <textarea
                 value={data.opportunities[i]}
                 onChange={(e) => updateList('opportunities', i, e.target.value)}
-                className="w-full h-full text-[12px] leading-tight text-center font-bold bg-transparent outline-none resize-none flex items-center justify-center p-1"
+                className="flex h-full w-full resize-none items-center justify-center bg-transparent p-1 text-center text-[12px] leading-tight font-bold outline-none"
                 placeholder="..."
               />
             </div>
           ))}
         </div>
         <div /> {/* Gap col */}
-        <div className="grid grid-cols-3 border border-black h-36 bg-[#D9D9D9] mx-1">
-          {[0, 1, 2].map(i => (
-            <div key={i} className="border-r border-black last:border-r-0 p-2 flex items-center justify-center">
+        <div className="mx-1 grid h-36 grid-cols-3 border border-black bg-[#D9D9D9]">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="flex items-center justify-center border-r border-black p-2 last:border-r-0"
+            >
               <textarea
                 value={data.threats[i]}
                 onChange={(e) => updateList('threats', i, e.target.value)}
-                className="w-full h-full text-[12px] leading-tight text-center font-bold bg-transparent outline-none resize-none flex items-center justify-center p-1"
+                className="flex h-full w-full resize-none items-center justify-center bg-transparent p-1 text-center text-[12px] leading-tight font-bold outline-none"
                 placeholder="..."
               />
             </div>
           ))}
         </div>
         <div className="flex items-end justify-center pb-2">
-          <span className="font-bold text-xs uppercase tracking-widest text-[#595959] vertical-text">Total</span>
+          <span className="vertical-text text-xs font-bold tracking-widest text-[#595959] uppercase">
+            Total
+          </span>
         </div>
-
         {/* ROW 3: Strengths Label & Matrix */}
-        <div className="bg-black text-[#FFD666] flex items-center justify-center font-bold text-2xl uppercase vertical-text mt-2 mx-1 border border-black">
+        <div className="vertical-text mx-1 mt-2 flex items-center justify-center border border-black bg-black text-2xl font-bold text-[#FFD666] uppercase">
           Strengths
         </div>
-        <div className="flex flex-col bg-[#D9D9D9] mt-2 border-y border-l border-black">
-          {[0, 1, 2].map(i => (
-            <div key={i} className="h-[100px] border-b border-black last:border-b-0 p-2 flex items-center justify-center text-center">
+        <div className="mt-2 flex flex-col border-y border-l border-black bg-[#D9D9D9]">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="flex h-[100px] items-center justify-center border-b border-black p-2 text-center last:border-b-0"
+            >
               <textarea
                 value={data.strengths[i]}
                 onChange={(e) => updateList('strengths', i, e.target.value)}
-                className="w-full h-full text-[12px] font-bold bg-transparent outline-none resize-none text-center flex items-center justify-center p-1"
+                className="flex h-full w-full resize-none items-center justify-center bg-transparent p-1 text-center text-[12px] font-bold outline-none"
                 placeholder="..."
               />
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-3 mt-2 border border-black mx-1">
-          {[0, 1, 2].map(r => [0, 1, 2].map(c => (
-            <MatrixCell 
-              key={`s-o-${r}-${c}`} 
-              score={getScore('strengths', r, 'opportunities', c)}
-              note={getNote('strengths', r, 'opportunities', c)}
-              onScoreChange={(val) => updateScore('strengths', r, 'opportunities', c, val)}
-              onNoteChange={(val) => updateNote('strengths', r, 'opportunities', c, val)}
-              getBgColor={getBgColor}
-              getTextColor={getTextColor}
-            />
-          )))}
+        <div className="mx-1 mt-2 grid grid-cols-3 border border-black">
+          {[0, 1, 2].map((r) =>
+            [0, 1, 2].map((c) => (
+              <MatrixCell
+                key={`s-o-${r}-${c}`}
+                score={getScore('strengths', r, 'opportunities', c)}
+                note={getNote('strengths', r, 'opportunities', c)}
+                onScoreChange={(val) => updateScore('strengths', r, 'opportunities', c, val)}
+                onNoteChange={(val) => updateNote('strengths', r, 'opportunities', c, val)}
+                getBgColor={getBgColor}
+                getTextColor={getTextColor}
+              />
+            )),
+          )}
         </div>
         <div /> {/* Gap col */}
-        <div className="grid grid-cols-3 mt-2 border border-black mx-1">
-          {[0, 1, 2].map(r => [0, 1, 2].map(c => (
-            <MatrixCell 
-              key={`s-t-${r}-${c}`} 
-              score={getScore('strengths', r, 'threats', c)}
-              note={getNote('strengths', r, 'threats', c)}
-              onScoreChange={(val) => updateScore('strengths', r, 'threats', c, val)}
-              onNoteChange={(val) => updateNote('strengths', r, 'threats', c, val)}
-              getBgColor={getBgColor}
-              getTextColor={getTextColor}
-            />
-          )))}
+        <div className="mx-1 mt-2 grid grid-cols-3 border border-black">
+          {[0, 1, 2].map((r) =>
+            [0, 1, 2].map((c) => (
+              <MatrixCell
+                key={`s-t-${r}-${c}`}
+                score={getScore('strengths', r, 'threats', c)}
+                note={getNote('strengths', r, 'threats', c)}
+                onScoreChange={(val) => updateScore('strengths', r, 'threats', c, val)}
+                onNoteChange={(val) => updateNote('strengths', r, 'threats', c, val)}
+                getBgColor={getBgColor}
+                getTextColor={getTextColor}
+              />
+            )),
+          )}
         </div>
-        <div className="flex flex-col bg-[#C6E0B4]/60 mt-2 border border-black ml-1">
-          {[0, 1, 2].map(i => {
+        <div className="mt-2 ml-1 flex flex-col border border-black bg-[#C6E0B4]/60">
+          {[0, 1, 2].map((i) => {
             const total = getRowTotal('strengths', i);
             return (
-              <div key={i} className={cn("h-[100px] flex items-center justify-center font-bold text-xl border-b border-black last:border-0", getTextColor(total), total > 0 ? "bg-[#C6E0B4]" : (total < 0 ? "bg-[#F4B084]" : "bg-[#FFF2CC]"))}>
+              <div
+                key={i}
+                className={cn(
+                  'flex h-[100px] items-center justify-center border-b border-black text-xl font-bold last:border-0',
+                  getTextColor(total),
+                  total > 0 ? 'bg-[#C6E0B4]' : total < 0 ? 'bg-[#F4B084]' : 'bg-[#FFF2CC]',
+                )}
+              >
                 {total}
               </div>
             );
           })}
         </div>
-
         {/* ROW 4: Gap row */}
-        <div className="h-4 col-span-6" />
-
+        <div className="col-span-6 h-4" />
         {/* ROW 5: Weaknesses Label & Matrix */}
-        <div className="bg-black text-[#FFD666] flex items-center justify-center font-bold text-2xl uppercase vertical-text border border-black mx-1">
+        <div className="vertical-text mx-1 flex items-center justify-center border border-black bg-black text-2xl font-bold text-[#FFD666] uppercase">
           Weaknesses
         </div>
-        <div className="flex flex-col bg-[#D9D9D9] border-y border-l border-black">
-          {[0, 1, 2].map(i => (
-            <div key={i} className="h-[100px] border-b border-black last:border-b-0 p-2 flex items-center justify-center text-center">
+        <div className="flex flex-col border-y border-l border-black bg-[#D9D9D9]">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="flex h-[100px] items-center justify-center border-b border-black p-2 text-center last:border-b-0"
+            >
               <textarea
                 value={data.weaknesses[i]}
                 onChange={(e) => updateList('weaknesses', i, e.target.value)}
-                className="w-full h-full text-[12px] font-bold bg-transparent outline-none resize-none text-center flex items-center justify-center p-1"
+                className="flex h-full w-full resize-none items-center justify-center bg-transparent p-1 text-center text-[12px] font-bold outline-none"
                 placeholder="..."
               />
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-3 border border-black mx-1">
-          {[0, 1, 2].map(r => [0, 1, 2].map(c => (
-            <MatrixCell 
-              key={`w-o-${r}-${c}`} 
-              score={getScore('weaknesses', r, 'opportunities', c)}
-              note={getNote('weaknesses', r, 'opportunities', c)}
-              onScoreChange={(val) => updateScore('weaknesses', r, 'opportunities', c, val)}
-              onNoteChange={(val) => updateNote('weaknesses', r, 'opportunities', c, val)}
-              getBgColor={getBgColor}
-              getTextColor={getTextColor}
-            />
-          )))}
+        <div className="mx-1 grid grid-cols-3 border border-black">
+          {[0, 1, 2].map((r) =>
+            [0, 1, 2].map((c) => (
+              <MatrixCell
+                key={`w-o-${r}-${c}`}
+                score={getScore('weaknesses', r, 'opportunities', c)}
+                note={getNote('weaknesses', r, 'opportunities', c)}
+                onScoreChange={(val) => updateScore('weaknesses', r, 'opportunities', c, val)}
+                onNoteChange={(val) => updateNote('weaknesses', r, 'opportunities', c, val)}
+                getBgColor={getBgColor}
+                getTextColor={getTextColor}
+              />
+            )),
+          )}
         </div>
         <div /> {/* Gap col */}
-        <div className="grid grid-cols-3 border border-black mx-1">
-          {[0, 1, 2].map(r => [0, 1, 2].map(c => (
-            <MatrixCell 
-              key={`w-t-${r}-${c}`} 
-              score={getScore('weaknesses', r, 'threats', c)}
-              note={getNote('weaknesses', r, 'threats', c)}
-              onScoreChange={(val) => updateScore('weaknesses', r, 'threats', c, val)}
-              onNoteChange={(val) => updateNote('weaknesses', r, 'threats', c, val)}
-              getBgColor={getBgColor}
-              getTextColor={getTextColor}
-            />
-          )))}
+        <div className="mx-1 grid grid-cols-3 border border-black">
+          {[0, 1, 2].map((r) =>
+            [0, 1, 2].map((c) => (
+              <MatrixCell
+                key={`w-t-${r}-${c}`}
+                score={getScore('weaknesses', r, 'threats', c)}
+                note={getNote('weaknesses', r, 'threats', c)}
+                onScoreChange={(val) => updateScore('weaknesses', r, 'threats', c, val)}
+                onNoteChange={(val) => updateNote('weaknesses', r, 'threats', c, val)}
+                getBgColor={getBgColor}
+                getTextColor={getTextColor}
+              />
+            )),
+          )}
         </div>
-        <div className="flex flex-col bg-[#FCE4D6] border border-black ml-1">
-          {[0, 1, 2].map(i => {
+        <div className="ml-1 flex flex-col border border-black bg-[#FCE4D6]">
+          {[0, 1, 2].map((i) => {
             const total = getRowTotal('weaknesses', i);
             return (
-              <div key={i} className={cn("h-[100px] flex items-center justify-center font-bold text-xl border-b border-black last:border-0", getTextColor(total), total > 0 ? "bg-[#C6E0B4]" : (total < 0 ? "bg-[#F4B084]" : "bg-[#FFF2CC]"))}>
+              <div
+                key={i}
+                className={cn(
+                  'flex h-[100px] items-center justify-center border-b border-black text-xl font-bold last:border-0',
+                  getTextColor(total),
+                  total > 0 ? 'bg-[#C6E0B4]' : total < 0 ? 'bg-[#F4B084]' : 'bg-[#FFF2CC]',
+                )}
+              >
                 {total}
               </div>
             );
           })}
         </div>
-
         {/* ROW 6: Totals for O and T */}
-        <div className="col-span-2 pt-4 flex items-center justify-center font-bold text-[#595959] uppercase tracking-widest text-lg">
+        <div className="col-span-2 flex items-center justify-center pt-4 text-lg font-bold tracking-widest text-[#595959] uppercase">
           Total
         </div>
-        <div className="grid grid-cols-3 mt-4 mx-1 border border-black bg-[#C6E0B4]/40">
-          {[0, 1, 2].map(i => {
+        <div className="mx-1 mt-4 grid grid-cols-3 border border-black bg-[#C6E0B4]/40">
+          {[0, 1, 2].map((i) => {
             const total = getColTotal('opportunities', i);
             return (
-              <div key={i} className={cn("h-[100px] flex items-center justify-center font-bold text-xl border-r border-black last:border-r-0", getTextColor(total), total > 0 ? "bg-[#C6E0B4]" : (total < 0 ? "bg-[#F4B084]" : "bg-[#FFF2CC]"))}>
+              <div
+                key={i}
+                className={cn(
+                  'flex h-[100px] items-center justify-center border-r border-black text-xl font-bold last:border-r-0',
+                  getTextColor(total),
+                  total > 0 ? 'bg-[#C6E0B4]' : total < 0 ? 'bg-[#F4B084]' : 'bg-[#FFF2CC]',
+                )}
+              >
                 {total}
               </div>
             );
           })}
         </div>
         <div /> {/* Gap col */}
-        <div className="grid grid-cols-3 mt-4 mx-1 border border-black bg-[#FCE4D6]/40">
-          {[0, 1, 2].map(i => {
+        <div className="mx-1 mt-4 grid grid-cols-3 border border-black bg-[#FCE4D6]/40">
+          {[0, 1, 2].map((i) => {
             const total = getColTotal('threats', i);
             return (
-              <div key={i} className={cn("h-[100px] flex items-center justify-center font-bold text-xl border-r border-black last:border-r-0", getTextColor(total), total > 0 ? "bg-[#C6E0B4]" : (total < 0 ? "bg-[#F4B084]" : "bg-[#FFF2CC]"))}>
+              <div
+                key={i}
+                className={cn(
+                  'flex h-[100px] items-center justify-center border-r border-black text-xl font-bold last:border-r-0',
+                  getTextColor(total),
+                  total > 0 ? 'bg-[#C6E0B4]' : total < 0 ? 'bg-[#F4B084]' : 'bg-[#FFF2CC]',
+                )}
+              >
                 {total}
               </div>
             );
@@ -606,19 +789,21 @@ export const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatr
       </div>
 
       {/* Legend & Explanation */}
-      <div className="mt-12 flex gap-12 items-start">
-        <div className="flex flex-col w-64 border border-black text-xs font-bold shadow-sm">
+      <div className="mt-12 flex items-start gap-12">
+        <div className="flex w-64 flex-col border border-black text-xs font-bold shadow-sm">
           <div className="grid grid-cols-[1fr_60px] border-b border-black bg-[#F4B084]">
-            <span className="p-2 px-4 text-red-900 italic text-shadow-sm">Negative / Very Negative</span>
-            <span className="p-2 text-center border-l border-black">-1 / -2</span>
+            <span className="p-2 px-4 text-red-900 italic text-shadow-sm">
+              Negative / Very Negative
+            </span>
+            <span className="border-l border-black p-2 text-center">-1 / -2</span>
           </div>
           <div className="grid grid-cols-[1fr_60px] border-b border-black bg-[#FFF2CC]">
             <span className="p-2 px-4 text-yellow-800">Neutral</span>
-            <span className="p-2 text-center border-l border-black">0</span>
+            <span className="border-l border-black p-2 text-center">0</span>
           </div>
           <div className="grid grid-cols-[1fr_60px] bg-[#C6E0B4]">
             <span className="p-2 px-4 text-green-900 italic">Positive / Very Positive</span>
-            <span className="p-2 text-center border-l border-black">+1 / +2</span>
+            <span className="border-l border-black p-2 text-center">+1 / +2</span>
           </div>
         </div>
       </div>
@@ -626,48 +811,60 @@ export const TOWSWorksheet = ({ data, setData, meta, setMeta }: { data: TOWSMatr
   );
 };
 
-export const VRIOAnalysisTable = ({ 
-  data, 
-  setData, 
-  notes, 
-  setNotes 
-}: { 
-  data: VRIOAnalysisData[]; 
+export const VRIOAnalysisTable = ({
+  data,
+  setData,
+  notes,
+  setNotes,
+}: {
+  data: VRIOAnalysisData[];
   setData: (d: VRIOAnalysisData[]) => void;
   notes: string;
   setNotes: (n: string) => void;
 }) => {
   const updateItem = (id: string, field: keyof VRIOAnalysisData, value: string) => {
-    setData(data.map(item => item.id === id ? { ...item, [field]: value } : item));
+    setData(data.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
   return (
     <div className="space-y-4">
-      <h3 className="text-2xl font-bold uppercase tracking-tight text-gray-900 border-b-4 border-gray-100 inline-block">
+      <h3 className="inline-block border-b-4 border-gray-100 text-2xl font-bold tracking-tight text-gray-900 uppercase">
         VRIO Analysis
       </h3>
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse border-2 border-black table-fixed">
+        <table className="w-full table-fixed border-collapse border-2 border-black">
           <thead>
             <tr className="bg-white">
-              <th className="border border-black p-4 text-center font-bold text-sm bg-gray-50/50">Resources</th>
-              <th className="border border-black p-4 text-center font-bold text-sm bg-gray-50/50">Type</th>
-              <th className="border border-black p-4 text-center font-bold text-sm bg-gray-50/50 w-1/4">Detail</th>
-              <th className="border border-black p-2 text-center font-bold text-sm bg-gray-50/50 w-20">
+              <th className="border border-black bg-gray-50/50 p-4 text-center text-sm font-bold">
+                Resources
+              </th>
+              <th className="border border-black bg-gray-50/50 p-4 text-center text-sm font-bold">
+                Type
+              </th>
+              <th className="w-1/4 border border-black bg-gray-50/50 p-4 text-center text-sm font-bold">
+                Detail
+              </th>
+              <th className="w-20 border border-black bg-gray-50/50 p-2 text-center text-sm font-bold">
                 <div className="text-lg">V</div>
-                <div className="text-[10px] font-normal leading-tight lowercase">is it valuable?</div>
+                <div className="text-[10px] leading-tight font-normal lowercase">
+                  is it valuable?
+                </div>
               </th>
-              <th className="border border-black p-2 text-center font-bold text-sm bg-gray-50/50 w-20">
+              <th className="w-20 border border-black bg-gray-50/50 p-2 text-center text-sm font-bold">
                 <div className="text-lg">R</div>
-                <div className="text-[10px] font-normal leading-tight lowercase">is it rare?</div>
+                <div className="text-[10px] leading-tight font-normal lowercase">is it rare?</div>
               </th>
-              <th className="border border-black p-2 text-center font-bold text-sm bg-gray-50/50 w-20">
+              <th className="w-20 border border-black bg-gray-50/50 p-2 text-center text-sm font-bold">
                 <div className="text-lg">I</div>
-                <div className="text-[10px] font-normal leading-tight lowercase">is it hard to imitate?</div>
+                <div className="text-[10px] leading-tight font-normal lowercase">
+                  is it hard to imitate?
+                </div>
               </th>
-              <th className="border border-black p-2 text-center font-bold text-sm bg-gray-50/50 w-28">
+              <th className="w-28 border border-black bg-gray-50/50 p-2 text-center text-sm font-bold">
                 <div className="text-lg">O</div>
-                <div className="text-[10px] font-normal leading-tight">How organized is the company around this?</div>
+                <div className="text-[10px] leading-tight font-normal">
+                  How organized is the company around this?
+                </div>
               </th>
             </tr>
           </thead>
@@ -679,7 +876,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.resource}
                     onChange={(e) => updateItem(item.id, 'resource', e.target.value)}
-                    className="w-full h-full px-4 text-sm bg-transparent outline-hidden focus:bg-blue-50/30 transition-colors"
+                    className="h-full w-full bg-transparent px-4 text-sm outline-hidden transition-colors focus:bg-blue-50/30"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -687,7 +884,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.type}
                     onChange={(e) => updateItem(item.id, 'type', e.target.value)}
-                    className="w-full h-full px-4 text-sm bg-transparent outline-hidden focus:bg-blue-50/30 transition-colors"
+                    className="h-full w-full bg-transparent px-4 text-sm outline-hidden transition-colors focus:bg-blue-50/30"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -695,7 +892,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.detail}
                     onChange={(e) => updateItem(item.id, 'detail', e.target.value)}
-                    className="w-full h-full px-4 text-sm bg-transparent outline-hidden focus:bg-blue-50/30 transition-colors"
+                    className="h-full w-full bg-transparent px-4 text-sm outline-hidden transition-colors focus:bg-blue-50/30"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -703,7 +900,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.v}
                     onChange={(e) => updateItem(item.id, 'v', e.target.value)}
-                    className="w-full h-full text-center text-sm bg-transparent outline-hidden focus:bg-blue-50/30 transition-colors"
+                    className="h-full w-full bg-transparent text-center text-sm outline-hidden transition-colors focus:bg-blue-50/30"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -711,7 +908,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.r}
                     onChange={(e) => updateItem(item.id, 'r', e.target.value)}
-                    className="w-full h-full text-center text-sm bg-transparent outline-hidden focus:bg-blue-50/30 transition-colors"
+                    className="h-full w-full bg-transparent text-center text-sm outline-hidden transition-colors focus:bg-blue-50/30"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -719,7 +916,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.i}
                     onChange={(e) => updateItem(item.id, 'i', e.target.value)}
-                    className="w-full h-full text-center text-sm bg-transparent outline-hidden focus:bg-blue-50/30 transition-colors"
+                    className="h-full w-full bg-transparent text-center text-sm outline-hidden transition-colors focus:bg-blue-50/30"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -727,7 +924,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.o}
                     onChange={(e) => updateItem(item.id, 'o', e.target.value)}
-                    className="w-full h-full text-center text-sm bg-transparent outline-hidden focus:bg-blue-50/30 transition-colors"
+                    className="h-full w-full bg-transparent text-center text-sm outline-hidden transition-colors focus:bg-blue-50/30"
                   />
                 </td>
               </tr>
@@ -735,12 +932,12 @@ export const VRIOAnalysisTable = ({
           </tbody>
         </table>
       </div>
-      <div className="border border-black rounded-sm overflow-hidden">
-        <div className="bg-gray-50 border-b border-black px-4 py-2 text-sm font-bold">Notes</div>
+      <div className="overflow-hidden rounded-sm border border-black">
+        <div className="border-b border-black bg-gray-50 px-4 py-2 text-sm font-bold">Notes</div>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="w-full min-h-[120px] p-4 text-sm bg-white outline-hidden resize-none translate-z-0"
+          className="min-h-[120px] w-full translate-z-0 resize-none bg-white p-4 text-sm outline-hidden"
           placeholder="Enter additional analysis notes here..."
         />
       </div>
@@ -752,133 +949,171 @@ export const VRIOFramework = () => {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.25fr] gap-0">
-        <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-56 bg-white text-center">
-          <div className="flex-1 flex items-center justify-center">
+        <div className="flex h-56 flex-col items-center border border-gray-200 bg-white p-4 pb-6 text-center">
+          <div className="flex flex-1 items-center justify-center">
             <Database size={100} className="text-gray-300" />
           </div>
-          <span className="text-sm font-bold uppercase tracking-tight text-gray-800 leading-tight">IS IT VALUABLE?</span>
+          <span className="text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
+            IS IT VALUABLE?
+          </span>
         </div>
-        <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-56 bg-white text-center border-l-0">
-          <div className="flex-1 flex items-center justify-center">
+        <div className="flex h-56 flex-col items-center border border-l-0 border-gray-200 bg-white p-4 pb-6 text-center">
+          <div className="flex flex-1 items-center justify-center">
             <Files size={100} className="text-gray-300" />
           </div>
-          <span className="text-sm font-bold uppercase tracking-tight text-gray-800 leading-tight">IS IT RARE?</span>
+          <span className="text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
+            IS IT RARE?
+          </span>
         </div>
-        <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-56 bg-white text-center border-l-0">
-          <div className="flex-1 flex items-center justify-center">
+        <div className="flex h-56 flex-col items-center border border-l-0 border-gray-200 bg-white p-4 pb-6 text-center">
+          <div className="flex flex-1 items-center justify-center">
             <Network size={100} className="text-gray-300" />
           </div>
-          <span className="text-sm font-bold uppercase tracking-tight text-gray-800 leading-tight">IS IT DIFFICULT TO IMITATE?</span>
+          <span className="text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
+            IS IT DIFFICULT TO IMITATE?
+          </span>
         </div>
-        <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-56 bg-white text-center border-l-0">
-          <div className="flex-1 flex items-center justify-center">
+        <div className="flex h-56 flex-col items-center border border-l-0 border-gray-200 bg-white p-4 pb-6 text-center">
+          <div className="flex flex-1 items-center justify-center">
             <Settings2 size={100} className="text-gray-300" />
           </div>
-          <span className="text-sm font-bold uppercase tracking-tight text-center leading-[1.1] text-gray-800 px-2">HOW ORGANIZED IS THE COMPANY AROUND THIS</span>
+          <span className="px-2 text-center text-sm leading-[1.1] font-bold tracking-tight text-gray-800 uppercase">
+            HOW ORGANIZED IS THE COMPANY AROUND THIS
+          </span>
         </div>
-        <div className="border border-gray-200 p-4 pb-6 flex flex-col items-center h-56 bg-white text-center border-l-0">
-          <div className="flex-1 flex items-center justify-center">
+        <div className="flex h-56 flex-col items-center border border-l-0 border-gray-200 bg-white p-4 pb-6 text-center">
+          <div className="flex flex-1 items-center justify-center">
             <FileText size={100} className="text-gray-300" />
           </div>
-          <span className="text-sm font-bold uppercase tracking-tight text-gray-800 leading-tight px-4">WHAT IS THE OVERALL RESULT?</span>
+          <span className="px-4 text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
+            WHAT IS THE OVERALL RESULT?
+          </span>
         </div>
       </div>
 
       {/* Decision Table */}
       <div className="space-y-4 pt-1">
         {/* Row 1 */}
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.25fr] border border-gray-200 h-18 bg-gray-50/30 overflow-hidden">
+        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
           <div className="flex items-center justify-center gap-4 bg-white/80">
-            <div className="w-10 h-10 rounded-full border-2 border-red-400 flex items-center justify-center text-red-500 font-bold bg-white text-2xl">×</div>
-            <span className="text-gray-500 font-bold text-lg">No</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-2xl font-bold text-red-500">
+              ×
+            </div>
+            <span className="text-lg font-bold text-gray-500">No</span>
           </div>
           <div className="bg-white/80" />
           <div className="bg-white/80" />
           <div className="bg-white/80" />
-          <div className="bg-[#FF9B9B] flex items-center justify-center text-center font-bold text-sm px-6 leading-tight border-l border-gray-200">
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#FF9B9B] px-6 text-center text-sm leading-tight font-bold">
             Competitive Disadvantage
           </div>
         </div>
 
         {/* Row 2 */}
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.25fr] border border-gray-200 h-18 bg-gray-50/30 overflow-hidden">
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 bg-white/80">
-            <div className="w-10 h-10 rounded-full border-2 border-red-400 flex items-center justify-center text-red-500 font-bold bg-white text-2xl">×</div>
-            <span className="text-gray-500 font-bold text-lg">No</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-2xl font-bold text-red-500">
+              ×
+            </div>
+            <span className="text-lg font-bold text-gray-500">No</span>
           </div>
           <div className="bg-white/80" />
           <div className="bg-white/80" />
-          <div className="bg-[#EB9F7D] flex items-center justify-center text-center font-bold text-sm px-6 leading-tight border-l border-gray-200">
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#EB9F7D] px-6 text-center text-sm leading-tight font-bold">
             Competitive Parity
           </div>
         </div>
 
         {/* Row 3 */}
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.25fr] border border-gray-200 h-18 bg-gray-50/30 overflow-hidden">
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 bg-white/80">
-            <div className="w-10 h-10 rounded-full border-2 border-red-400 flex items-center justify-center text-red-500 font-bold bg-white text-2xl">×</div>
-            <span className="text-gray-500 font-bold text-lg">No</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-2xl font-bold text-red-500">
+              ×
+            </div>
+            <span className="text-lg font-bold text-gray-500">No</span>
           </div>
           <div className="bg-white/80" />
-          <div className="bg-[#FFD666] flex items-center justify-center text-center font-bold text-sm px-6 leading-tight border-l border-gray-200">
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#FFD666] px-6 text-center text-sm leading-tight font-bold">
             Temporary Competitive Advantage
           </div>
         </div>
 
         {/* Row 4 */}
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.25fr] border border-gray-200 h-18 bg-gray-50/30 overflow-hidden">
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
-          <div className="flex items-center justify-center gap-4 bg-white/80 focus:bg-white transition-colors">
-            <div className="w-10 h-10 rounded-full border-2 border-red-400 flex items-center justify-center text-red-500 font-bold bg-white text-2xl">×</div>
-            <span className="text-gray-500 font-bold text-lg">No</span>
+          <div className="flex items-center justify-center gap-4 bg-white/80 transition-colors focus:bg-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-2xl font-bold text-red-500">
+              ×
+            </div>
+            <span className="text-lg font-bold text-gray-500">No</span>
           </div>
-          <div className="bg-[#ADCCD1] flex items-center justify-center text-center font-bold text-sm px-6 leading-tight border-l border-gray-200">
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#ADCCD1] px-6 text-center text-sm leading-tight font-bold">
             Unused Competitive Advantage
           </div>
         </div>
 
         {/* Row 5 */}
-        <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.25fr] border border-gray-200 h-18 bg-gray-50/30 overflow-hidden">
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
-          <div className="flex items-center justify-center gap-4 bg-white/80 border-r border-gray-100/50">
-            <div className="w-10 h-10 rounded-full border-2 border-green-500 flex items-center justify-center text-green-500 font-bold bg-white text-2xl">✓</div>
-            <span className="text-gray-500 font-bold text-lg">Yes</span>
+          <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+              ✓
+            </div>
+            <span className="text-lg font-bold text-gray-500">Yes</span>
           </div>
-          <div className="bg-[#8EB39F] flex items-center justify-center text-center font-bold text-sm px-6 leading-tight border-l border-gray-200">
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#8EB39F] px-6 text-center text-sm leading-tight font-bold">
             Sustainable Competitive Advantage
           </div>
         </div>
@@ -887,13 +1122,13 @@ export const VRIOFramework = () => {
   );
 };
 
-export const PortersFiveForces = ({ 
-  data, 
-  setData, 
-  activeForce, 
-  setActiveForce 
-}: { 
-  data: PortersFiveForcesData; 
+export const PortersFiveForces = ({
+  data,
+  setData,
+  activeForce,
+  setActiveForce,
+}: {
+  data: PortersFiveForcesData;
   setData: (d: PortersFiveForcesData) => void;
   activeForce: keyof PortersFiveForcesData;
   setActiveForce: (f: keyof PortersFiveForcesData) => void;
@@ -911,13 +1146,13 @@ export const PortersFiveForces = ({
         'Do your purchases from suppliers represent a large portion of their business? If your purchases are a relatively large portion of your supplier’s business, you will have more power to lower costs or improve product features.',
         'Would it be difficult for your suppliers to enter your business, sell directly to your customers, and become your direct competitor? The easier it is to start a new business, the more likely it is that you will have competitors.',
         'Can you easily switch to substitute products from other suppliers? If it is relatively easy to switch to substitute products, you will have more negotiating room with your suppliers.',
-        'Are you well informed about your supplier\'s product and market? If the market is complicated or hard to understand, you have less bargaining power with your suppliers.'
+        "Are you well informed about your supplier's product and market? If the market is complicated or hard to understand, you have less bargaining power with your suppliers.",
       ],
       tableHeaders: [
         'List the major inputs needed for your business.',
         'For each input, list possible suppliers.',
-        'How can you best work with this supplier to maximize your bargaining power?'
-      ]
+        'How can you best work with this supplier to maximize your bargaining power?',
+      ],
     },
     buyers: {
       title: 'Bargaining Power of Buyers',
@@ -931,13 +1166,13 @@ export const PortersFiveForces = ({
         'Are customers uninformed about your product and market? If your market is complicated or hard to understand, buyers have less control.',
         'Is your product unique? If your product is homogenous or the same as your competitors’, buyers have more bargaining power.',
         'Would it be difficult for buyers to integrate backward in the supply chain, purchase a competitor providing the products you provide, and compete directly with you? The less likely a customer will enter your industry, the more bargaining power you have.',
-        'Is it difficult for customers to switch from your product to your competitors’ products? If it is relatively easy for your customers to switch, you will have less negotiating power with your customers.'
+        'Is it difficult for customers to switch from your product to your competitors’ products? If it is relatively easy for your customers to switch, you will have less negotiating power with your customers.',
       ],
       tableHeaders: [
         'List the types of customers that you have or expect to have.',
         'What alternatives might these customers have for your product?',
-        'How can you build loyalty for your product or service to reduce customer bargaining power?'
-      ]
+        'How can you build loyalty for your product or service to reduce customer bargaining power?',
+      ],
     },
     newEntrants: {
       title: 'Threat of New Entrants',
@@ -953,17 +1188,14 @@ export const PortersFiveForces = ({
         'Is there a process or procedure critical to your business? The more difficult it is to learn the business, the greater the entry barrier.',
         'Will a new competitor have difficulty acquiring/obtaining needed inputs? Current distribution channels may make it difficult for a new business to acquire/obtain inputs as readily as existing businesses.',
         'Will a new competitor have any difficulty acquiring/obtaining customers? If current distribution channels make it difficult for a new business to acquire/obtain new customers, you will enjoy a barrier to entry.',
-        'Would it be difficult for a new entrant to have enough resources to compete efficiently? For every product, there is a cost-efficient level of production. If challengers can’t achieve that level of production, they won’t be competitive and therefore won’t enter the industry.'
+        'Would it be difficult for a new entrant to have enough resources to compete efficiently? For every product, there is a cost-efficient level of production. If challengers can’t achieve that level of production, they won’t be competitive and therefore won’t enter the industry.',
       ],
-      tableHeaders: [
-        'Questions to Consider',
-        'Strategic Response'
-      ],
+      tableHeaders: ['Questions to Consider', 'Strategic Response'],
       customRows: [
         'How would a new entrant affect your business?',
         'What will your competitors do if there is a new entrant into your marketplace?',
-        'How will you respond to a new competitor?'
-      ]
+        'How will you respond to a new competitor?',
+      ],
     },
     substitutes: {
       title: 'Threat of Substitutes',
@@ -974,13 +1206,13 @@ export const PortersFiveForces = ({
       questions: [
         'Does your product compare favorably to possible substitutes? If another product offers more features or benefits to customers, or if their price is lower, customers may decide that the other product is a better value.',
         'Is it costly for your customers to switch to another product? When customers experience a loss of productivity if they switch to another product, the threat of substitutes is weaker.',
-        'Are customers loyal to existing products? Even if switching costs are low, customers may have allegiance to a particular brand. If your customers have high brand loyalty to your product you enjoy a weak threat of substitutes.'
+        'Are customers loyal to existing products? Even if switching costs are low, customers may have allegiance to a particular brand. If your customers have high brand loyalty to your product you enjoy a weak threat of substitutes.',
       ],
       tableHeaders: [
         'List possible substitutes that your customers could use in place of your product.',
         'How easy would it be for your customer to consider this alternative?',
-        'How can you differentiate your products or build customer loyalty to manage the threat of substitutes?'
-      ]
+        'How can you differentiate your products or build customer loyalty to manage the threat of substitutes?',
+      ],
     },
     rivalry: {
       title: 'Rivalry Among Competitors',
@@ -997,15 +1229,15 @@ export const PortersFiveForces = ({
         'Are your competitors pursuing a low growth strategy? You will have more intense rivalries if your competitors are more aggressive. In contrast, if your competitors are following a strategy of milking profits in a mature market, you will enjoy less rivalry.',
         'Is your product unique? Firms that produce products that are very similar will compete mostly on price, so rivalry is expected to be high.',
         'Is it easy for competitors to abandon their product? If exit costs are high, a company may remain in business even if it is not profitable.',
-        'Is it difficult for customers to switch between your product and your competitors’? If customers can easily switch, the market will be more competitive and rivalry is expected to be high as firms vie for each customer’s business.'
+        'Is it difficult for customers to switch between your product and your competitors’? If customers can easily switch, the market will be more competitive and rivalry is expected to be high as firms vie for each customer’s business.',
       ],
       tableHeaders: [
         'List your major competitors.',
         'What business and growth strategies does this competitor use?',
         'How will this competitor affect your business?',
-        'What actions will you take in response to your competitors’ actions?'
-      ]
-    }
+        'What actions will you take in response to your competitors’ actions?',
+      ],
+    },
   };
 
   const currentConfig = forceConfigs[activeForce];
@@ -1016,8 +1248,8 @@ export const PortersFiveForces = ({
       ...data,
       [activeForce]: {
         ...currentData,
-        scorecard: { ...currentData.scorecard, [index]: val }
-      }
+        scorecard: { ...currentData.scorecard, [index]: val },
+      },
     });
   };
 
@@ -1026,23 +1258,23 @@ export const PortersFiveForces = ({
     newFurther[rowIndex] = { ...newFurther[rowIndex], [colKey]: val };
     setData({
       ...data,
-      [activeForce]: { ...currentData, further: newFurther }
+      [activeForce]: { ...currentData, further: newFurther },
     });
   };
 
   return (
     <div className="space-y-8">
       {/* Sub-navigation */}
-      <div className="flex flex-wrap gap-2 p-1 bg-gray-100 rounded-2xl no-print">
+      <div className="no-print flex flex-wrap gap-2 rounded-2xl bg-gray-100 p-1">
         {Object.entries(forceConfigs).map(([key, config]) => (
           <button
             key={key}
             onClick={() => setActiveForce(key as any)}
             className={cn(
-              "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer",
-              activeForce === key 
-                ? "bg-white text-gray-900 shadow-sm ring-1 ring-black/5" 
-                : "text-gray-400 hover:text-gray-600"
+              'cursor-pointer rounded-xl px-4 py-2 text-[10px] font-black tracking-widest uppercase transition-all',
+              activeForce === key
+                ? 'bg-white text-gray-900 shadow-sm ring-1 ring-black/5'
+                : 'text-gray-400 hover:text-gray-600',
             )}
           >
             {config.title.split('of ').pop()?.split('Among ').pop() || config.title}
@@ -1050,13 +1282,24 @@ export const PortersFiveForces = ({
         ))}
       </div>
 
-      <div className={cn("p-12 rounded-[40px] border shadow-2xl space-y-12 transition-all", currentConfig.color, currentConfig.borderColor)}>
+      <div
+        className={cn(
+          'space-y-12 rounded-[40px] border p-12 shadow-2xl transition-all',
+          currentConfig.color,
+          currentConfig.borderColor,
+        )}
+      >
         {/* Header */}
         <div className="flex flex-col gap-2">
-          <h2 className={cn("text-3xl font-black uppercase italic tracking-tighter", currentConfig.textColor)}>
+          <h2
+            className={cn(
+              'text-3xl font-black tracking-tighter uppercase italic',
+              currentConfig.textColor,
+            )}
+          >
             {currentConfig.title}
           </h2>
-          <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
+          <p className="text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase">
             Strategic Assessment Worksheet
           </p>
         </div>
@@ -1064,23 +1307,28 @@ export const PortersFiveForces = ({
         {/* Self Assessment Scorecard */}
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <h3 className="text-lg font-black uppercase italic text-gray-900">Self Assessment Scorecard</h3>
+            <h3 className="text-lg font-black text-gray-900 uppercase italic">
+              Self Assessment Scorecard
+            </h3>
             <div className="h-px flex-1 bg-gray-100" />
           </div>
-          <p className="text-xs text-gray-500 leading-relaxed italic border-l-4 border-gray-200 pl-4">
+          <p className="border-l-4 border-gray-200 pl-4 text-xs leading-relaxed text-gray-500 italic">
             {(currentConfig as any).info}
           </p>
           <div className="space-y-2">
             {currentConfig.questions.map((q, idx) => (
-              <div key={idx} className="flex items-center gap-6 p-3 bg-white/40 rounded-xl border border-white/60 hover:bg-white/80 transition-all group">
+              <div
+                key={idx}
+                className="group flex items-center gap-6 rounded-xl border border-white/60 bg-white/40 p-3 transition-all hover:bg-white/80"
+              >
                 <div className="flex gap-2">
                   <button
                     onClick={() => updateScorecard(idx, true)}
                     className={cn(
-                      "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all border-2 cursor-pointer",
-                      currentData.scorecard[idx] === true 
-                        ? "bg-green-600 border-green-600 text-white shadow-sm" 
-                        : "bg-white border-gray-300 text-gray-400 hover:border-green-500 hover:text-green-600"
+                      'cursor-pointer rounded-lg border-2 px-4 py-1.5 text-[10px] font-black uppercase transition-all',
+                      currentData.scorecard[idx] === true
+                        ? 'border-green-600 bg-green-600 text-white shadow-sm'
+                        : 'border-gray-300 bg-white text-gray-400 hover:border-green-500 hover:text-green-600',
                     )}
                   >
                     Yes
@@ -1088,17 +1336,17 @@ export const PortersFiveForces = ({
                   <button
                     onClick={() => updateScorecard(idx, false)}
                     className={cn(
-                      "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all border-2 cursor-pointer",
-                      currentData.scorecard[idx] === false 
-                        ? "bg-red-600 border-red-600 text-white shadow-sm" 
-                        : "bg-white border-gray-300 text-gray-400 hover:border-red-500 hover:text-red-600"
+                      'cursor-pointer rounded-lg border-2 px-4 py-1.5 text-[10px] font-black uppercase transition-all',
+                      currentData.scorecard[idx] === false
+                        ? 'border-red-600 bg-red-600 text-white shadow-sm'
+                        : 'border-gray-300 bg-white text-gray-400 hover:border-red-500 hover:text-red-600',
                     )}
                   >
                     No
                   </button>
                 </div>
-                <p className="text-xs font-semibold text-gray-700 leading-tight">
-                  <span className="text-gray-300 mr-2">{idx + 1}.</span>
+                <p className="text-xs leading-tight font-semibold text-gray-700">
+                  <span className="mr-2 text-gray-300">{idx + 1}.</span>
                   {q}
                 </p>
               </div>
@@ -1109,54 +1357,66 @@ export const PortersFiveForces = ({
         {/* Further Assessment Table */}
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <h3 className="text-lg font-black uppercase italic text-gray-900">Further Assessment</h3>
+            <h3 className="text-lg font-black text-gray-900 uppercase italic">
+              Further Assessment
+            </h3>
             <div className="h-px flex-1 bg-gray-100" />
           </div>
           <div className="overflow-hidden rounded-xl border-2 border-black bg-white shadow-lg">
             <table className="w-full border-collapse">
-              <thead className="bg-gray-100 border-b-2 border-black">
+              <thead className="border-b-2 border-black bg-gray-100">
                 <tr>
                   {currentConfig.tableHeaders.map((h, i) => (
-                    <th key={i} className="p-4 text-[10px] font-black uppercase tracking-[0.1em] text-gray-900 border-r-2 border-black last:border-0 text-center leading-tight">
+                    <th
+                      key={i}
+                      className="border-r-2 border-black p-4 text-center text-[10px] leading-tight font-black tracking-[0.1em] text-gray-900 uppercase last:border-0"
+                    >
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-black">
-                {activeForce === 'newEntrants' && 'customRows' in currentConfig ? (
-                  (currentConfig as any).customRows.map((q: string, idx: number) => (
-                    <tr key={idx} className="group">
-                      <td className="p-6 text-[11px] font-black text-gray-900 w-1/3 bg-gray-50 border-r-2 border-black uppercase tracking-tight leading-tight italic">
-                        {q}
-                      </td>
-                      <td className="p-0">
-                        <textarea
-                          value={currentData.further[idx]?.col2 || ''}
-                          onChange={(e) => updateFurther(idx, 'col2', e.target.value)}
-                          className="w-full h-32 p-6 text-sm font-medium bg-transparent outline-none resize-none border-none focus:bg-indigo-50/20 transition-all leading-relaxed"
-                          placeholder="Analysis and strategic response..."
-                        />
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  currentData.further.map((row, idx) => (
-                    <tr key={idx} className="group h-32">
-                      {['col1', 'col2', 'col3', 'col4'].slice(0, currentConfig.tableHeaders.length).map((col, cIdx) => (
-                        <td key={col} className="p-0 border-r-2 border-black last:border-0 relative">
-                          <textarea
-                            value={(row as any)[col] || ''}
-                            onChange={(e) => updateFurther(idx, col, e.target.value)}
-                            className="w-full h-full p-6 pt-8 text-xs font-semibold bg-transparent outline-none resize-none border-none focus:bg-indigo-50/20 transition-all leading-relaxed"
-                            placeholder={cIdx === 0 ? "Identify..." : "Analysis..."}
-                          />
-                          {cIdx === 0 && <span className="absolute top-2 left-3 text-[10px] font-black text-gray-200 uppercase group-hover:text-gray-400 transition-colors">#{idx + 1}</span>}
+                {activeForce === 'newEntrants' && 'customRows' in currentConfig
+                  ? (currentConfig as any).customRows.map((q: string, idx: number) => (
+                      <tr key={idx} className="group">
+                        <td className="w-1/3 border-r-2 border-black bg-gray-50 p-6 text-[11px] leading-tight font-black tracking-tight text-gray-900 uppercase italic">
+                          {q}
                         </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
+                        <td className="p-0">
+                          <textarea
+                            value={currentData.further[idx]?.col2 || ''}
+                            onChange={(e) => updateFurther(idx, 'col2', e.target.value)}
+                            className="h-32 w-full resize-none border-none bg-transparent p-6 text-sm leading-relaxed font-medium transition-all outline-none focus:bg-indigo-50/20"
+                            placeholder="Analysis and strategic response..."
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  : currentData.further.map((row, idx) => (
+                      <tr key={idx} className="group h-32">
+                        {['col1', 'col2', 'col3', 'col4']
+                          .slice(0, currentConfig.tableHeaders.length)
+                          .map((col, cIdx) => (
+                            <td
+                              key={col}
+                              className="relative border-r-2 border-black p-0 last:border-0"
+                            >
+                              <textarea
+                                value={(row as any)[col] || ''}
+                                onChange={(e) => updateFurther(idx, col, e.target.value)}
+                                className="h-full w-full resize-none border-none bg-transparent p-6 pt-8 text-xs leading-relaxed font-semibold transition-all outline-none focus:bg-indigo-50/20"
+                                placeholder={cIdx === 0 ? 'Identify...' : 'Analysis...'}
+                              />
+                              {cIdx === 0 && (
+                                <span className="absolute top-2 left-3 text-[10px] font-black text-gray-200 uppercase transition-colors group-hover:text-gray-400">
+                                  #{idx + 1}
+                                </span>
+                              )}
+                            </td>
+                          ))}
+                      </tr>
+                    ))}
               </tbody>
             </table>
           </div>

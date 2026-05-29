@@ -1,11 +1,11 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  
-  --color-brand-blue: #00AEEF;
-  --color-brand-peach: #FAD4B2;
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --color-brand-blue: #00aeef;
+  --color-brand-peach: #fad4b2;
 
   /* Neutral palette as Hex for html2canvas compatibility */
   --color-gray-50: #f9fafb;
@@ -22,7 +22,7 @@
 
 @layer base {
   body {
-    @apply font-sans text-gray-900 bg-gray-50;
+    @apply bg-gray-50 font-sans text-gray-900;
   }
 }
 

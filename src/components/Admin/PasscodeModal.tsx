@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Lock, X } from 'lucide-react';
 
-export const PasscodeModal = ({ onAuthenticated, onCancel }: { onAuthenticated: () => void; onCancel: () => void }) => {
+export const PasscodeModal = ({
+  onAuthenticated,
+  onCancel,
+}: {
+  onAuthenticated: () => void;
+  onCancel: () => void;
+}) => {
   const [passcode, setPasscode] = useState('');
   const [error, setError] = useState('');
 
@@ -17,24 +23,24 @@ export const PasscodeModal = ({ onAuthenticated, onCancel }: { onAuthenticated: 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
-        <div className="flex items-center justify-between mb-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-brand-blue text-white p-3 rounded-full">
+            <div className="bg-brand-blue rounded-full p-3 text-white">
               <Lock size={24} />
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Admin Access</h2>
           </div>
-          <button 
-            onClick={onCancel} 
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+          <button
+            onClick={onCancel}
+            className="text-gray-400 transition-colors hover:text-gray-600"
           >
             <X size={24} />
           </button>
         </div>
 
-        <p className="text-gray-600 mb-6">Enter the admin passcode to access the dashboard.</p>
+        <p className="mb-6 text-gray-600">Enter the admin passcode to access the dashboard.</p>
 
         <div className="mb-6">
           <input
@@ -46,22 +52,22 @@ export const PasscodeModal = ({ onAuthenticated, onCancel }: { onAuthenticated: 
             }}
             onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
             placeholder="Enter passcode"
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-brand-blue focus:outline-none transition-colors text-center tracking-widest"
+            className="focus:border-brand-blue w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-center tracking-widest transition-colors focus:outline-none"
             autoFocus
           />
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+          {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
         </div>
 
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex-1 rounded-lg border-2 border-gray-300 px-4 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-1 px-4 py-3 bg-brand-blue text-white rounded-lg font-semibold hover:bg-brand-blue/90 transition-colors"
+            className="bg-brand-blue hover:bg-brand-blue/90 flex-1 rounded-lg px-4 py-3 font-semibold text-white transition-colors"
           >
             Access
           </button>

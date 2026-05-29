@@ -1,82 +1,93 @@
 import { Activity, Clock } from 'lucide-react';
 import { GroupData } from './AdminDashboard';
+import { useMemo, useState, useEffect } from 'react';
 
-export const AdminMonitor = ({ 
-  selectedGroups, 
+export const AdminMonitor = ({
+  selectedGroups,
   liveActivity,
-  groupsData
-}: { 
+  groupsData,
+}: {
   selectedGroups: Set<string>;
   liveActivity: Map<string, { user: string; action: string; timestamp: number }>;
   groupsData: Record<string, GroupData>;
 }) => {
-  const getActivityFeedItems = () => {
+  const [now, setNow] = useState(() => Date.now());
+
+  // Update 'now' every minute to keep relative times fresh
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const activityItems = useMemo(() => {
     const items: Array<{ group: string; user: string; action: string; timestamp: number }> = [];
 
     liveActivity.forEach(({ user, action, timestamp }, key) => {
-      const groupMatch = Array.from(selectedGroups).find(g => key.includes(g));
+      const groupMatch = Array.from(selectedGroups).find((g) => key.includes(g));
       if (groupMatch) {
         items.push({ group: groupMatch, user, action, timestamp });
       }
     });
 
     // Add participant info from groups
-    selectedGroups.forEach(group => {
+    selectedGroups.forEach((group) => {
       const data = groupsData[group];
       if (data?.meta.participants) {
-        data.meta.participants.forEach(participant => {
+        data.meta.participants.forEach((participant) => {
           items.push({
             group,
             user: participant,
             action: 'Active participant',
-            timestamp: Date.now()
+            timestamp: Date.now(), // This is still technically slightly impure but much safer in useMemo
           });
         });
       }
     });
 
     return items.sort((a, b) => b.timestamp - a.timestamp).slice(0, 10);
-  };
+  }, [selectedGroups, liveActivity, groupsData]);
 
-  const formatTime = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
-    
+  const formatTime = (timestamp: number, currentNow: number) => {
+    const diff = currentNow - timestamp;
+
     if (diff < 60000) return 'Just now';
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
     return new Date(timestamp).toLocaleDateString();
   };
 
-  const activityItems = getActivityFeedItems();
-
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-      <div className="flex items-center gap-3 mb-4">
+    <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6">
+      <div className="mb-4 flex items-center gap-3">
         <Activity className="text-brand-blue" size={20} />
         <h3 className="text-lg font-bold text-gray-900">Live Activity</h3>
       </div>
 
       {activityItems.length === 0 ? (
-        <div className="text-center py-8">
-          <Clock size={32} className="mx-auto text-gray-300 mb-2" />
-          <p className="text-gray-500 text-sm">No recent activity</p>
+        <div className="py-8 text-center">
+          <Clock size={32} className="mx-auto mb-2 text-gray-300" />
+          <p className="text-sm text-gray-500">No recent activity</p>
         </div>
       ) : (
-        <div className="space-y-3 max-h-64 overflow-y-auto">
+        <div className="max-h-64 space-y-3 overflow-y-auto">
           {activityItems.map((item, idx) => (
-            <div key={idx} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-b-0">
-              <div className="w-2 h-2 rounded-full bg-brand-blue mt-2 flex-shrink-0"></div>
-              <div className="flex-1 min-w-0">
+            <div
+              key={idx}
+              className="flex items-start gap-3 border-b border-gray-100 pb-3 last:border-b-0"
+            >
+              <div className="bg-brand-blue mt-2 h-2 w-2 flex-shrink-0 rounded-full"></div>
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <span className="font-semibold text-gray-900 text-sm">{item.user}</span>
-                    <span className="text-gray-500 text-sm mx-2">in</span>
-                    <span className="font-semibold text-brand-blue text-sm">{item.group}</span>
+                    <span className="text-sm font-semibold text-gray-900">{item.user}</span>
+                    <span className="mx-2 text-sm text-gray-500">in</span>
+                    <span className="text-brand-blue text-sm font-semibold">{item.group}</span>
                   </div>
-                  <span className="text-xs text-gray-400 whitespace-nowrap">{formatTime(item.timestamp)}</span>
+                  <span className="text-xs whitespace-nowrap text-gray-400">
+                    {formatTime(item.timestamp, now)}
+                  </span>
                 </div>
-                <p className="text-gray-600 text-sm mt-1">{item.action}</p>
+                <p className="mt-1 text-sm text-gray-600">{item.action}</p>
               </div>
             </div>
           ))}
@@ -85,3 +96,4 @@ export const AdminMonitor = ({
     </div>
   );
 };
+
