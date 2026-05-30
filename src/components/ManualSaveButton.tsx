@@ -28,23 +28,20 @@ export const ManualSaveButton = ({
     <button
       onClick={handleSave}
       disabled={status === 'saving' || isSyncing}
+      title={status === 'saving' ? 'Saving...' : status === 'saved' ? 'Saved' : 'Save Now'}
       className={cn(
-        'flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold tracking-widest uppercase transition-all',
+        'flex h-6 w-6 items-center justify-center rounded-lg transition-all',
         status === 'saved'
           ? 'bg-green-100 text-green-700'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+          : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-900',
       )}
     >
       {status === 'saving' ? (
-        'Saving...'
+        <div className="h-3 w-3 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
       ) : status === 'saved' ? (
-        <>
-          <CloudCheck size={16} /> Saved
-        </>
+        <CloudCheck size={14} />
       ) : (
-        <>
-          <CloudUpload size={16} /> Save Now
-        </>
+        <CloudUpload size={14} />
       )}
     </button>
   );

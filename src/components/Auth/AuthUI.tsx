@@ -39,10 +39,7 @@ export const AuthLayout = ({
           </div>
         </div>
 
-        <div className="mt-16 opacity-60 lg:mt-32 space-y-3">
-          <p className="text-[10px] font-black tracking-[0.5em] text-slate-400 uppercase">
-            Strategic Excellence v2.0
-          </p>
+        <div className="mt-16 opacity-60 lg:mt-32">
           <p className="text-[10px] font-black tracking-widest text-slate-900 uppercase">
             © Africa Campus – École des Ponts Business School
           </p>

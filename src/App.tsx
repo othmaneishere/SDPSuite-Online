@@ -86,8 +86,6 @@ const CorporateHeader = ({
   participants = [],
   isAdmin = false,
   onRemoveParticipant,
-  onForceSave,
-  isSyncing,
 }: {
   meta: MetaData;
   setMeta: (m: MetaData) => void;
@@ -96,8 +94,6 @@ const CorporateHeader = ({
   participants?: string[];
   isAdmin?: boolean;
   onRemoveParticipant?: (name: string) => void;
-  onForceSave?: () => Promise<void>;
-  isSyncing?: boolean;
 }) => {
   return (
     <div
@@ -115,7 +111,6 @@ const CorporateHeader = ({
             crossOrigin="anonymous"
           />
         </div>
-        {onForceSave && <ManualSaveButton onSave={onForceSave} isSyncing={!!isSyncing} />}
       </div>
 
       {!hideMeta && (
@@ -1095,32 +1090,35 @@ function AppContent({
               crossOrigin="anonymous"
             />
             <div className="mx-2 h-8 w-px bg-gray-100" />
-            <div className="flex items-center gap-2">
-              {syncStatus === 'synced' ? (
-                <div className="flex flex-col items-start">
-                  <div className="flex items-center gap-1.5 rounded-full border border-green-100 bg-green-50 px-2 py-1 text-[9px] font-black tracking-tighter text-green-600 uppercase">
-                    <CloudCheck size={12} /> Cloud Saved
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                {syncStatus === 'synced' ? (
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-1.5 rounded-full border border-green-100 bg-green-50 px-2 py-1 text-[9px] font-black tracking-tighter text-green-600 uppercase">
+                      <CloudCheck size={12} /> Cloud Saved
+                    </div>
+                    {lastSaved && (
+                      <span className="mt-0.5 ml-1 text-[8px] font-bold text-gray-400">
+                        {lastSaved.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                        })}
+                      </span>
+                    )}
                   </div>
-                  {lastSaved && (
-                    <span className="mt-0.5 ml-1 text-[8px] font-bold text-gray-400">
-                      {lastSaved.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                      })}
-                    </span>
-                  )}
-                </div>
-              ) : syncStatus === 'syncing' ? (
-                <div className="flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] font-black tracking-tighter text-blue-600 uppercase">
-                  <div className="h-2 w-2 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />{' '}
-                  Saving...
-                </div>
-              ) : (
-                <div className="flex animate-pulse items-center gap-1.5 rounded-full border border-amber-100 bg-amber-50 px-2 py-1 text-[9px] font-black tracking-tighter text-amber-600 uppercase">
-                  <WifiOff size={12} /> Offline Mode
-                </div>
-              )}
+                ) : syncStatus === 'syncing' ? (
+                  <div className="flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] font-black tracking-tighter text-blue-600 uppercase">
+                    <div className="h-2 w-2 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />{' '}
+                    Saving...
+                  </div>
+                ) : (
+                  <div className="flex animate-pulse items-center gap-1.5 rounded-full border border-amber-100 bg-amber-50 px-2 py-1 text-[9px] font-black tracking-tighter text-amber-600 uppercase">
+                    <WifiOff size={12} /> Offline Mode
+                  </div>
+                )}
+              </div>
+              <ManualSaveButton onSave={forceSave} isSyncing={isSyncing} />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -1271,8 +1269,6 @@ function AppContent({
                 setMeta={setMeta}
                 selectedGroup={selectedGroup}
                 participants={meta.participants}
-                onForceSave={forceSave}
-                isSyncing={isSyncing}
                 isAdmin={isAdmin}
                 onRemoveParticipant={(name: string) =>
                   setMeta({
