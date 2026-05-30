@@ -40,21 +40,22 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
       const newData: Record<string, GroupData> = {};
 
       for (const group of groupList) {
-        const [pestel, vrio, tows, porter, meta] = await Promise.all([
+        const [pestel, vrio, tows, porter, mckinsey, meta] = await Promise.all([
           supabase.from('pestel_rows').select('content').eq('group_id', group),
           supabase.from('vrio_rows').select('content').eq('group_id', group),
           supabase.from('tows_rows').select('content').eq('group_id', group),
           supabase.from('porter_rows').select('content').eq('group_id', group),
-          supabase.from('meta_data').select('content').eq('group_id', group).single(),
+          supabase.from('mckinsey_rows').select('content').eq('group_id', group),
+          supabase.from('meta_data').select('content').eq('group_id', group).maybeSingle(),
         ]);
 
         newData[group] = {
           pestel: pestel.data?.map((r) => r.content as PESTELRow) || [],
           vrio: vrio.data?.map((r) => r.content as VRIORow) || [],
-          vrioNotes: '', // TODO: Fetch vrio notes from a new table if needed
+          vrioNotes: '',
           tows: tows.data?.map((r) => r.content as TOWSRow) || [],
           porters: porter.data?.map((r) => r.content as PorterRow) || [],
-          mckinsey: {}, // TODO: Fetch mckinsey data from a new table if needed
+          mckinsey: mckinsey.data?.[0]?.content || {},
           meta: (meta.data?.content as MetaData) || {
             module: '',
             cohort: '',
@@ -76,12 +77,37 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
     selectedGroups.forEach((group) => {
       if (!channelsRef.current.has(group)) {
         const channel = supabase.channel(`room:${group}`);
-        channel.on('broadcast', { event: 'update_data' }, ({ payload }: { payload: { data: GroupData } }) => {
-          setGroupsData((prev) => ({
-            ...prev,
-            [group]: payload.data,
-          }));
-        });
+        channel
+          .on(
+            'broadcast',
+            { event: 'update_data' },
+            ({ payload }: { payload: { data: GroupData } }) => {
+              setGroupsData((prev) => ({
+                ...prev,
+                [group]: payload.data,
+              }));
+            },
+          )
+          .on('presence', { event: 'sync' }, () => {
+            const state = channel.presenceState();
+            const presences = Object.values(state).flat() as { name?: string; client?: string }[];
+            const names = presences.map((p) => p?.name || p?.client).filter(Boolean);
+
+            setGroupsData((prev) => {
+              if (!prev[group]) return prev;
+              return {
+                ...prev,
+                [group]: {
+                  ...prev[group],
+                  meta: {
+                    ...prev[group].meta,
+                    participants: Array.from(new Set(names)) as string[],
+                  },
+                },
+              };
+            });
+          });
+
         channel.subscribe();
         channelsRef.current.set(group, channel);
       }
@@ -110,6 +136,46 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
     setSelectedGroups(newSelected);
   };
 
+  const handleKickUser = async (userName: string) => {
+    const currentGroup = Array.from(selectedGroups)[0];
+    if (!currentGroup || !currentGroupData) return;
+
+    if (!confirm(`Are you sure you want to remove ${userName} from the session?`)) {
+      return;
+    }
+
+    try {
+      // 1. Broadcast kick signal
+      const channel = channelsRef.current.get(currentGroup);
+      if (channel) {
+        channel.send({
+          type: 'broadcast',
+          event: 'kick_user',
+          payload: { userName },
+        });
+      }
+
+      // 2. Remove from meta_data participants
+      const updatedParticipants = (currentGroupData.meta.participants || []).filter(
+        (p) => p !== userName,
+      );
+      const updatedMeta = { ...currentGroupData.meta, participants: updatedParticipants };
+
+      await supabase.from('meta_data').upsert({ group_id: currentGroup, content: updatedMeta });
+
+      // 3. Update local state
+      setGroupsData((prev) => ({
+        ...prev,
+        [currentGroup]: {
+          ...prev[currentGroup],
+          meta: updatedMeta,
+        },
+      }));
+    } catch (err) {
+      console.error('Failed to kick user:', err);
+    }
+  };
+
   const handleClearGroupData = async () => {
     const currentGroup = Array.from(selectedGroups)[0];
     if (!currentGroup) return;
@@ -129,6 +195,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
         supabase.from('vrio_rows').delete().eq('group_id', currentGroup),
         supabase.from('tows_rows').delete().eq('group_id', currentGroup),
         supabase.from('porter_rows').delete().eq('group_id', currentGroup),
+        supabase.from('mckinsey_rows').delete().eq('group_id', currentGroup),
         supabase.from('meta_data').delete().eq('group_id', currentGroup),
       ]);
 
@@ -245,16 +312,43 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
         <div className="flex-1 overflow-y-auto p-8 lg:p-12">
           {currentGroup ? (
             <div className="space-y-8">
-              <div className="flex items-center gap-4 border-b-2 border-gray-50 pb-6">
-                <div className="bg-brand-blue h-10 w-3 rounded-full" />
-                <h2 className="text-3xl font-black tracking-tight text-gray-900 uppercase">
-                  {currentGroup}
-                </h2>
-                {currentGroupData?.meta?.companyName && (
-                  <span className="text-xl font-bold text-gray-400">
-                    — {currentGroupData.meta.companyName}
+              <div className="flex items-center justify-between border-b-2 border-gray-50 pb-6">
+                <div className="flex items-center gap-4">
+                  <div className="bg-brand-blue h-10 w-3 rounded-full" />
+                  <h2 className="text-3xl font-black tracking-tight text-gray-900 uppercase">
+                    {currentGroup}
+                  </h2>
+                  {currentGroupData?.meta?.companyName && (
+                    <span className="text-xl font-bold text-gray-400">
+                      — {currentGroupData.meta.companyName}
+                    </span>
+                  )}
+                </div>
+
+                {/* Participants Management */}
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-2">
+                    {(currentGroupData?.meta?.participants || []).map((p, i) => (
+                      <div
+                        key={p}
+                        className="group relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-slate-100 text-[10px] font-bold text-slate-600 shadow-sm"
+                        title={p}
+                        style={{ zIndex: 10 - i }}
+                      >
+                        {p.substring(0, 2).toUpperCase()}
+                        <button
+                          onClick={() => handleKickUser(p)}
+                          className="absolute -top-1 -right-1 hidden h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[8px] text-white shadow-md hover:bg-red-600 group-hover:flex"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    {(currentGroupData?.meta?.participants || []).length} Online
                   </span>
-                )}
+                </div>
               </div>
               <AdminTablePreview activeTab={activeTab} data={currentGroupData} />
             </div>

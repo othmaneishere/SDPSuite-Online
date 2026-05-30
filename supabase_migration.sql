@@ -33,6 +33,13 @@ CREATE TABLE porter_rows (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+CREATE TABLE mckinsey_rows (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    group_id TEXT NOT NULL,
+    content JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 CREATE TABLE meta_data (
     group_id TEXT PRIMARY KEY,
     content JSONB NOT NULL,
@@ -44,3 +51,4 @@ CREATE INDEX idx_pestel_group ON pestel_rows(group_id);
 CREATE INDEX idx_vrio_group ON vrio_rows(group_id);
 CREATE INDEX idx_tows_group ON tows_rows(group_id);
 CREATE INDEX idx_porter_group ON porter_rows(group_id);
+CREATE INDEX idx_mckinsey_group ON mckinsey_rows(group_id);

@@ -224,14 +224,17 @@ const AccessPage = ({
       title="Workspace Access"
       subtitle="Initialize your team assignment."
       footer={
-        <div className="flex items-center gap-10">
+        <>
           <button
             onClick={onAdminClick}
             className="flex cursor-pointer items-center gap-2 text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase transition-colors hover:text-slate-900"
           >
             <ShieldCheck size={14} /> Admin Access
           </button>
-        </div>
+          <p className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">
+            © Africa Campus – École des Ponts Business School
+          </p>
+        </>
       }
     >
       <div className="space-y-6">
@@ -401,7 +404,12 @@ function AppContent({
     () => {
       const saved = localStorage.getItem(`sdp_tab_${selectedGroup}`);
       const validTabs = ['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'];
-      return (validTabs.includes(saved || '') ? saved : 'PESTEL') as 'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER';
+      return (validTabs.includes(saved || '') ? saved : 'PESTEL') as
+        | 'PESTEL'
+        | 'McKinsey'
+        | 'VRIO'
+        | 'TOWS'
+        | 'PORTER';
     },
   );
 
@@ -498,13 +506,34 @@ function AppContent({
       if (saved) {
         try {
           const local = JSON.parse(saved);
-          if (local.pestel) { setPestelData(local.pestel); lastPestelRef.current = local.pestel; }
-          if (local.mckinsey) { setMckinseyData(local.mckinsey); lastMcKinseyRef.current = local.mckinsey; }
-          if (local.vrio) { setVrioAnalysisData(local.vrio); lastVrioRef.current = local.vrio; }
-          if (local.vrioNotes) { setVrioNotes(local.vrioNotes || ''); lastVrioNotesRef.current = local.vrioNotes || ''; }
-          if (local.tows) { setTowsData(local.tows); lastTowsRef.current = local.tows; }
-          if (local.porters) { setPortersData(local.porters); lastPorterRef.current = local.porters; }
-          if (local.meta) { setMeta(local.meta); lastMetaRef.current = local.meta; }
+          if (local.pestel) {
+            setPestelData(local.pestel);
+            lastPestelRef.current = local.pestel;
+          }
+          if (local.mckinsey) {
+            setMckinseyData(local.mckinsey);
+            lastMcKinseyRef.current = local.mckinsey;
+          }
+          if (local.vrio) {
+            setVrioAnalysisData(local.vrio);
+            lastVrioRef.current = local.vrio;
+          }
+          if (local.vrioNotes) {
+            setVrioNotes(local.vrioNotes || '');
+            lastVrioNotesRef.current = local.vrioNotes || '';
+          }
+          if (local.tows) {
+            setTowsData(local.tows);
+            lastTowsRef.current = local.tows;
+          }
+          if (local.porters) {
+            setPortersData(local.porters);
+            lastPorterRef.current = local.porters;
+          }
+          if (local.meta) {
+            setMeta(local.meta);
+            lastMetaRef.current = local.meta;
+          }
         } catch (e) {
           console.error('Failed to parse local backup', e);
         }
@@ -525,37 +554,43 @@ function AppContent({
           supabase.from('tows_rows').select('content').eq('group_id', selectedGroup),
           supabase.from('porter_rows').select('content').eq('group_id', selectedGroup),
           supabase.from('mckinsey_rows').select('content').eq('group_id', selectedGroup),
-          supabase.from('group_meta').select('content').eq('group_id', selectedGroup).maybeSingle(),
+          supabase.from('meta_data').select('content').eq('group_id', selectedGroup).maybeSingle(),
         ]);
 
         if (pestelErr || vrioErr || towsErr || porterErr || mckinseyErr || metaErr) {
           throw new Error('Supabase fetch error');
         }
 
-        if (pestel && pestel.length > 0) { 
-            const data = pestel.map((r: { content: PESTELRow }) => r.content);
-            setPestelData(data); lastPestelRef.current = data;
+        if (pestel && pestel.length > 0) {
+          const data = pestel.map((r: { content: PESTELRow }) => r.content);
+          setPestelData(data);
+          lastPestelRef.current = data;
         }
         if (vrio && vrio.length > 0) {
-            const data = vrio.map((r: { content: VRIORow }) => r.content);
-            setVrioAnalysisData(data); lastVrioRef.current = data;
+          const data = vrio.map((r: { content: VRIORow }) => r.content);
+          setVrioAnalysisData(data);
+          lastVrioRef.current = data;
         }
         if (tows && tows.length > 0) {
-            const data = tows.map((r: { content: TOWSRow }) => r.content);
-            setTowsData(data); lastTowsRef.current = data;
+          const data = tows.map((r: { content: TOWSRow }) => r.content);
+          setTowsData(data);
+          lastTowsRef.current = data;
         }
         if (porter && porter.length > 0) {
-            const data = porter.map((r: { content: PorterRow }) => r.content);
-            setPortersData(data); lastPorterRef.current = data;
+          const data = porter.map((r: { content: PorterRow }) => r.content);
+          setPortersData(data);
+          lastPorterRef.current = data;
         }
         if (mckinsey && mckinsey.length > 0) {
-            const data = mckinsey[0].content;
-            setMckinseyData(data); lastMcKinseyRef.current = data;
+          const data = mckinsey[0].content;
+          setMckinseyData(data);
+          lastMcKinseyRef.current = data;
         }
         if (meta?.content) {
-            setMeta(meta.content); lastMetaRef.current = meta.content;
+          setMeta(meta.content);
+          lastMetaRef.current = meta.content;
         }
-        
+
         setSyncStatus('synced');
       } catch (err: unknown) {
         const e = err as { message?: string; details?: string };
@@ -600,23 +635,36 @@ function AppContent({
           console.error('Presence parse error', err);
         }
       })
-      .on('broadcast', { event: 'update_data' }, ({ payload }: { payload: { senderId: string; data: GroupData } }) => {
-        try {
-          if (!payload || payload.senderId === clientIdRef.current) return;
-          const payloadStr = JSON.stringify(payload.data || {});
-          if (payloadStr === lastReceivedRef.current) return;
-          lastReceivedRef.current = payloadStr;
+      .on(
+        'broadcast',
+        { event: 'update_data' },
+        ({ payload }: { payload: { senderId: string; data: GroupData } }) => {
+          try {
+            if (!payload || payload.senderId === clientIdRef.current) return;
+            const payloadStr = JSON.stringify(payload.data || {});
+            if (payloadStr === lastReceivedRef.current) return;
+            lastReceivedRef.current = payloadStr;
 
-          const remote: GroupData = payload.data;
-          if (remote.pestel) setPestelData(remote.pestel);
-          if (remote.mckinsey) setMckinseyData(remote.mckinsey);
-          if (remote.vrio) setVrioAnalysisData(remote.vrio);
-          if (remote.vrioNotes) setVrioNotes(remote.vrioNotes || '');
-          if (remote.tows) setTowsData(remote.tows);
-          if (remote.porters) setPortersData(remote.porters);
-          if (remote.meta) setMeta(remote.meta);
-        } catch (err) {
-          console.error('Failed applying remote update', err);
+            const remote: GroupData = payload.data;
+            if (remote.pestel) setPestelData(remote.pestel);
+            if (remote.mckinsey) setMckinseyData(remote.mckinsey);
+            if (remote.vrio) setVrioAnalysisData(remote.vrio);
+            if (remote.vrioNotes) setVrioNotes(remote.vrioNotes || '');
+            if (remote.tows) setTowsData(remote.tows);
+            if (remote.porters) setPortersData(remote.porters);
+            if (remote.meta) setMeta(remote.meta);
+          } catch (err) {
+            console.error('Failed applying remote update', err);
+          }
+        },
+      )
+      .on('broadcast', { event: 'kick_user' }, ({ payload }) => {
+        if (
+          payload.userName === displayNameRef.current ||
+          payload.clientId === clientIdRef.current
+        ) {
+          onExit();
+          alert('You have been removed from the session by an administrator.');
         }
       })
       .subscribe(async (status) => {
@@ -654,34 +702,65 @@ function AppContent({
 
     // Compare and prepare upserts
     if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
-        tasks.push(supabase.from('pestel_rows').upsert(pestelData.map(d => ({ group_id: selectedGroup, row_key: d.id, content: d }))));
-        lastPestelRef.current = pestelData;
+      tasks.push(
+        supabase
+          .from('pestel_rows')
+          .upsert(pestelData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d }))),
+      );
+      lastPestelRef.current = pestelData;
     }
     if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
-        tasks.push(supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, content: mckinseyData }));
-        lastMcKinseyRef.current = mckinseyData;
+      tasks.push(
+        supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, content: mckinseyData }),
+      );
+      lastMcKinseyRef.current = mckinseyData;
     }
-    if (JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) || vrioNotes !== lastVrioNotesRef.current) {
-        tasks.push(supabase.from('vrio_rows').upsert(vrioAnalysisData.map(d => ({ group_id: selectedGroup, row_key: d.id, content: d }))));
-        tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: { ...meta, vrioNotes } }));
-        lastVrioRef.current = vrioAnalysisData;
-        lastVrioNotesRef.current = vrioNotes;
+    if (
+      JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) ||
+      vrioNotes !== lastVrioNotesRef.current
+    ) {
+      tasks.push(
+        supabase
+          .from('vrio_rows')
+          .upsert(
+            vrioAnalysisData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d })),
+          ),
+      );
+      tasks.push(
+        supabase
+          .from('meta_data')
+          .upsert({ group_id: selectedGroup, content: { ...meta, vrioNotes } }),
+      );
+      lastVrioRef.current = vrioAnalysisData;
+      lastVrioNotesRef.current = vrioNotes;
     }
     if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
-        tasks.push(supabase.from('tows_rows').upsert(towsData.map(d => ({ group_id: selectedGroup, row_key: d.section, content: d }))));
-        lastTowsRef.current = towsData;
+      tasks.push(
+        supabase
+          .from('tows_rows')
+          .upsert(
+            towsData.map((d) => ({ group_id: selectedGroup, row_key: d.section, content: d })),
+          ),
+      );
+      lastTowsRef.current = towsData;
     }
     if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
-        tasks.push(supabase.from('porter_rows').upsert(portersData.map(d => ({ group_id: selectedGroup, row_key: d.force, content: d }))));
-        lastPorterRef.current = portersData;
+      tasks.push(
+        supabase
+          .from('porter_rows')
+          .upsert(
+            portersData.map((d) => ({ group_id: selectedGroup, row_key: d.force, content: d })),
+          ),
+      );
+      lastPorterRef.current = portersData;
     }
     if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
-        tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }));
-        lastMetaRef.current = meta;
+      tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }));
+      lastMetaRef.current = meta;
     }
 
     if (tasks.length > 0) {
-        await Promise.all(tasks);
+      await Promise.all(tasks);
     }
 
     setSyncStatus('synced');
@@ -746,7 +825,6 @@ function AppContent({
     selectedGroup,
     isLoading,
   ]);
-
 
   const exportPDF = async () => {
     setIsExporting(true);
@@ -851,10 +929,7 @@ function AppContent({
     setIsExporting(true);
     setIsExportingAll(true);
     try {
-      const [{ jsPDF }, { toJpeg }] = await Promise.all([
-        import('jspdf'),
-        import('html-to-image'),
-      ]);
+      const [{ jsPDF }, { toJpeg }] = await Promise.all([import('jspdf'), import('html-to-image')]);
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
       const printRef = document.getElementById('full-report-print-container');
       if (!printRef) throw new Error('Print container not found');
@@ -934,18 +1009,65 @@ function AppContent({
         setVrioNotes('');
       } else if (activeTab === 'TOWS') {
         setTowsData([
-          { id: 'opportunities', section: 'opportunities', data: Array(3).fill(''), scores: {}, notes: {} },
+          {
+            id: 'opportunities',
+            section: 'opportunities',
+            data: Array(3).fill(''),
+            scores: {},
+            notes: {},
+          },
           { id: 'threats', section: 'threats', data: Array(3).fill(''), scores: {}, notes: {} },
           { id: 'strengths', section: 'strengths', data: Array(3).fill(''), scores: {}, notes: {} },
-          { id: 'weaknesses', section: 'weaknesses', data: Array(3).fill(''), scores: {}, notes: {} },
+          {
+            id: 'weaknesses',
+            section: 'weaknesses',
+            data: Array(3).fill(''),
+            scores: {},
+            notes: {},
+          },
         ]);
       } else if (activeTab === 'PORTER') {
         setPortersData([
-          { id: 'newEntrants', force: 'newEntrants', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
-          { id: 'buyers', force: 'buyers', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-          { id: 'suppliers', force: 'suppliers', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-          { id: 'substitutes', force: 'substitutes', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
-          { id: 'rivalry', force: 'rivalry', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })) },
+          {
+            id: 'newEntrants',
+            force: 'newEntrants',
+            analysis: '',
+            impact: 'Medium',
+            scorecard: {},
+            further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })),
+          },
+          {
+            id: 'buyers',
+            force: 'buyers',
+            analysis: '',
+            impact: 'Medium',
+            scorecard: {},
+            further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })),
+          },
+          {
+            id: 'suppliers',
+            force: 'suppliers',
+            analysis: '',
+            impact: 'Medium',
+            scorecard: {},
+            further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })),
+          },
+          {
+            id: 'substitutes',
+            force: 'substitutes',
+            analysis: '',
+            impact: 'Medium',
+            scorecard: {},
+            further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })),
+          },
+          {
+            id: 'rivalry',
+            force: 'rivalry',
+            analysis: '',
+            impact: 'Medium',
+            scorecard: {},
+            further: Array.from({ length: 8 }, () => ({ col1: '', col2: '', col3: '', col4: '' })),
+          },
         ]);
       }
     }

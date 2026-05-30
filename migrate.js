@@ -21,7 +21,7 @@ async function migrate() {
         await supabase.from('pestel_rows').insert({
           group_id,
           row_key: item.id,
-          content: item
+          content: item,
         });
       }
     }
@@ -32,7 +32,7 @@ async function migrate() {
         await supabase.from('vrio_rows').insert({
           group_id,
           row_key: item.id,
-          content: item
+          content: item,
         });
       }
     }
@@ -41,7 +41,7 @@ async function migrate() {
     if (data.meta) {
       await supabase.from('meta_data').insert({
         group_id,
-        content: data.meta
+        content: data.meta,
       });
     }
 

@@ -52,12 +52,7 @@ export const AdminTablePreview = ({ activeTab, data }: { activeTab: string; data
           </div>
         )}
 
-        {activeTab === 'TOWS' && (
-          <TOWSWorksheet
-            data={data.tows || []}
-            setData={() => {}}
-          />
-        )}
+        {activeTab === 'TOWS' && <TOWSWorksheet data={data.tows || []} setData={() => {}} />}
 
         {activeTab === 'PORTER' && (
           <PortersFiveForces

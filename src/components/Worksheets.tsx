@@ -1,13 +1,7 @@
 import React from 'react';
 import { ChevronDown, Database, Files, Network, FileText, Settings2 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import {
-  PESTELRow,
-  McKinsey7SData,
-  VRIORow,
-  TOWSRow,
-  PorterRow,
-} from '../types';
+import { PESTELRow, McKinsey7SData, VRIORow, TOWSRow, PorterRow } from '../types';
 
 export const ConfrontationMatrixGuide = () => (
   <div className="mb-12 rounded-2xl border border-gray-200 bg-gray-50 p-8 print:border-gray-100 print:bg-white">
@@ -445,13 +439,15 @@ export const TOWSWorksheet = ({
 }) => {
   // Helper to find or create rows for sections
   const getSection = (section: TOWSRow['section']) => {
-    return (Array.isArray(data) ? data : []).find((r) => r.section === section) || {
-      id: section,
-      section,
-      data: ['', '', ''],
-      scores: {},
-      notes: {},
-    };
+    return (
+      (Array.isArray(data) ? data : []).find((r) => r.section === section) || {
+        id: section,
+        section,
+        data: ['', '', ''],
+        scores: {},
+        notes: {},
+      }
+    );
   };
 
   const opportunities = getSection('opportunities');
@@ -487,7 +483,7 @@ export const TOWSWorksheet = ({
   ) => {
     const row = getSection(rowSection);
     const finalValue = parseInt(value) || 0;
-    
+
     // The matrix scores are shared, but they are stored in the TOWSRow object.
     // This is a bit ambiguous in the type definition, but we'll assume they are stored in the row object.
     updateRow(rowSection, {
@@ -566,7 +562,7 @@ export const TOWSWorksheet = ({
     });
     return total;
   };
-  
+
   // ... (getBgColor, getTextColor remain the same, they don't depend on data)
   const getBgColor = (scoreValue: string | number) => {
     const score = parseInt(String(scoreValue));
@@ -1336,7 +1332,7 @@ export const PortersFiveForces = ({
           {currentConfig.title}
         </h3>
         <p className="mb-6 text-sm text-gray-600">{currentConfig.info}</p>
-        
+
         {/* Analysis textarea */}
         <textarea
           value={currentData.analysis}
@@ -1346,21 +1342,24 @@ export const PortersFiveForces = ({
         />
 
         {/* Scorecard table */}
-        <div className="space-y-3 mb-6">
+        <div className="mb-6 space-y-3">
           {currentConfig.questions.map((q, idx) => (
-            <div key={idx} className="grid grid-cols-[1fr_auto] items-center gap-6 p-4 bg-white/50 rounded-2xl border border-gray-100 hover:border-gray-200 transition-all">
-              <p className="text-sm font-semibold text-gray-700 leading-tight">
-                <span className="text-gray-300 mr-3">{idx + 1}.</span>
+            <div
+              key={idx}
+              className="grid grid-cols-[1fr_auto] items-center gap-6 rounded-2xl border border-gray-100 bg-white/50 p-4 transition-all hover:border-gray-200"
+            >
+              <p className="text-sm leading-tight font-semibold text-gray-700">
+                <span className="mr-3 text-gray-300">{idx + 1}.</span>
                 {q}
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={() => updateScorecard(idx, true)}
                   className={cn(
-                    "px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 cursor-pointer",
-                    currentData.scorecard[idx] === true 
-                      ? "bg-green-600 border-green-600 text-white shadow-sm" 
-                      : "bg-white border-gray-200 text-gray-400 hover:border-green-500 hover:text-green-600"
+                    'cursor-pointer rounded-xl border-2 px-5 py-2 text-[10px] font-black uppercase transition-all',
+                    currentData.scorecard[idx] === true
+                      ? 'border-green-600 bg-green-600 text-white shadow-sm'
+                      : 'border-gray-200 bg-white text-gray-400 hover:border-green-500 hover:text-green-600',
                   )}
                 >
                   Yes
@@ -1368,10 +1367,10 @@ export const PortersFiveForces = ({
                 <button
                   onClick={() => updateScorecard(idx, false)}
                   className={cn(
-                    "px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all border-2 cursor-pointer",
-                    currentData.scorecard[idx] === false 
-                      ? "bg-red-600 border-red-600 text-white shadow-sm" 
-                      : "bg-white border-gray-200 text-gray-400 hover:border-red-500 hover:text-red-600"
+                    'cursor-pointer rounded-xl border-2 px-5 py-2 text-[10px] font-black uppercase transition-all',
+                    currentData.scorecard[idx] === false
+                      ? 'border-red-600 bg-red-600 text-white shadow-sm'
+                      : 'border-gray-200 bg-white text-gray-400 hover:border-red-500 hover:text-red-600',
                   )}
                 >
                   No
@@ -1384,15 +1383,20 @@ export const PortersFiveForces = ({
         {/* Further Assessment Table */}
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <h3 className="text-lg font-black uppercase italic text-gray-900">Further Assessment</h3>
+            <h3 className="text-lg font-black text-gray-900 uppercase italic">
+              Further Assessment
+            </h3>
             <div className="h-px flex-1 bg-gray-100" />
           </div>
           <div className="overflow-hidden rounded-xl border-2 border-black bg-white shadow-lg">
             <table className="w-full border-collapse">
-              <thead className="bg-gray-100 border-b-2 border-black">
+              <thead className="border-b-2 border-black bg-gray-100">
                 <tr>
                   {currentConfig.tableHeaders.map((h, i) => (
-                    <th key={i} className="p-4 text-[10px] font-black uppercase tracking-[0.1em] text-gray-900 border-r-2 border-black last:border-0 text-center leading-tight">
+                    <th
+                      key={i}
+                      className="border-r-2 border-black p-4 text-center text-[10px] leading-tight font-black tracking-[0.1em] text-gray-900 uppercase last:border-0"
+                    >
                       {h}
                     </th>
                   ))}
@@ -1401,17 +1405,26 @@ export const PortersFiveForces = ({
               <tbody className="divide-y-2 divide-black">
                 {[0, 1, 2, 3, 4].map((idx) => (
                   <tr key={idx} className="group h-32">
-                    {(['col1', 'col2', 'col3', 'col4'] as const).slice(0, currentConfig.tableHeaders.length).map((col, cIdx) => (
-                      <td key={col} className="p-0 border-r-2 border-black last:border-0 relative">
-                        <textarea
-                          value={(currentData.further[idx] as any)?.[col] || ''}
-                          onChange={(e) => updateFurther(idx, col, e.target.value)}
-                          className="w-full h-full p-6 pt-8 text-xs font-semibold bg-transparent outline-none resize-none border-none focus:bg-indigo-50/20 transition-all leading-relaxed"
-                          placeholder={cIdx === 0 ? "Identify..." : "Analysis..."}
-                        />
-                        {cIdx === 0 && <span className="absolute top-2 left-3 text-[10px] font-black text-gray-200 uppercase group-hover:text-gray-400 transition-colors">#{idx + 1}</span>}
-                      </td>
-                    ))}
+                    {(['col1', 'col2', 'col3', 'col4'] as const)
+                      .slice(0, currentConfig.tableHeaders.length)
+                      .map((col, cIdx) => (
+                        <td
+                          key={col}
+                          className="relative border-r-2 border-black p-0 last:border-0"
+                        >
+                          <textarea
+                            value={(currentData.further[idx] as any)?.[col] || ''}
+                            onChange={(e) => updateFurther(idx, col, e.target.value)}
+                            className="h-full w-full resize-none border-none bg-transparent p-6 pt-8 text-xs leading-relaxed font-semibold transition-all outline-none focus:bg-indigo-50/20"
+                            placeholder={cIdx === 0 ? 'Identify...' : 'Analysis...'}
+                          />
+                          {cIdx === 0 && (
+                            <span className="absolute top-2 left-3 text-[10px] font-black text-gray-200 uppercase transition-colors group-hover:text-gray-400">
+                              #{idx + 1}
+                            </span>
+                          )}
+                        </td>
+                      ))}
                   </tr>
                 ))}
               </tbody>

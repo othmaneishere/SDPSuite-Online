@@ -2,12 +2,18 @@ import { useState } from 'react';
 import { CloudCheck, CloudUpload } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-export const ManualSaveButton = ({ onSave, isSyncing }: { onSave: () => Promise<void>; isSyncing: boolean }) => {
+export const ManualSaveButton = ({
+  onSave,
+  isSyncing,
+}: {
+  onSave: () => Promise<void>;
+  isSyncing: boolean;
+}) => {
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   const handleSave = async () => {
     if (status === 'saving' || isSyncing) return;
-    
+
     setStatus('saving');
     try {
       await onSave();
@@ -23,8 +29,10 @@ export const ManualSaveButton = ({ onSave, isSyncing }: { onSave: () => Promise<
       onClick={handleSave}
       disabled={status === 'saving' || isSyncing}
       className={cn(
-        "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all",
-        status === 'saved' ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+        'flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold tracking-widest uppercase transition-all',
+        status === 'saved'
+          ? 'bg-green-100 text-green-700'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
       )}
     >
       {status === 'saving' ? (
