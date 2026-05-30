@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { LogOut, Activity, LayoutGrid, List, Download } from 'lucide-react';
+import { LogOut, Activity, LayoutGrid, List } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { AdminGroupSelector } from './AdminGroupSelector';
 import { AdminTablePreview } from './AdminTablePreview';
@@ -18,7 +18,6 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [groupsData, setGroupsData] = useState<Record<string, GroupData>>({});
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const channelsRef = useRef<Map<string, RealtimeChannel>>(new Map());
 
   // Load all available groups
@@ -132,30 +131,6 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
     newSelected.add(group);
     setSelectedGroups(newSelected);
     setViewMode('detail');
-  };
-
-  const handleExportAll = async () => {
-    setIsExporting(true);
-    try {
-      const exportData = {
-        exportedAt: new Date().toISOString(),
-        cohortData: groupsData,
-      };
-
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `cohort_export_${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Export failed:', err);
-    } finally {
-      setIsExporting(false);
-    }
   };
 
   const handleKickUser = async (userName: string) => {
@@ -277,14 +252,6 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <button
-              onClick={handleExportAll}
-              disabled={isExporting}
-              className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-[10px] font-black tracking-[0.2em] text-white uppercase transition-all hover:bg-black disabled:opacity-50"
-            >
-              <Download size={18} />
-              {isExporting ? 'Exporting...' : 'Bulk Export'}
-            </button>
             {currentGroup && viewMode === 'detail' && (
               <button
                 onClick={handleClearGroupData}
