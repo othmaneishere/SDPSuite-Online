@@ -12,8 +12,6 @@ import {
   Users,
   WifiOff,
   CloudCheck,
-  Download,
-  Upload,
 } from 'lucide-react';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { motion, AnimatePresence } from 'motion/react';
@@ -771,75 +769,6 @@ function AppContent({
     selectedGroup,
   ]);
 
-  const handleDownloadBackup = () => {
-    try {
-      // Create backup object excluding participants
-      const backupData = {
-        pestel: pestelData,
-        mckinsey: mckinseyData,
-        vrio: vrioAnalysisData,
-        vrioNotes: vrioNotes,
-        tows: towsData,
-        porters: portersData,
-        meta: {
-          ...meta,
-          participants: [], // Specifically excluded as requested
-        },
-        exportedAt: new Date().toISOString(),
-        group: selectedGroup,
-      };
-
-      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `SDP_Backup_${selectedGroup}_${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error('Backup failed:', err);
-      alert('Failed to generate backup file.');
-    }
-  };
-
-  const handleRestoreBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!confirm('Restoring a backup will overwrite all current worksheet data. Continue?')) {
-      e.target.value = '';
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const json = JSON.parse(event.target?.result as string);
-        if (json.pestel) setPestelData(json.pestel);
-        if (json.mckinsey) setMckinseyData(json.mckinsey);
-        if (json.vrio) setVrioAnalysisData(json.vrio);
-        if (json.vrioNotes !== undefined) setVrioNotes(json.vrioNotes);
-        if (json.tows) setTowsData(json.tows);
-        if (json.porters) setPortersData(json.porters);
-        if (json.meta) {
-          setMeta({
-            ...json.meta,
-            participants: meta.participants, // Keep current online participants
-          });
-        }
-        alert('Backup restored successfully!');
-        forceSave();
-      } catch (err) {
-        console.error('Restore failed:', err);
-        alert('Failed to restore backup. Invalid file format.');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
-
   // 3. Auto-save and Broadcast
   useEffect(() => {
     if (isLoading) return;
@@ -1201,58 +1130,35 @@ function AppContent({
               </div>
               <ManualSaveButton onSave={forceSave} isSyncing={isSyncing} />
             </div>
-
-            <div className="mx-2 h-8 w-px bg-gray-100" />
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleDownloadBackup}
-                title="Download Offline Backup"
-                className="flex h-8 items-center gap-2 rounded-lg bg-slate-50 px-3 text-[10px] font-black tracking-widest text-slate-500 uppercase transition-all hover:bg-slate-900 hover:text-white"
-              >
-                <Download size={14} /> Backup
-              </button>
-              <label className="flex h-8 cursor-pointer items-center gap-2 rounded-lg bg-slate-50 px-3 text-[10px] font-black tracking-widest text-slate-500 uppercase transition-all hover:bg-slate-900 hover:text-white">
-                <Upload size={14} /> Restore
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={handleRestoreBackup}
-                  className="hidden"
-                />
-              </label>
-            </div>
           </div>
           <div className="flex items-center gap-3">
-            {syncStatus !== 'offline' && (
-              <div className="relative">
-                <button
-                  onClick={() => setShowTopParticipants((s) => !s)}
-                  className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-700 shadow-sm hover:shadow-md"
-                >
-                  <Users className="h-5 w-5 text-green-600" />
-                  <span className="font-semibold text-gray-700">
-                    {(meta.participants || []).length}
-                  </span>
-                </button>
-                {showTopParticipants && (
-                  <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
-                    <div className="mb-2 text-xs text-gray-500">Online users</div>
-                    <ul className="max-h-40 space-y-1 overflow-auto text-sm">
-                      {(meta.participants || []).length > 0 ? (
-                        (meta.participants || []).map((p) => (
-                          <li key={p} className="truncate">
-                            {p}
-                          </li>
-                        ))
-                      ) : (
-                        <li className="text-gray-400">No one else online</li>
-                      )}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="relative">
+              <button
+                onClick={() => setShowTopParticipants((s) => !s)}
+                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-700 shadow-sm hover:shadow-md"
+              >
+                <Users className="h-5 w-5 text-green-600" />
+                <span className="font-semibold text-gray-700">
+                  {(meta.participants || []).length}
+                </span>
+              </button>
+              {showTopParticipants && (
+                <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
+                  <div className="mb-2 text-xs text-gray-500">Online users</div>
+                  <ul className="max-h-40 space-y-1 overflow-auto text-sm">
+                    {(meta.participants || []).length > 0 ? (
+                      (meta.participants || []).map((p) => (
+                        <li key={p} className="truncate">
+                          {p}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-gray-400">No one else online</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
             <button
               onClick={() => {
                 if (confirm('Are you sure you want to exit this session?')) onExit();
