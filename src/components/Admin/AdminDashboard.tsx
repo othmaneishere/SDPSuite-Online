@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { LogOut, Activity } from 'lucide-react';
+import { LogOut, Activity, LayoutGrid, List, Download } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { AdminGroupSelector } from './AdminGroupSelector';
 import { AdminTablePreview } from './AdminTablePreview';
+import { AdminOverview } from './AdminOverview';
 import { GroupData, PESTELRow, VRIORow, TOWSRow, PorterRow, MetaData } from '../../types';
 import { cn } from '../../lib/utils';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -10,12 +11,14 @@ import { RealtimeChannel } from '@supabase/supabase-js';
 export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
   const [groups, setGroups] = useState<string[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<'overview' | 'detail'>('overview');
   const [activeTab, setActiveTab] = useState<'PESTEL' | 'McKinsey' | 'VRIO' | 'TOWS' | 'PORTER'>(
     'PESTEL',
   );
   const [groupsData, setGroupsData] = useState<Record<string, GroupData>>({});
   const [loading, setLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const channelsRef = useRef<Map<string, RealtimeChannel>>(new Map());
 
   // Load all available groups
@@ -26,20 +29,20 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
         allGroups.push(`Group ${i}`);
       }
       setGroups(allGroups);
-      setLoading(false);
     };
     loadGroups();
   }, []);
 
-  // Fetch data from DB whenever a group is selected
+  // Fetch data for all groups when in overview mode or on mount
   useEffect(() => {
-    const fetchSelectedData = async () => {
-      const groupList = Array.from(selectedGroups);
-      if (groupList.length === 0) return;
+    const fetchAllData = async () => {
+      setLoading(true);
+      const allGroups = [];
+      for (let i = 1; i <= 11; i++) allGroups.push(`Group ${i}`);
 
       const newData: Record<string, GroupData> = {};
 
-      for (const group of groupList) {
+      for (const group of allGroups) {
         const [pestel, vrio, tows, porter, mckinsey, meta] = await Promise.all([
           supabase.from('pestel_rows').select('content').eq('group_id', group),
           supabase.from('vrio_rows').select('content').eq('group_id', group),
@@ -66,15 +69,19 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
           },
         };
       }
-      setGroupsData((prev) => ({ ...prev, ...newData }));
+      setGroupsData(newData);
+      setLoading(false);
     };
 
-    fetchSelectedData();
-  }, [selectedGroups]);
+    fetchAllData();
+  }, []);
 
-  // Subscribe to real-time updates for persistence
+  // Subscribe to real-time updates for ALL groups for the overview
   useEffect(() => {
-    selectedGroups.forEach((group) => {
+    const allGroups = [];
+    for (let i = 1; i <= 11; i++) allGroups.push(`Group ${i}`);
+
+    allGroups.forEach((group) => {
       if (!channelsRef.current.has(group)) {
         const channel = supabase.channel(`room:${group}`);
         channel
@@ -113,27 +120,42 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
       }
     });
 
-    const channels = channelsRef.current;
-
+    const currentChannels = channelsRef.current;
     return () => {
-      channels.forEach((channel, group) => {
-        if (!selectedGroups.has(group)) {
-          channel.unsubscribe();
-          channels.delete(group);
-        }
-      });
+      currentChannels.forEach((channel) => channel.unsubscribe());
+      currentChannels.clear();
     };
-  }, [selectedGroups]);
+  }, []);
 
   const handleToggleGroup = (group: string) => {
-    const newSelected = new Set(selectedGroups);
-    if (newSelected.has(group)) {
-      newSelected.delete(group);
-    } else {
-      newSelected.clear(); // Only allow one group at a time (Single View)
-      newSelected.add(group);
-    }
+    const newSelected = new Set<string>();
+    newSelected.add(group);
     setSelectedGroups(newSelected);
+    setViewMode('detail');
+  };
+
+  const handleExportAll = async () => {
+    setIsExporting(true);
+    try {
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        cohortData: groupsData,
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cohort_export_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleKickUser = async (userName: string) => {
@@ -255,7 +277,15 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            {currentGroup && (
+            <button
+              onClick={handleExportAll}
+              disabled={isExporting}
+              className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-[10px] font-black tracking-[0.2em] text-white uppercase transition-all hover:bg-black disabled:opacity-50"
+            >
+              <Download size={18} />
+              {isExporting ? 'Exporting...' : 'Bulk Export'}
+            </button>
+            {currentGroup && viewMode === 'detail' && (
               <button
                 onClick={handleClearGroupData}
                 disabled={isDeleting}
@@ -276,41 +306,77 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
 
         {/* Navigation/Selector */}
         <div className="border-b border-gray-100 bg-gray-50/50 p-6">
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2 rounded-xl bg-white p-1 shadow-sm ring-1 ring-gray-100">
+              <button
+                onClick={() => setViewMode('overview')}
+                className={cn(
+                  'flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold uppercase transition-all',
+                  viewMode === 'overview'
+                    ? 'bg-brand-blue text-white shadow-md'
+                    : 'text-gray-400 hover:text-gray-600',
+                )}
+              >
+                <LayoutGrid size={16} /> Overview
+              </button>
+              <button
+                onClick={() => setViewMode('detail')}
+                disabled={!currentGroup}
+                className={cn(
+                  'flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold uppercase transition-all',
+                  viewMode === 'detail'
+                    ? 'bg-brand-blue text-white shadow-md'
+                    : 'text-gray-400 hover:text-gray-600 disabled:opacity-30',
+                )}
+              >
+                <List size={16} /> Group Detail
+              </button>
+            </div>
+          </div>
+
           <AdminGroupSelector
             groups={groups}
             selectedGroups={selectedGroups}
             onToggleGroup={handleToggleGroup}
           />
 
-          <div className="mt-6 flex justify-center">
-            <div className="flex overflow-x-auto rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
-              {(['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={cn(
-                    'rounded-lg px-6 py-2 text-sm font-bold whitespace-nowrap transition-all',
-                    activeTab === tab
-                      ? 'bg-brand-blue text-white shadow-md'
-                      : 'text-gray-500 hover:text-gray-800',
-                  )}
-                >
-                  {tab === 'PORTER'
-                    ? "Porter's 5 Forces"
-                    : tab === 'TOWS'
-                      ? 'Confrontation Matrix'
-                      : tab === 'McKinsey'
-                        ? 'McKinsey 7-S'
-                        : `${tab} Analysis`}
-                </button>
-              ))}
+          {viewMode === 'detail' && (
+            <div className="mt-6 flex justify-center">
+              <div className="flex overflow-x-auto rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+                {(['PESTEL', 'McKinsey', 'VRIO', 'TOWS', 'PORTER'] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={cn(
+                      'rounded-lg px-6 py-2 text-sm font-bold whitespace-nowrap transition-all',
+                      activeTab === tab
+                        ? 'bg-brand-blue text-white shadow-md'
+                        : 'text-gray-500 hover:text-gray-800',
+                    )}
+                  >
+                    {tab === 'PORTER'
+                      ? "Porter's 5 Forces"
+                      : tab === 'TOWS'
+                        ? 'Confrontation Matrix'
+                        : tab === 'McKinsey'
+                          ? 'McKinsey 7-S'
+                          : `${tab} Analysis`}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-8 lg:p-12">
-          {currentGroup ? (
+          {viewMode === 'overview' ? (
+            <AdminOverview
+              groups={groups}
+              groupsData={groupsData}
+              onSelectGroup={handleToggleGroup}
+            />
+          ) : currentGroup ? (
             <div className="space-y-8">
               <div className="flex items-center justify-between border-b-2 border-gray-50 pb-6">
                 <div className="flex items-center gap-4">
