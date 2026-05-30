@@ -224,17 +224,14 @@ const AccessPage = ({
       title="Workspace Access"
       subtitle="Initialize your team assignment."
       footer={
-        <>
+        <div className="flex w-full justify-center pt-4">
           <button
             onClick={onAdminClick}
-            className="flex cursor-pointer items-center gap-2 text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase transition-colors hover:text-slate-900"
+            className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-slate-900 bg-white px-10 py-5 text-[11px] font-black tracking-[0.2em] text-slate-900 uppercase shadow-xl transition-all active:scale-95 hover:bg-slate-900 hover:text-white"
           >
-            <ShieldCheck size={14} /> Admin Access
+            <ShieldCheck size={18} /> Admin Access
           </button>
-          <p className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">
-            © Africa Campus – École des Ponts Business School
-          </p>
-        </>
+        </div>
       }
     >
       <div className="space-y-6">
@@ -1309,7 +1306,7 @@ function AppContent({
                             ? 'Confrontation Matrix'
                             : "Porter's Five Forces"}
                   </h2>
-                  <div className="rounded-full bg-gray-50 px-3 py-1 font-mono text-[10px] font-bold tracking-widest text-gray-400">
+                  <div className="rounded-full bg-gray-50 px-3 py-1 font-sans text-[10px] font-bold tracking-widest text-gray-400">
                     FRAMEWORK_ID:{' '}
                     {activeTab === 'PESTEL'
                       ? 'ENV_MACRO_01'

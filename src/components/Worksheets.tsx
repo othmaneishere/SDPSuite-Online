@@ -53,7 +53,7 @@ export const ConfrontationMatrixGuide = () => (
             <p className="mb-1 text-sm font-bold tracking-wider uppercase">
               4. Analyze each combination
             </p>
-            <p className="mb-2 text-sm leading-relaxed text-gray-600 italic underline decoration-gray-200">
+            <p className="mb-2 text-sm leading-relaxed text-gray-600 underline decoration-gray-200">
               Evaluate how the internal factor performs in the external environment
             </p>
             <div className="space-y-1 border-l-2 border-gray-200 pl-4">
@@ -158,7 +158,7 @@ export const ConfrontationMatrixGuide = () => (
                   </span>
                 </li>
               </ul>
-              <p className="mt-4 border-l-4 border-gray-100 pl-4 text-[11px] leading-relaxed text-gray-400 italic">
+              <p className="mt-4 border-l-4 border-gray-100 pl-4 text-[11px] leading-relaxed text-gray-400">
                 The matrix becomes a visual map of market fit: where to act immediately (positive),
                 what to monitor (neutral), and what to fix urgently (negative).
               </p>
@@ -814,7 +814,7 @@ export const TOWSWorksheet = ({
       <div className="mt-12 flex items-start gap-12">
         <div className="flex w-64 flex-col border border-black text-xs font-bold shadow-sm">
           <div className="grid grid-cols-[1fr_60px] border-b border-black bg-[#F4B084]">
-            <span className="p-2 px-4 text-red-900 italic text-shadow-sm">
+            <span className="p-2 px-4 text-red-900 text-shadow-sm">
               Negative / Very Negative
             </span>
             <span className="border-l border-black p-2 text-center">-1 / -2</span>
@@ -824,7 +824,7 @@ export const TOWSWorksheet = ({
             <span className="border-l border-black p-2 text-center">0</span>
           </div>
           <div className="grid grid-cols-[1fr_60px] bg-[#C6E0B4]">
-            <span className="p-2 px-4 text-green-900 italic">Positive / Very Positive</span>
+            <span className="p-2 px-4 text-green-900">Positive / Very Positive</span>
             <span className="border-l border-black p-2 text-center">+1 / +2</span>
           </div>
         </div>
@@ -1383,7 +1383,7 @@ export const PortersFiveForces = ({
         {/* Further Assessment Table */}
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <h3 className="text-lg font-black text-gray-900 uppercase italic">
+            <h3 className="text-lg font-black text-gray-900 uppercase">
               Further Assessment
             </h3>
             <div className="h-px flex-1 bg-gray-100" />

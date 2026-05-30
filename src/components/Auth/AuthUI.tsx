@@ -39,9 +39,12 @@ export const AuthLayout = ({
           </div>
         </div>
 
-        <div className="mt-16 opacity-30 lg:mt-32">
+        <div className="mt-16 opacity-60 lg:mt-32 space-y-3">
           <p className="text-[10px] font-black tracking-[0.5em] text-slate-400 uppercase">
             Strategic Excellence v2.0
+          </p>
+          <p className="text-[10px] font-black tracking-widest text-slate-900 uppercase">
+            © Africa Campus – École des Ponts Business School
           </p>
         </div>
       </div>
@@ -50,7 +53,7 @@ export const AuthLayout = ({
       <div className="flex flex-1 flex-col justify-center bg-white p-8 md:p-16 lg:p-24">
         <div className="animate-in fade-in slide-in-from-right-4 mx-auto w-full max-w-[440px] space-y-12 delay-200 duration-1000">
           <div className={cn('space-y-4', centerHeader ? 'text-center' : 'text-left')}>
-            <h2 className="text-3xl font-black tracking-tight text-slate-900 uppercase italic md:text-4xl">
+            <h2 className="text-3xl font-black tracking-tight text-slate-900 uppercase md:text-4xl">
               {title}
             </h2>
             <p className="text-lg leading-relaxed font-medium text-slate-400">{subtitle}</p>

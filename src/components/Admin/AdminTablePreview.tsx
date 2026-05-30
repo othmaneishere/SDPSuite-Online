@@ -14,7 +14,7 @@ export const AdminTablePreview = ({ activeTab, data }: { activeTab: string; data
 
   if (!data)
     return (
-      <div className="p-8 text-center text-gray-500 italic">No data available for this group</div>
+      <div className="p-8 text-center text-gray-500">No data available for this group</div>
     );
 
   return (
