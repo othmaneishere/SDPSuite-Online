@@ -19,7 +19,7 @@ export const ManualSaveButton = ({
       await onSave();
       setStatus('saved');
       setTimeout(() => setStatus('idle'), 2000);
-    } catch (e) {
+    } catch {
       setStatus('idle');
     }
   };

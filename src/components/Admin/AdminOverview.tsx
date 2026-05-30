@@ -1,4 +1,4 @@
-import { GroupData } from '../../types';
+import { GroupData, PESTELRow, VRIORow, TOWSRow, PorterRow } from '../../types';
 import { cn } from '../../lib/utils';
 
 export const AdminOverview = ({
@@ -27,25 +27,30 @@ export const AdminOverview = ({
 
     if (Array.isArray(content)) {
       if (content.length === 0) return 'empty';
-      const filled = content.filter((item: any) => {
-        if (framework === 'pestel') return item.description?.length > 10;
-        if (framework === 'vrio') return item.resource?.length > 2;
-        if (framework === 'tows') return item.data?.some((d: string) => d.length > 0);
-        if (framework === 'porters') return item.analysis?.length > 10 || Object.keys(item.scorecard).length > 0;
+      const rows = content as (PESTELRow | VRIORow | TOWSRow | PorterRow)[];
+      const filled = rows.filter((item) => {
+        if (framework === 'pestel') return (item as PESTELRow).description?.length > 10;
+        if (framework === 'vrio') return (item as VRIORow).resource?.length > 2;
+        if (framework === 'tows') return (item as TOWSRow).data?.some((d: string) => d.length > 0);
+        if (framework === 'porters') {
+          const p = item as PorterRow;
+          return p.analysis?.length > 10 || Object.keys(p.scorecard || {}).length > 0;
+        }
         return false;
       }).length;
 
       if (filled === 0) return 'empty';
-      if (filled < content.length / 2) return 'partial';
+      if (filled < rows.length / 2) return 'partial';
       return 'complete';
     } else {
       // McKinsey or Meta
-      const keys = Object.keys(content);
+      const obj = content as Record<string, unknown>;
+      const keys = Object.keys(obj);
       if (keys.length === 0) return 'empty';
       const filled = keys.filter(k => {
-          const val = (content as any)[k];
-          if (typeof val === 'object') return Object.keys(val).length > 0;
-          return val?.length > 0;
+          const val = obj[k];
+          if (val && typeof val === 'object') return Object.keys(val).length > 0;
+          return typeof val === 'string' && val.length > 0;
       }).length;
       if (filled === 0) return 'empty';
       return 'complete';

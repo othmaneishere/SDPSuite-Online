@@ -1413,7 +1413,7 @@ export const PortersFiveForces = ({
                           className="relative border-r-2 border-black p-0 last:border-0"
                         >
                           <textarea
-                            value={(currentData.further[idx] as any)?.[col] || ''}
+                            value={currentData.further[idx]?.[col as keyof (typeof currentData.further)[0]] || ''}
                             onChange={(e) => updateFurther(idx, col, e.target.value)}
                             className="h-full w-full resize-none border-none bg-transparent p-6 pt-8 text-xs leading-relaxed font-semibold transition-all outline-none focus:bg-indigo-50/20"
                             placeholder={cIdx === 0 ? 'Identify...' : 'Analysis...'}
