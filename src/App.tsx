@@ -706,12 +706,14 @@ function AppContent({
   const [isSyncing, setIsSyncing] = useState(false);
 
   const forceSave = React.useCallback(async () => {
+    console.log("DEBUG: forceSave triggered");
     setSyncStatus('syncing');
     setIsSyncing(true);
     const tasks = [];
 
     // Compare and prepare upserts
     if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
+      console.log("DEBUG: Pestel data changed, queuing upsert");
       tasks.push(
         supabase
           .from('pestel_rows')
@@ -720,6 +722,7 @@ function AppContent({
       lastPestelRef.current = pestelData;
     }
     if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
+      console.log("DEBUG: McKinsey data changed, queuing upsert");
       tasks.push(
         supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, content: mckinseyData }),
       );
@@ -729,6 +732,7 @@ function AppContent({
       JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) ||
       vrioNotes !== lastVrioNotesRef.current
     ) {
+      console.log("DEBUG: VRIO data changed, queuing upsert");
       tasks.push(
         supabase
           .from('vrio_rows')
@@ -745,6 +749,7 @@ function AppContent({
       lastVrioNotesRef.current = vrioNotes;
     }
     if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
+      console.log("DEBUG: TOWS data changed, queuing upsert");
       tasks.push(
         supabase
           .from('tows_rows')
@@ -755,6 +760,7 @@ function AppContent({
       lastTowsRef.current = towsData;
     }
     if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
+      console.log("DEBUG: Porter data changed, queuing upsert");
       tasks.push(
         supabase
           .from('porter_rows')
@@ -765,12 +771,17 @@ function AppContent({
       lastPorterRef.current = portersData;
     }
     if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
+      console.log("DEBUG: Meta data changed, queuing upsert");
       tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }));
       lastMetaRef.current = meta;
     }
 
     if (tasks.length > 0) {
-      await Promise.all(tasks);
+      console.log("DEBUG: Tasks found, executing", tasks.length);
+      const results = await Promise.all(tasks);
+      console.log("DEBUG: Upsert results", results);
+    } else {
+      console.log("DEBUG: No changes detected to save");
     }
 
     setSyncStatus('synced');
