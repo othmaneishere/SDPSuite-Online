@@ -460,13 +460,21 @@ function AppContent({
   const displayNameRef = useRef<string | null>(null);
 
   // Refs for tracking changes
-  const lastPestelRef = useRef<PESTELData[]>([]);
-  const lastMcKinseyRef = useRef<McKinsey7SData>({});
-  const lastVrioRef = useRef<VRIORow[]>([]);
-  const lastVrioNotesRef = useRef<string>('');
-  const lastTowsRef = useRef<TOWSRow[]>([]);
-  const lastPorterRef = useRef<PorterRow[]>([]);
-  const lastMetaRef = useRef<MetaData | null>(null);
+  const cloudLastPestelRef = useRef<PESTELData[]>([]);
+  const cloudLastMcKinseyRef = useRef<McKinsey7SData>({});
+  const cloudLastVrioRef = useRef<VRIORow[]>([]);
+  const cloudLastVrioNotesRef = useRef<string>('');
+  const cloudLastTowsRef = useRef<TOWSRow[]>([]);
+  const cloudLastPorterRef = useRef<PorterRow[]>([]);
+  const cloudLastMetaRef = useRef<MetaData | null>(null);
+
+  // Refs for tracking broadcasts (to avoid loops)
+  const broadcastLastPestelRef = useRef<string>('');
+  const broadcastLastMcKinseyRef = useRef<string>('');
+  const broadcastLastVrioRef = useRef<string>('');
+  const broadcastLastTowsRef = useRef<string>('');
+  const broadcastLastPorterRef = useRef<string>('');
+  const broadcastLastMetaRef = useRef<string>('');
 
   // Initialize collaboration IDs once on mount
   useEffect(() => {
@@ -560,41 +568,47 @@ function AppContent({
           const fetchedData = pestel.map((r: { content: PESTELRow }) => r.content);
           const merged = mergePestel(fetchedData);
           setPestelData(merged);
-          lastPestelRef.current = merged;
+          cloudLastPestelRef.current = merged;
+          broadcastLastPestelRef.current = JSON.stringify(merged);
         }
         
         if (vrio && vrio.length > 0) {
           const fetchedData = vrio.map((r: { content: VRIORow }) => r.content);
           setVrioAnalysisData(fetchedData);
-          lastVrioRef.current = fetchedData;
+          cloudLastVrioRef.current = fetchedData;
+          broadcastLastVrioRef.current = JSON.stringify({ data: fetchedData, notes: vrioNotes });
         }
         
         if (tows && tows.length > 0) {
           const fetchedData = tows.map((r: { content: TOWSRow }) => r.content);
           const merged = mergeTOWS(fetchedData);
           setTowsData(merged);
-          lastTowsRef.current = merged;
+          cloudLastTowsRef.current = merged;
+          broadcastLastTowsRef.current = JSON.stringify(merged);
         }
         
         if (porter && porter.length > 0) {
           const fetchedData = porter.map((r: { content: PorterRow }) => r.content);
           const merged = mergePorter(fetchedData);
           setPortersData(merged);
-          lastPorterRef.current = merged;
+          cloudLastPorterRef.current = merged;
+          broadcastLastPorterRef.current = JSON.stringify(merged);
         }
         
         if (mckinsey && mckinsey.length > 0) {
           const data = mckinsey[0].content;
           setMckinseyData(data);
-          lastMcKinseyRef.current = data;
+          cloudLastMcKinseyRef.current = data;
+          broadcastLastMcKinseyRef.current = JSON.stringify(data);
         }
         
         if (metaRes?.content) {
           setMeta(metaRes.content);
-          lastMetaRef.current = metaRes.content;
+          cloudLastMetaRef.current = metaRes.content;
+          broadcastLastMetaRef.current = JSON.stringify(metaRes.content);
           if (metaRes.content.vrioNotes) {
             setVrioNotes(metaRes.content.vrioNotes);
-            lastVrioNotesRef.current = metaRes.content.vrioNotes;
+            cloudLastVrioNotesRef.current = metaRes.content.vrioNotes;
           }
         }
 
@@ -645,35 +659,59 @@ function AppContent({
       })
       .on('broadcast', { event: 'update_pestel' }, ({ payload }) => {
         if (payload?.senderId === clientIdRef.current) return;
+        const stringified = JSON.stringify(payload.data);
+        if (stringified === broadcastLastPestelRef.current) return;
+        
         setPestelData(payload.data);
-        lastPestelRef.current = payload.data;
+        cloudLastPestelRef.current = payload.data;
+        broadcastLastPestelRef.current = stringified;
       })
       .on('broadcast', { event: 'update_mckinsey' }, ({ payload }) => {
         if (payload?.senderId === clientIdRef.current) return;
+        const stringified = JSON.stringify(payload.data);
+        if (stringified === broadcastLastMcKinseyRef.current) return;
+        
         setMckinseyData(payload.data);
-        lastMcKinseyRef.current = payload.data;
+        cloudLastMcKinseyRef.current = payload.data;
+        broadcastLastMcKinseyRef.current = stringified;
       })
       .on('broadcast', { event: 'update_vrio' }, ({ payload }) => {
         if (payload?.senderId === clientIdRef.current) return;
+        const stringified = JSON.stringify(payload.data);
+        if (stringified === broadcastLastVrioRef.current) return;
+        
         setVrioAnalysisData(payload.data.data);
         setVrioNotes(payload.data.notes || '');
-        lastVrioRef.current = payload.data.data;
-        lastVrioNotesRef.current = payload.data.notes || '';
+        cloudLastVrioRef.current = payload.data.data;
+        cloudLastVrioNotesRef.current = payload.data.notes || '';
+        broadcastLastVrioRef.current = stringified;
       })
       .on('broadcast', { event: 'update_tows' }, ({ payload }) => {
         if (payload?.senderId === clientIdRef.current) return;
+        const stringified = JSON.stringify(payload.data);
+        if (stringified === broadcastLastTowsRef.current) return;
+        
         setTowsData(payload.data);
-        lastTowsRef.current = payload.data;
+        cloudLastTowsRef.current = payload.data;
+        broadcastLastTowsRef.current = stringified;
       })
       .on('broadcast', { event: 'update_porter' }, ({ payload }) => {
         if (payload?.senderId === clientIdRef.current) return;
+        const stringified = JSON.stringify(payload.data);
+        if (stringified === broadcastLastPorterRef.current) return;
+        
         setPortersData(payload.data);
-        lastPorterRef.current = payload.data;
+        cloudLastPorterRef.current = payload.data;
+        broadcastLastPorterRef.current = stringified;
       })
       .on('broadcast', { event: 'update_meta' }, ({ payload }) => {
         if (payload?.senderId === clientIdRef.current) return;
+        const stringified = JSON.stringify(payload.data);
+        if (stringified === broadcastLastMetaRef.current) return;
+        
         setMeta(payload.data);
-        lastMetaRef.current = payload.data;
+        cloudLastMetaRef.current = payload.data;
+        broadcastLastMetaRef.current = stringified;
       })
       .on('broadcast', { event: 'kick_user' }, ({ payload }) => {
         if (
@@ -722,7 +760,7 @@ function AppContent({
 
     try {
       // Compare and prepare upserts
-      if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
+      if (JSON.stringify(pestelData) !== JSON.stringify(cloudLastPestelRef.current)) {
         tasks.push(
           supabase
             .from('pestel_rows')
@@ -732,7 +770,7 @@ function AppContent({
         updates.push({ key: 'pestel', data: pestelData });
       }
       
-      if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
+      if (JSON.stringify(mckinseyData) !== JSON.stringify(cloudLastMcKinseyRef.current)) {
         tasks.push(
           supabase
             .from('mckinsey_rows')
@@ -743,8 +781,8 @@ function AppContent({
       }
       
       if (
-        JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) ||
-        vrioNotes !== lastVrioNotesRef.current
+        JSON.stringify(vrioAnalysisData) !== JSON.stringify(cloudLastVrioRef.current) ||
+        vrioNotes !== cloudLastVrioNotesRef.current
       ) {
         tasks.push(
           supabase
@@ -765,7 +803,7 @@ function AppContent({
         updates.push({ key: 'vrio', data: vrioAnalysisData }, { key: 'vrioNotes', data: vrioNotes });
       }
       
-      if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
+      if (JSON.stringify(towsData) !== JSON.stringify(cloudLastTowsRef.current)) {
         tasks.push(
           supabase
             .from('tows_rows')
@@ -778,7 +816,7 @@ function AppContent({
         updates.push({ key: 'tows', data: towsData });
       }
       
-      if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
+      if (JSON.stringify(portersData) !== JSON.stringify(cloudLastPorterRef.current)) {
         tasks.push(
           supabase
             .from('porter_rows')
@@ -791,7 +829,7 @@ function AppContent({
         updates.push({ key: 'porter', data: portersData });
       }
       
-      if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
+      if (JSON.stringify(meta) !== JSON.stringify(cloudLastMetaRef.current)) {
         tasks.push(
           supabase
             .from('meta_data')
@@ -806,13 +844,13 @@ function AppContent({
         
         // Update refs ONLY after successful save
         updates.forEach(u => {
-          if (u.key === 'pestel') lastPestelRef.current = u.data;
-          if (u.key === 'mckinsey') lastMcKinseyRef.current = u.data;
-          if (u.key === 'vrio') lastVrioRef.current = u.data;
-          if (u.key === 'vrioNotes') lastVrioNotesRef.current = u.data;
-          if (u.key === 'tows') lastTowsRef.current = u.data;
-          if (u.key === 'porter') lastPorterRef.current = u.data;
-          if (u.key === 'meta') lastMetaRef.current = u.data;
+          if (u.key === 'pestel') cloudLastPestelRef.current = u.data;
+          if (u.key === 'mckinsey') cloudLastMcKinseyRef.current = u.data;
+          if (u.key === 'vrio') cloudLastVrioRef.current = u.data;
+          if (u.key === 'vrioNotes') cloudLastVrioNotesRef.current = u.data;
+          if (u.key === 'tows') cloudLastTowsRef.current = u.data;
+          if (u.key === 'porter') cloudLastPorterRef.current = u.data;
+          if (u.key === 'meta') cloudLastMetaRef.current = u.data;
         });
         setLastSaved(new Date());
       }
@@ -859,30 +897,30 @@ function AppContent({
         ch.send({ type: 'broadcast', event, payload: { senderId: clientIdRef.current, data } });
       };
 
-      if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
+      if (JSON.stringify(pestelData) !== broadcastLastPestelRef.current) {
         broadcast('update_pestel', pestelData);
-        lastPestelRef.current = pestelData;
+        broadcastLastPestelRef.current = JSON.stringify(pestelData);
       }
-      if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
+      if (JSON.stringify(mckinseyData) !== broadcastLastMcKinseyRef.current) {
         broadcast('update_mckinsey', mckinseyData);
-        lastMcKinseyRef.current = mckinseyData;
+        broadcastLastMcKinseyRef.current = JSON.stringify(mckinseyData);
       }
-      if (JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) || vrioNotes !== lastVrioNotesRef.current) {
+      const vrioCombined = JSON.stringify({ data: vrioAnalysisData, notes: vrioNotes });
+      if (vrioCombined !== broadcastLastVrioRef.current) {
         broadcast('update_vrio', { data: vrioAnalysisData, notes: vrioNotes });
-        lastVrioRef.current = vrioAnalysisData;
-        lastVrioNotesRef.current = vrioNotes;
+        broadcastLastVrioRef.current = vrioCombined;
       }
-      if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
+      if (JSON.stringify(towsData) !== broadcastLastTowsRef.current) {
         broadcast('update_tows', towsData);
-        lastTowsRef.current = towsData;
+        broadcastLastTowsRef.current = JSON.stringify(towsData);
       }
-      if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
+      if (JSON.stringify(portersData) !== broadcastLastPorterRef.current) {
         broadcast('update_porter', portersData);
-        lastPorterRef.current = portersData;
+        broadcastLastPorterRef.current = JSON.stringify(portersData);
       }
-      if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
+      if (JSON.stringify(meta) !== broadcastLastMetaRef.current) {
         broadcast('update_meta', meta);
-        lastMetaRef.current = meta;
+        broadcastLastMetaRef.current = JSON.stringify(meta);
       }
       updateTimeout.current = null;
     }, 300);
