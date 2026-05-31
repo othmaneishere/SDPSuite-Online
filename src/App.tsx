@@ -118,8 +118,8 @@ const CorporateHeader = ({
       </div>
 
       {!hideMeta && (
-        <div className="grid max-w-xl grid-cols-2 gap-x-12 gap-y-2 text-sm">
-          <div className="col-span-2 flex flex-col border-b border-gray-200">
+        <div className="grid w-full max-w-xl grid-cols-1 gap-x-12 gap-y-2 text-sm sm:grid-cols-2">
+          <div className="col-span-1 flex flex-col border-b border-gray-200 sm:col-span-2">
             <span className="text-[10px] font-semibold tracking-wider text-gray-500 uppercase">
               Module
             </span>
@@ -1308,17 +1308,17 @@ function AppContent({
   }
 
   return (
-    <div className="selection:bg-brand-blue/10 min-h-screen bg-gray-50/50 p-4 font-sans md:p-8">
-      <div className="mx-auto flex min-h-[90vh] max-w-[1400px] flex-col overflow-hidden rounded-[32px] border border-gray-100 bg-white shadow-2xl shadow-gray-200/50">
-        <div className="flex items-center justify-between border-b border-gray-100 bg-white p-6">
-          <div className="flex items-center gap-4">
+    <div className="selection:bg-brand-blue/10 min-h-screen bg-gray-50/50 p-2 font-sans md:p-8">
+      <div className="mx-auto flex min-h-[90vh] max-w-[1400px] flex-col overflow-hidden rounded-[20px] border border-gray-100 bg-white shadow-2xl shadow-gray-200/50 md:rounded-[32px]">
+        <div className="flex flex-col items-center justify-between gap-4 border-b border-gray-100 bg-white p-4 md:flex-row md:p-6">
+          <div className="flex w-full items-center justify-between gap-4 md:w-auto md:justify-start">
             <img
               src="https://i.ibb.co/WWxYzvmx/pbs-logo.png"
               alt="SDP Suite Logo"
-              className="h-32 w-auto object-contain"
+              className="h-16 w-auto object-contain md:h-32"
               crossOrigin="anonymous"
             />
-            <div className="mx-2 h-8 w-px bg-gray-100" />
+            <div className="mx-2 hidden h-8 w-px bg-gray-100 md:block" />
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 {syncStatus === 'synced' ? (
@@ -1350,14 +1350,14 @@ function AppContent({
               <ManualSaveButton onSave={forceSave} isSyncing={isSyncing} />
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex w-full items-center justify-end gap-2 md:w-auto md:gap-3">
             <div className="relative">
               <button
                 onClick={() => setShowTopParticipants((s) => !s)}
-                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-700 shadow-sm hover:shadow-md"
+                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-2 py-1.5 text-gray-700 shadow-sm hover:shadow-md md:px-3 md:py-2"
               >
-                <Users className="h-5 w-5 text-green-600" />
-                <span className="font-semibold text-gray-700">
+                <Users className="h-4 w-4 text-green-600 md:h-5 md:w-5" />
+                <span className="text-sm font-semibold text-gray-700">
                   {(meta.participants || []).length}
                 </span>
               </button>
@@ -1382,55 +1382,61 @@ function AppContent({
               onClick={() => {
                 if (confirm('Are you sure you want to exit this session?')) onExit();
               }}
-              className="flex cursor-pointer items-center gap-2 px-4 py-2 text-[10px] font-extrabold tracking-[0.2em] text-gray-500 uppercase transition-all hover:text-blue-600"
+              className="flex cursor-pointer items-center gap-2 px-2 py-2 text-[9px] font-extrabold tracking-[0.1em] text-gray-500 uppercase transition-all hover:text-blue-600 md:px-4 md:text-[10px] md:tracking-[0.2em]"
             >
-              <LogOut size={18} />
+              <LogOut size={16} />
               <span className="hidden xl:inline">Exit</span>
             </button>
-            <div className="mx-1 h-4 w-px bg-gray-200" />
-            <button
-              onClick={clearData}
-              className="cursor-pointer p-2 text-gray-400 transition-all hover:text-red-500"
-              title="Clear current worksheet"
-            >
-              <Trash2 size={20} />
-            </button>
-            <button
-              onClick={destroyAllGroupData}
-              className="ml-1 cursor-pointer border-l border-gray-100 p-2 text-red-200 transition-all hover:text-red-600"
-              title="DESTROY ALL GROUP DATA"
-            >
-              <Trash size={18} />
-            </button>
-            <button
-              onClick={exportPDF}
-              disabled={isExporting}
-              className="flex cursor-pointer items-center gap-2 rounded-xl bg-gray-900 px-4 py-2 text-[10px] font-extrabold tracking-[0.2em] text-white uppercase shadow-md shadow-black/10 transition-all hover:bg-black disabled:opacity-50"
-            >
-              {isExporting && !isExportingAll ? (
-                <div className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              ) : (
-                <FileText size={18} />
-              )}
-              Page PDF
-            </button>
-            <button
-              onClick={exportAllPDF}
-              disabled={isExportingAll}
-              className="flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-[10px] font-extrabold tracking-[0.2em] text-white uppercase shadow-md shadow-blue-600/10 transition-all hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isExportingAll ? (
-                <span className="flex items-center gap-2">
+            <div className="mx-0.5 h-4 w-px bg-gray-200 md:mx-1" />
+            <div className="flex items-center gap-0.5 md:gap-1">
+              <button
+                onClick={clearData}
+                className="cursor-pointer p-1 text-gray-400 transition-all hover:text-red-500 md:p-2"
+                title="Clear current worksheet"
+              >
+                <Trash2 size={18} />
+              </button>
+              <button
+                onClick={destroyAllGroupData}
+                className="cursor-pointer border-l border-gray-100 p-1 text-red-200 transition-all hover:text-red-600 md:p-2"
+                title="DESTROY ALL GROUP DATA"
+              >
+                <Trash size={16} />
+              </button>
+            </div>
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <button
+                onClick={exportPDF}
+                disabled={isExporting}
+                className="flex cursor-pointer items-center gap-2 rounded-xl bg-gray-900 px-3 py-2 text-[9px] font-extrabold tracking-[0.1em] text-white uppercase shadow-md shadow-black/10 transition-all hover:bg-black disabled:opacity-50 md:px-4 md:text-[10px] md:tracking-[0.2em]"
+              >
+                {isExporting && !isExportingAll ? (
                   <div className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Generating...
-                </span>
-              ) : (
-                <>
-                  <BookOpen size={18} />
-                  Full Report
-                </>
-              )}
-            </button>
+                ) : (
+                  <FileText size={16} />
+                )}
+                <span className="hidden sm:inline">Page PDF</span>
+                <span className="sm:hidden">PDF</span>
+              </button>
+              <button
+                onClick={exportAllPDF}
+                disabled={isExportingAll}
+                className="flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-[9px] font-extrabold tracking-[0.1em] text-white uppercase shadow-md shadow-blue-600/10 transition-all hover:bg-blue-700 disabled:opacity-50 md:px-5 md:text-[10px] md:tracking-[0.2em]"
+              >
+                {isExportingAll ? (
+                  <span className="flex items-center gap-2">
+                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    <span className="hidden sm:inline">Generating...</span>
+                  </span>
+                ) : (
+                  <>
+                    <BookOpen size={16} />
+                    <span className="hidden sm:inline">Full Report</span>
+                    <span className="sm:hidden">Full</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1494,7 +1500,7 @@ function AppContent({
           </div>
         </div>
 
-        <div className="relative flex-1 overflow-y-auto bg-white p-8 lg:p-12">
+        <div className="relative flex-1 overflow-y-auto bg-white p-4 md:p-8 lg:p-12">
           <div className="mx-auto max-w-6xl">
             <div
               ref={containerRef}

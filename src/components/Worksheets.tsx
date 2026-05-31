@@ -582,8 +582,8 @@ export const TOWSWorksheet = ({
   };
 
   return (
-    <div className="min-w-[1100px] overflow-x-auto rounded-xl border border-gray-100 bg-white p-12">
-      <div className="grid grid-cols-[50px_160px_1fr_20px_1fr_100px] gap-0">
+    <div className="min-w-0 overflow-x-auto rounded-xl border border-gray-100 bg-white p-4 md:min-w-[1100px] md:p-12">
+      <div className="min-w-[900px] grid grid-cols-[50px_160px_1fr_20px_1fr_100px] gap-0">
         {/* ROW 1: Opportunities/Threats Headers */}
         <div className="col-span-2" />
         <div className="mx-1 mb-2 border border-black bg-black py-3 text-center text-2xl font-bold tracking-wider text-[#FFD666] uppercase">
@@ -854,51 +854,41 @@ export const VRIOAnalysisTable = ({
         VRIO Analysis
       </h3>
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed border-collapse border-2 border-black">
+        <table className="w-full min-w-[800px] table-fixed border-collapse border-2 border-black">
           <thead>
             <tr className="bg-white">
-              <th className="border border-black bg-gray-50/50 p-4 text-center text-sm font-bold">
+              <th className="border border-black bg-gray-50/50 p-2 text-center text-[10px] font-bold md:p-4 md:text-sm">
                 Resources
               </th>
-              <th className="border border-black bg-gray-50/50 p-4 text-center text-sm font-bold">
+              <th className="border border-black bg-gray-50/50 p-2 text-center text-[10px] font-bold md:p-4 md:text-sm">
                 Type
               </th>
-              <th className="w-1/4 border border-black bg-gray-50/50 p-4 text-center text-sm font-bold">
+              <th className="w-1/4 border border-black bg-gray-50/50 p-2 text-center text-[10px] font-bold md:p-4 md:text-sm">
                 Detail
               </th>
-              <th className="w-20 border border-black bg-gray-50/50 p-2 text-center text-sm font-bold">
-                <div className="text-lg">V</div>
-                <div className="text-[10px] leading-tight font-normal lowercase">
-                  is it valuable?
-                </div>
+              <th className="w-12 border border-black bg-gray-50/50 p-1 text-center text-[10px] font-bold md:w-20 md:p-2 md:text-sm">
+                <div className="text-base md:text-lg">V</div>
               </th>
-              <th className="w-20 border border-black bg-gray-50/50 p-2 text-center text-sm font-bold">
-                <div className="text-lg">R</div>
-                <div className="text-[10px] leading-tight font-normal lowercase">is it rare?</div>
+              <th className="w-12 border border-black bg-gray-50/50 p-1 text-center text-[10px] font-bold md:w-20 md:p-2 md:text-sm">
+                <div className="text-base md:text-lg">R</div>
               </th>
-              <th className="w-20 border border-black bg-gray-50/50 p-2 text-center text-sm font-bold">
-                <div className="text-lg">I</div>
-                <div className="text-[10px] leading-tight font-normal lowercase">
-                  is it hard to imitate?
-                </div>
+              <th className="w-12 border border-black bg-gray-50/50 p-1 text-center text-[10px] font-bold md:w-20 md:p-2 md:text-sm">
+                <div className="text-base md:text-lg">I</div>
               </th>
-              <th className="w-28 border border-black bg-gray-50/50 p-2 text-center text-sm font-bold">
-                <div className="text-lg">O</div>
-                <div className="text-[10px] leading-tight font-normal">
-                  How organized is the company around this?
-                </div>
+              <th className="w-20 border border-black bg-gray-50/50 p-1 text-center text-[10px] font-bold md:w-28 md:p-2 md:text-sm">
+                <div className="text-base md:text-lg">O</div>
               </th>
             </tr>
           </thead>
           <tbody>
             {data.map((item) => (
-              <tr key={item.id} className="h-12">
+              <tr key={item.id} className="h-10 md:h-12">
                 <td className="border border-black p-0">
                   <input
                     type="text"
                     value={item.resource}
                     onChange={(e) => updateItem(item.id, 'resource', e.target.value)}
-                    className="h-full w-full bg-transparent px-4 text-sm outline-hidden transition-colors focus:bg-blue-50/30"
+                    className="h-full w-full bg-transparent px-2 text-[11px] outline-hidden transition-colors focus:bg-blue-50/30 md:px-4 md:text-sm"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -906,7 +896,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.type}
                     onChange={(e) => updateItem(item.id, 'type', e.target.value)}
-                    className="h-full w-full bg-transparent px-4 text-sm outline-hidden transition-colors focus:bg-blue-50/30"
+                    className="h-full w-full bg-transparent px-2 text-[11px] outline-hidden transition-colors focus:bg-blue-50/30 md:px-4 md:text-sm"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -914,7 +904,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.detail}
                     onChange={(e) => updateItem(item.id, 'detail', e.target.value)}
-                    className="h-full w-full bg-transparent px-4 text-sm outline-hidden transition-colors focus:bg-blue-50/30"
+                    className="h-full w-full bg-transparent px-2 text-[11px] outline-hidden transition-colors focus:bg-blue-50/30 md:px-4 md:text-sm"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -922,7 +912,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.v}
                     onChange={(e) => updateItem(item.id, 'v', e.target.value)}
-                    className="h-full w-full bg-transparent text-center text-sm outline-hidden transition-colors focus:bg-blue-50/30"
+                    className="h-full w-full bg-transparent text-center text-[11px] outline-hidden transition-colors focus:bg-blue-50/30 md:text-sm"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -930,7 +920,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.r}
                     onChange={(e) => updateItem(item.id, 'r', e.target.value)}
-                    className="h-full w-full bg-transparent text-center text-sm outline-hidden transition-colors focus:bg-blue-50/30"
+                    className="h-full w-full bg-transparent text-center text-[11px] outline-hidden transition-colors focus:bg-blue-50/30 md:text-sm"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -938,7 +928,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.i}
                     onChange={(e) => updateItem(item.id, 'i', e.target.value)}
-                    className="h-full w-full bg-transparent text-center text-sm outline-hidden transition-colors focus:bg-blue-50/30"
+                    className="h-full w-full bg-transparent text-center text-[11px] outline-hidden transition-colors focus:bg-blue-50/30 md:text-sm"
                   />
                 </td>
                 <td className="border border-black p-0">
@@ -946,7 +936,7 @@ export const VRIOAnalysisTable = ({
                     type="text"
                     value={item.o}
                     onChange={(e) => updateItem(item.id, 'o', e.target.value)}
-                    className="h-full w-full bg-transparent text-center text-sm outline-hidden transition-colors focus:bg-blue-50/30"
+                    className="h-full w-full bg-transparent text-center text-[11px] outline-hidden transition-colors focus:bg-blue-50/30 md:text-sm"
                   />
                 </td>
               </tr>
@@ -970,44 +960,44 @@ export const VRIOAnalysisTable = ({
 export const VRIOFramework = () => {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-[1fr_1fr_1fr_1fr_1.25fr] gap-0">
-        <div className="flex h-56 flex-col items-center border border-gray-200 bg-white p-4 pb-6 text-center">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-2 md:gap-0">
+        <div className="flex h-40 md:h-56 flex-col items-center border border-gray-200 bg-white p-4 pb-6 text-center">
           <div className="flex flex-1 items-center justify-center">
-            <Database size={100} className="text-gray-300" />
+            <Database className="h-16 w-16 md:h-24 md:w-24 text-gray-300" />
           </div>
-          <span className="text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
+          <span className="text-[10px] md:text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
             IS IT VALUABLE?
           </span>
         </div>
-        <div className="flex h-56 flex-col items-center border border-l-0 border-gray-200 bg-white p-4 pb-6 text-center">
+        <div className="flex h-40 md:h-56 flex-col items-center border border-gray-200 bg-white p-4 pb-6 text-center md:border-l-0">
           <div className="flex flex-1 items-center justify-center">
-            <Files size={100} className="text-gray-300" />
+            <Files className="h-16 w-16 md:h-24 md:w-24 text-gray-300" />
           </div>
-          <span className="text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
+          <span className="text-[10px] md:text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
             IS IT RARE?
           </span>
         </div>
-        <div className="flex h-56 flex-col items-center border border-l-0 border-gray-200 bg-white p-4 pb-6 text-center">
+        <div className="flex h-40 md:h-56 flex-col items-center border border-gray-200 bg-white p-4 pb-6 text-center md:border-l-0">
           <div className="flex flex-1 items-center justify-center">
-            <Network size={100} className="text-gray-300" />
+            <Network className="h-16 w-16 md:h-24 md:w-24 text-gray-300" />
           </div>
-          <span className="text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
+          <span className="text-[10px] md:text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
             IS IT DIFFICULT TO IMITATE?
           </span>
         </div>
-        <div className="flex h-56 flex-col items-center border border-l-0 border-gray-200 bg-white p-4 pb-6 text-center">
+        <div className="flex h-40 md:h-56 flex-col items-center border border-gray-200 bg-white p-4 pb-6 text-center md:border-l-0">
           <div className="flex flex-1 items-center justify-center">
-            <Settings2 size={100} className="text-gray-300" />
+            <Settings2 className="h-16 w-16 md:h-24 md:w-24 text-gray-300" />
           </div>
-          <span className="px-2 text-center text-sm leading-[1.1] font-bold tracking-tight text-gray-800 uppercase">
+          <span className="px-2 text-center text-[10px] md:text-sm leading-[1.1] font-bold tracking-tight text-gray-800 uppercase">
             HOW ORGANIZED IS THE COMPANY AROUND THIS
           </span>
         </div>
-        <div className="flex h-56 flex-col items-center border border-l-0 border-gray-200 bg-white p-4 pb-6 text-center">
+        <div className="flex h-40 md:h-56 flex-col items-center border border-gray-200 bg-white p-4 pb-6 text-center md:border-l-0">
           <div className="flex flex-1 items-center justify-center">
-            <FileText size={100} className="text-gray-300" />
+            <FileText className="h-16 w-16 md:h-24 md:w-24 text-gray-300" />
           </div>
-          <span className="px-4 text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
+          <span className="px-4 text-[10px] md:text-sm leading-tight font-bold tracking-tight text-gray-800 uppercase">
             WHAT IS THE OVERALL RESULT?
           </span>
         </div>
@@ -1016,127 +1006,127 @@ export const VRIOFramework = () => {
       {/* Decision Table */}
       <div className="space-y-4 pt-1">
         {/* Row 1 */}
-        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
+        <div className="grid min-h-[4.5rem] grid-cols-2 md:grid-cols-5 overflow-hidden border border-gray-200 bg-gray-50/30">
           <div className="flex items-center justify-center gap-4 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-2xl font-bold text-red-500">
+            <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-xl md:text-2xl font-bold text-red-500">
               ×
             </div>
-            <span className="text-lg font-bold text-gray-500">No</span>
+            <span className="text-base md:text-lg font-bold text-gray-500">No</span>
           </div>
-          <div className="bg-white/80" />
-          <div className="bg-white/80" />
-          <div className="bg-white/80" />
-          <div className="flex items-center justify-center border-l border-gray-200 bg-[#FF9B9B] px-6 text-center text-sm leading-tight font-bold">
+          <div className="hidden md:block bg-white/80" />
+          <div className="hidden md:block bg-white/80" />
+          <div className="hidden md:block bg-white/80" />
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#FF9B9B] px-4 md:px-6 text-center text-[11px] md:text-sm leading-tight font-bold">
             Competitive Disadvantage
           </div>
         </div>
 
         {/* Row 2 */}
-        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
+        <div className="grid min-h-[4.5rem] grid-cols-3 md:grid-cols-5 overflow-hidden border border-gray-200 bg-gray-50/30">
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-xl md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-2xl font-bold text-red-500">
+            <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-xl md:text-2xl font-bold text-red-500">
               ×
             </div>
-            <span className="text-lg font-bold text-gray-500">No</span>
+            <span className="text-base md:text-lg font-bold text-gray-500">No</span>
           </div>
-          <div className="bg-white/80" />
-          <div className="bg-white/80" />
-          <div className="flex items-center justify-center border-l border-gray-200 bg-[#EB9F7D] px-6 text-center text-sm leading-tight font-bold">
+          <div className="hidden md:block bg-white/80" />
+          <div className="hidden md:block bg-white/80" />
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#EB9F7D] px-4 md:px-6 text-center text-[11px] md:text-sm leading-tight font-bold">
             Competitive Parity
           </div>
         </div>
 
         {/* Row 3 */}
-        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
+        <div className="grid min-h-[4.5rem] grid-cols-4 md:grid-cols-5 overflow-hidden border border-gray-200 bg-gray-50/30">
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-xl md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-xl md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-2xl font-bold text-red-500">
+            <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-xl md:text-2xl font-bold text-red-500">
               ×
             </div>
-            <span className="text-lg font-bold text-gray-500">No</span>
+            <span className="text-base md:text-lg font-bold text-gray-500">No</span>
           </div>
-          <div className="bg-white/80" />
-          <div className="flex items-center justify-center border-l border-gray-200 bg-[#FFD666] px-6 text-center text-sm leading-tight font-bold">
+          <div className="hidden md:block bg-white/80" />
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#FFD666] px-4 md:px-6 text-center text-[11px] md:text-sm leading-tight font-bold">
             Temporary Competitive Advantage
           </div>
         </div>
 
         {/* Row 4 */}
-        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
+        <div className="grid min-h-[4.5rem] grid-cols-5 md:grid-cols-5 overflow-hidden border border-gray-200 bg-gray-50/30">
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-6 w-6 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-lg md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="hidden sm:inline text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-6 w-6 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-lg md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="hidden sm:inline text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-6 w-6 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-lg md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="hidden sm:inline text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 bg-white/80 transition-colors focus:bg-white">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-2xl font-bold text-red-500">
+            <div className="flex h-6 w-6 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-red-400 bg-white text-lg md:text-2xl font-bold text-red-500">
               ×
             </div>
-            <span className="text-lg font-bold text-gray-500">No</span>
+            <span className="hidden sm:inline text-base md:text-lg font-bold text-gray-500">No</span>
           </div>
-          <div className="flex items-center justify-center border-l border-gray-200 bg-[#ADCCD1] px-6 text-center text-sm leading-tight font-bold">
-            Unused Competitive Advantage
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#ADCCD1] px-2 md:px-6 text-center text-[10px] md:text-sm leading-tight font-bold">
+            Unused Comp. Adv.
           </div>
         </div>
 
         {/* Row 5 */}
-        <div className="grid h-18 grid-cols-[1fr_1fr_1fr_1fr_1.25fr] overflow-hidden border border-gray-200 bg-gray-50/30">
+        <div className="grid min-h-[4.5rem] grid-cols-5 md:grid-cols-5 overflow-hidden border border-gray-200 bg-gray-50/30">
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-6 w-6 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-lg md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="hidden sm:inline text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-6 w-6 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-lg md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="hidden sm:inline text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-6 w-6 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-lg md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="hidden sm:inline text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
           <div className="flex items-center justify-center gap-4 border-r border-gray-100/50 bg-white/80">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-2xl font-bold text-green-500">
+            <div className="flex h-6 w-6 md:h-10 md:w-10 items-center justify-center rounded-full border-2 border-green-500 bg-white text-lg md:text-2xl font-bold text-green-500">
               ✓
             </div>
-            <span className="text-lg font-bold text-gray-500">Yes</span>
+            <span className="hidden sm:inline text-base md:text-lg font-bold text-gray-500">Yes</span>
           </div>
-          <div className="flex items-center justify-center border-l border-gray-200 bg-[#8EB39F] px-6 text-center text-sm leading-tight font-bold">
-            Sustainable Competitive Advantage
+          <div className="flex items-center justify-center border-l border-gray-200 bg-[#8EB39F] px-2 md:px-6 text-center text-[10px] md:text-sm leading-tight font-bold">
+            Sust. Comp. Adv.
           </div>
         </div>
       </div>
@@ -1338,17 +1328,17 @@ export const PortersFiveForces = ({
           {currentConfig.questions.map((q, idx) => (
             <div
               key={idx}
-              className="grid grid-cols-[1fr_auto] items-center gap-6 rounded-2xl border border-gray-100 bg-white/50 p-4 transition-all hover:border-gray-200"
+              className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white/50 p-4 transition-all hover:border-gray-200 sm:grid sm:grid-cols-[1fr_auto] sm:items-center sm:gap-6"
             >
               <p className="text-sm leading-tight font-semibold text-gray-700">
                 <span className="mr-3 text-gray-300">{idx + 1}.</span>
                 {q}
               </p>
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-end sm:justify-start">
                 <button
                   onClick={() => updateScorecard(idx, true)}
                   className={cn(
-                    'cursor-pointer rounded-xl border-2 px-5 py-2 text-[10px] font-black uppercase transition-all',
+                    'cursor-pointer rounded-xl border-2 px-4 py-1.5 text-[9px] font-black uppercase transition-all sm:px-5 sm:py-2 sm:text-[10px]',
                     currentData.scorecard[idx] === true
                       ? 'border-green-600 bg-green-600 text-white shadow-sm'
                       : 'border-gray-200 bg-white text-gray-400 hover:border-green-500 hover:text-green-600',
@@ -1359,7 +1349,7 @@ export const PortersFiveForces = ({
                 <button
                   onClick={() => updateScorecard(idx, false)}
                   className={cn(
-                    'cursor-pointer rounded-xl border-2 px-5 py-2 text-[10px] font-black uppercase transition-all',
+                    'cursor-pointer rounded-xl border-2 px-4 py-1.5 text-[9px] font-black uppercase transition-all sm:px-5 sm:py-2 sm:text-[10px]',
                     currentData.scorecard[idx] === false
                       ? 'border-red-600 bg-red-600 text-white shadow-sm'
                       : 'border-gray-200 bg-white text-gray-400 hover:border-red-500 hover:text-red-600',
