@@ -107,7 +107,7 @@ const CorporateHeader = ({
           <img
             src="https://i.ibb.co/WWxYzvmx/pbs-logo.png"
             alt="Business School Logo"
-            className="h-16 object-contain"
+            className="h-32 object-contain"
             crossOrigin="anonymous"
           />
         </div>
@@ -1237,7 +1237,7 @@ function AppContent({
             <img
               src="https://i.ibb.co/WWxYzvmx/pbs-logo.png"
               alt="SDP Suite Logo"
-              className="h-16 w-auto object-contain"
+              className="h-32 w-auto object-contain"
               crossOrigin="anonymous"
             />
             <div className="mx-2 h-8 w-px bg-gray-100" />

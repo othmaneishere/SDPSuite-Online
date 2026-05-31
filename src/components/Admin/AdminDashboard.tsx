@@ -244,7 +244,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
             <img
               src="https://i.ibb.co/WWxYzvmx/pbs-logo.png"
               alt="SDP Suite Logo"
-              className="h-16 w-auto object-contain"
+              className="h-32 w-auto object-contain"
             />
             <div className="mx-2 h-10 w-px bg-gray-200" />
             <h1 className="text-2xl font-black tracking-tight text-gray-900 uppercase">
