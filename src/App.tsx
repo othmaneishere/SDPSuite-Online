@@ -725,14 +725,14 @@ function AppContent({
     tasks.push(
       supabase
         .from('pestel_rows')
-        .upsert(pestelData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d }))),
+        .upsert(pestelData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d })), { onConflict: 'group_id,row_key' }),
     );
     updates.push({ key: 'pestel', data: pestelData });
     lastPestelRef.current = pestelData;
     if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
       console.log("DEBUG: McKinsey changed, queuing upsert");
       tasks.push(
-        supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, content: mckinseyData }),
+        supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, content: mckinseyData }, { onConflict: 'group_id' }),
       );
       updates.push({ key: 'mckinsey', data: mckinseyData });
     }
@@ -746,12 +746,13 @@ function AppContent({
           .from('vrio_rows')
           .upsert(
             vrioAnalysisData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d })),
+            { onConflict: 'group_id,row_key' }
           ),
       );
       tasks.push(
         supabase
           .from('meta_data')
-          .upsert({ group_id: selectedGroup, content: { ...meta, vrioNotes } }),
+          .upsert({ group_id: selectedGroup, content: { ...meta, vrioNotes } }, { onConflict: 'group_id' }),
       );
       updates.push({ key: 'vrio', data: vrioAnalysisData }, { key: 'vrioNotes', data: vrioNotes });
     }
@@ -762,6 +763,7 @@ function AppContent({
           .from('tows_rows')
           .upsert(
             towsData.map((d) => ({ group_id: selectedGroup, row_key: d.section, content: d })),
+            { onConflict: 'group_id,row_key' }
           ),
       );
       updates.push({ key: 'tows', data: towsData });
@@ -773,13 +775,14 @@ function AppContent({
           .from('porter_rows')
           .upsert(
             portersData.map((d) => ({ group_id: selectedGroup, row_key: d.force, content: d })),
+            { onConflict: 'group_id,row_key' }
           ),
       );
       updates.push({ key: 'porter', data: portersData });
     }
     if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
       console.log("DEBUG: Meta changed, queuing upsert");
-      tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }));
+      tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }, { onConflict: 'group_id' }));
       updates.push({ key: 'meta', data: meta });
     }
 
