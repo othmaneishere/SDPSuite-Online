@@ -7,7 +7,9 @@ import {
   Network,
   Files,
   LogOut,
+  Trash,
   Trash2,
+  Bomb,
   BookOpen,
   Users,
   WifiOff,
@@ -1116,6 +1118,78 @@ function AppContent({
     }
   };
 
+  const destroyAllGroupData = async () => {
+    if (!selectedGroup) return;
+    
+    const confirm1 = confirm("⚠️ DANGER: This will PERMANENTLY DELETE ALL data for this group across ALL worksheets. This cannot be undone. Are you sure?");
+    if (!confirm1) return;
+    
+    const confirm2 = confirm("FINAL WARNING: Are you absolutely certain you want to destroy all data for group: " + selectedGroup + "?");
+    if (!confirm2) return;
+
+    setIsLoading(true);
+    setSyncStatus('syncing');
+
+    try {
+      // 1. Delete from Supabase
+      const tables = ['pestel_rows', 'vrio_rows', 'tows_rows', 'porter_rows', 'mckinsey_rows', 'meta_data'];
+      await Promise.all(
+        tables.map(table => supabase.from(table).delete().eq('group_id', selectedGroup))
+      );
+
+      // 2. Clear Local Storage
+      localStorage.removeItem(`sdp_group_${selectedGroup}`);
+
+      // 3. Reset Local State to Defaults
+      setPestelData(['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
+        id: cat, category: cat as PESTELRow['category'], description: '', impact: '', probability: '', potential: ''
+      })));
+      setMckinseyData({});
+      setVrioAnalysisData(Array.from({ length: 8 }, (_, i) => ({
+        id: `res-${i}`, resource: '', type: '', detail: '', v: '', r: '', i: '', o: ''
+      })));
+      setVrioNotes('');
+      setTowsData([
+        { id: 'opportunities', section: 'opportunities', data: ['', '', ''], scores: {}, notes: {} },
+        { id: 'threats', section: 'threats', data: ['', '', ''], scores: {}, notes: {} },
+        { id: 'strengths', section: 'strengths', data: ['', '', ''], scores: {}, notes: {} },
+        { id: 'weaknesses', section: 'weaknesses', data: ['', '', ''], scores: {}, notes: {} }
+      ]);
+      setPortersData([
+        { id: 'newEntrants', force: 'newEntrants', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+        { id: 'buyers', force: 'buyers', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 5 }, () => ({ col1: '', col2: '', col3: '' })) },
+        { id: 'suppliers', force: 'suppliers', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+        { id: 'substitutes', force: 'substitutes', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
+        { id: 'rivalry', force: 'rivalry', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) }
+      ]);
+      setMeta({ companyName: '', industry: '', analyst: '', date: new Date().toISOString().split('T')[0] });
+
+      // Update refs to match empty state
+      cloudLastPestelRef.current = [];
+      cloudLastMcKinseyRef.current = {};
+      cloudLastVrioRef.current = [];
+      cloudLastVrioNotesRef.current = '';
+      cloudLastTowsRef.current = [];
+      cloudLastPorterRef.current = [];
+      cloudLastMetaRef.current = null;
+      
+      broadcastLastPestelRef.current = '';
+      broadcastLastMcKinseyRef.current = '';
+      broadcastLastVrioRef.current = '';
+      broadcastLastTowsRef.current = '';
+      broadcastLastPorterRef.current = '';
+      broadcastLastMetaRef.current = '';
+
+      setSyncStatus('synced');
+      alert('Group data destroyed successfully.');
+    } catch (err) {
+      console.error('Destroy failed:', err);
+      alert('Failed to destroy data. Check console for details.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const clearData = () => {
     if (confirm('Clear all data for this worksheet?')) {
       if (activeTab === 'PESTEL') {
@@ -1313,6 +1387,13 @@ function AppContent({
               title="Clear current worksheet"
             >
               <Trash2 size={20} />
+            </button>
+            <button
+              onClick={destroyAllGroupData}
+              className="ml-1 cursor-pointer border-l border-gray-100 p-2 text-red-200 transition-all hover:text-red-600"
+              title="DESTROY ALL GROUP DATA"
+            >
+              <Trash size={18} />
             </button>
             <button
               onClick={exportPDF}
