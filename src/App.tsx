@@ -16,6 +16,8 @@ import {
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { motion, AnimatePresence } from 'motion/react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
+import { toPng, toJpeg } from 'html-to-image';
 import { supabase } from './lib/supabase';
 import { PasscodeModal, AdminDashboard } from './components/Admin';
 import { cn } from './lib/utils';
@@ -972,10 +974,6 @@ function AppContent({
   const exportPDF = async () => {
     setIsExporting(true);
     try {
-      const [{ jsPDF }, { toPng, toJpeg }] = await Promise.all([
-        import('jspdf'),
-        import('html-to-image'),
-      ]);
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
       const printRef = document.getElementById('full-report-print-container');
       if (!printRef) throw new Error('Print container not found');
@@ -1072,7 +1070,6 @@ function AppContent({
     setIsExporting(true);
     setIsExportingAll(true);
     try {
-      const [{ jsPDF }, { toJpeg }] = await Promise.all([import('jspdf'), import('html-to-image')]);
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
       const printRef = document.getElementById('full-report-print-container');
       if (!printRef) throw new Error('Print container not found');
