@@ -718,15 +718,17 @@ function AppContent({
     const updates: { key: string, data: any }[] = [];
 
     // Compare and prepare upserts
-    if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
-      console.log("DEBUG: Pestel changed, queuing upsert");
-      tasks.push(
-        supabase
-          .from('pestel_rows')
-          .upsert(pestelData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d }))),
-      );
-      updates.push({ key: 'pestel', data: pestelData });
-    }
+    console.log("DEBUG: Forcing PESTEL upsert check, data:", JSON.stringify(pestelData));
+    
+    // Forced upsert logic for debugging
+    console.log("DEBUG: Queuing PESTEL upsert");
+    tasks.push(
+      supabase
+        .from('pestel_rows')
+        .upsert(pestelData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d }))),
+    );
+    updates.push({ key: 'pestel', data: pestelData });
+    lastPestelRef.current = pestelData;
     if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
       console.log("DEBUG: McKinsey changed, queuing upsert");
       tasks.push(
