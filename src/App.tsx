@@ -1162,7 +1162,14 @@ function AppContent({
         { id: 'substitutes', force: 'substitutes', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) },
         { id: 'rivalry', force: 'rivalry', analysis: '', impact: 'Medium', scorecard: {}, further: Array.from({ length: 3 }, () => ({ col1: '', col2: '', col3: '' })) }
       ]);
-      setMeta({ companyName: '', industry: '', analyst: '', date: new Date().toISOString().split('T')[0] });
+      setMeta({ 
+        module: '', 
+        cohort: '', 
+        date: new Date().toISOString().split('T')[0], 
+        companyName: '', 
+        participants: meta.participants || [], 
+        group: selectedGroup 
+      });
 
       // Update refs to match empty state
       cloudLastPestelRef.current = [];
