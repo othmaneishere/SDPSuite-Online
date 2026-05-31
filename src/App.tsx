@@ -780,10 +780,7 @@ function AppContent({
         updates.push({ key: 'mckinsey', data: mckinseyData });
       }
       
-      if (
-        JSON.stringify(vrioAnalysisData) !== JSON.stringify(cloudLastVrioRef.current) ||
-        vrioNotes !== cloudLastVrioNotesRef.current
-      ) {
+      if (JSON.stringify(vrioAnalysisData) !== JSON.stringify(cloudLastVrioRef.current)) {
         tasks.push(
           supabase
             .from('vrio_rows')
@@ -793,16 +790,9 @@ function AppContent({
             )
             .then(r => { if (r.error) throw r.error; return r; })
         );
-        // We sync vrioNotes into meta_data to keep it unified
-        tasks.push(
-          supabase
-            .from('meta_data')
-            .upsert({ group_id: selectedGroup, content: { ...meta, vrioNotes, group: selectedGroup } }, { onConflict: 'group_id' })
-            .then(r => { if (r.error) throw r.error; return r; })
-        );
-        updates.push({ key: 'vrio', data: vrioAnalysisData }, { key: 'vrioNotes', data: vrioNotes });
+        updates.push({ key: 'vrio', data: vrioAnalysisData });
       }
-      
+
       if (JSON.stringify(towsData) !== JSON.stringify(cloudLastTowsRef.current)) {
         tasks.push(
           supabase
@@ -815,7 +805,7 @@ function AppContent({
         );
         updates.push({ key: 'tows', data: towsData });
       }
-      
+
       if (JSON.stringify(portersData) !== JSON.stringify(cloudLastPorterRef.current)) {
         tasks.push(
           supabase
@@ -829,14 +819,31 @@ function AppContent({
         updates.push({ key: 'porter', data: portersData });
       }
       
-      if (JSON.stringify(meta) !== JSON.stringify(cloudLastMetaRef.current)) {
+      // 4. Meta & VRIO Notes (Consolidated to prevent overwrites)
+      const metaChanged = JSON.stringify(meta) !== JSON.stringify(cloudLastMetaRef.current);
+      const vrioNotesChanged = vrioNotes !== cloudLastVrioNotesRef.current;
+
+      if (metaChanged || vrioNotesChanged) {
+        const consolidatedMeta = { 
+          ...meta, 
+          vrioNotes, 
+          group: selectedGroup 
+        };
+        
         tasks.push(
           supabase
             .from('meta_data')
-            .upsert({ group_id: selectedGroup, content: { ...meta, group: selectedGroup } }, { onConflict: 'group_id' })
-            .then(r => { if (r.error) throw r.error; return r; })
+            .upsert({ group_id: selectedGroup, content: consolidatedMeta }, { onConflict: 'group_id' })
+            .then(r => { 
+              if (r.error) throw r.error; 
+              return r; 
+            })
         );
-        updates.push({ key: 'meta', data: meta });
+        
+        updates.push(
+          { key: 'meta', data: meta },
+          { key: 'vrioNotes', data: vrioNotes }
+        );
       }
 
       if (tasks.length > 0) {
