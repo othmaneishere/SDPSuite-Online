@@ -25,7 +25,7 @@ export const AuthLayout = ({
           <img
             src="https://i.ibb.co/WWxYzvmx/pbs-logo.png"
             alt="SDP Suite Logo"
-            className="h-48 w-48 object-contain md:h-64 md:w-64"
+            className="h-56 w-56 object-contain md:h-72 md:w-72"
           />
 
           <div className="space-y-6">
