@@ -827,7 +827,6 @@ function AppContent({
   // 3. Auto-save and Broadcast
   useEffect(() => {
     if (isLoading || !isInitialized) return;
-    // ... rest of useEffect
 
     // A. LocalStorage (Immediate safety)
     localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify({
@@ -881,8 +880,6 @@ function AppContent({
     // C. Database Sync (Persistent Cloud)
     if (dbUpdateTimeout.current) clearTimeout(dbUpdateTimeout.current);
 
-    // C. Database Sync (Persistent Cloud)
-    if (dbUpdateTimeout.current) clearTimeout(dbUpdateTimeout.current);
     dbUpdateTimeout.current = setTimeout(async () => {
       try {
         await forceSave();
@@ -905,6 +902,17 @@ function AppContent({
     isInitialized,
     forceSave,
   ]);
+
+  // 4. Auto-retry sync on reconnection
+  useEffect(() => {
+    const handleOnline = () => {
+      console.log("DEBUG: Connection restored, triggering sync...");
+      forceSave();
+    };
+
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [forceSave]);
 
   const exportPDF = async () => {
     setIsExporting(true);
