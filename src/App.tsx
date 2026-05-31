@@ -768,8 +768,8 @@ function AppContent({
       );
       updates.push({ key: 'tows', data: towsData });
     }
-    if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
-      console.log("DEBUG: Porter changed, queuing upsert");
+    if (true) { // Forced to true for debugging Porter
+      console.log("DEBUG: Porter data being saved:", JSON.stringify(portersData));
       tasks.push(
         supabase
           .from('porter_rows')
@@ -779,6 +779,7 @@ function AppContent({
           ),
       );
       updates.push({ key: 'porter', data: portersData });
+      lastPorterRef.current = portersData;
     }
     if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
       console.log("DEBUG: Meta changed, queuing upsert");
