@@ -533,6 +533,13 @@ function AppContent({
 
       // Step B: Cloud Sync (Reliable)
       try {
+        const mergePestel = (fetched: PESTELRow[]) => {
+          const defaults = ['Political', 'Economic', 'Social', 'Technological', 'Environmental', 'Legal'].map(cat => ({
+            id: cat, category: cat as PESTELRow['category'], description: '', impact: '', probability: '', potential: ''
+          }));
+          return defaults.map(d => fetched.find(f => f.id === d.id) || d);
+        };
+
         const [
           { data: pestel, error: pestelErr },
           { data: vrio, error: vrioErr },
@@ -553,10 +560,11 @@ function AppContent({
           throw new Error('Supabase fetch error');
         }
 
-        if (pestel && pestel.length > 0) {
-          const data = pestel.map((r: { content: PESTELRow }) => r.content);
-          setPestelData(data);
-          lastPestelRef.current = data;
+        if (pestel) {
+          const fetchedData = pestel.map((r: { content: PESTELRow }) => r.content);
+          const merged = mergePestel(fetchedData);
+          setPestelData(merged);
+          lastPestelRef.current = merged;
         }
         if (vrio && vrio.length > 0) {
           const data = vrio.map((r: { content: VRIORow }) => r.content);
