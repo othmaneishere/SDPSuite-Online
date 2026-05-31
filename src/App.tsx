@@ -706,36 +706,39 @@ function AppContent({
   const [isSyncing, setIsSyncing] = useState(false);
 
   const forceSave = React.useCallback(async () => {
-    console.log("DEBUG: forceSave triggered");
+    console.log("DEBUG: forceSave triggered for Group:", selectedGroup);
+    if (!selectedGroup) {
+      console.error("DEBUG: ABORTING SAVE - No selectedGroup ID!");
+      return;
+    }
+    
     setSyncStatus('syncing');
     setIsSyncing(true);
     const tasks = [];
+    const updates: { key: string, data: any }[] = [];
 
     // Compare and prepare upserts
-    const pestelChanged = JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current);
-    console.log("DEBUG: Comparison Pestel", pestelChanged, JSON.stringify(pestelData), JSON.stringify(lastPestelRef.current));
-    
-    if (pestelChanged) {
-      console.log("DEBUG: Pestel data changed, queuing upsert");
+    if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
+      console.log("DEBUG: Pestel changed, queuing upsert");
       tasks.push(
         supabase
           .from('pestel_rows')
           .upsert(pestelData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d }))),
       );
-      lastPestelRef.current = pestelData;
+      updates.push({ key: 'pestel', data: pestelData });
     }
     if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
-      console.log("DEBUG: McKinsey data changed, queuing upsert");
+      console.log("DEBUG: McKinsey changed, queuing upsert");
       tasks.push(
         supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, content: mckinseyData }),
       );
-      lastMcKinseyRef.current = mckinseyData;
+      updates.push({ key: 'mckinsey', data: mckinseyData });
     }
     if (
       JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) ||
       vrioNotes !== lastVrioNotesRef.current
     ) {
-      console.log("DEBUG: VRIO data changed, queuing upsert");
+      console.log("DEBUG: VRIO changed, queuing upsert");
       tasks.push(
         supabase
           .from('vrio_rows')
@@ -748,11 +751,10 @@ function AppContent({
           .from('meta_data')
           .upsert({ group_id: selectedGroup, content: { ...meta, vrioNotes } }),
       );
-      lastVrioRef.current = vrioAnalysisData;
-      lastVrioNotesRef.current = vrioNotes;
+      updates.push({ key: 'vrio', data: vrioAnalysisData }, { key: 'vrioNotes', data: vrioNotes });
     }
     if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
-      console.log("DEBUG: TOWS data changed, queuing upsert");
+      console.log("DEBUG: TOWS changed, queuing upsert");
       tasks.push(
         supabase
           .from('tows_rows')
@@ -760,10 +762,10 @@ function AppContent({
             towsData.map((d) => ({ group_id: selectedGroup, row_key: d.section, content: d })),
           ),
       );
-      lastTowsRef.current = towsData;
+      updates.push({ key: 'tows', data: towsData });
     }
     if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
-      console.log("DEBUG: Porter data changed, queuing upsert");
+      console.log("DEBUG: Porter changed, queuing upsert");
       tasks.push(
         supabase
           .from('porter_rows')
@@ -771,18 +773,29 @@ function AppContent({
             portersData.map((d) => ({ group_id: selectedGroup, row_key: d.force, content: d })),
           ),
       );
-      lastPorterRef.current = portersData;
+      updates.push({ key: 'porter', data: portersData });
     }
     if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
-      console.log("DEBUG: Meta data changed, queuing upsert");
+      console.log("DEBUG: Meta changed, queuing upsert");
       tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }));
-      lastMetaRef.current = meta;
+      updates.push({ key: 'meta', data: meta });
     }
 
     if (tasks.length > 0) {
-      console.log("DEBUG: Tasks found, executing", tasks.length);
-      const results = await Promise.all(tasks);
-      console.log("DEBUG: Upsert results", results);
+      console.log("DEBUG: Executing", tasks.length, "Supabase tasks");
+      await Promise.all(tasks);
+      console.log("DEBUG: Upsert successful, updating refs");
+      
+      // Update refs ONLY after successful save
+      updates.forEach(u => {
+        if (u.key === 'pestel') lastPestelRef.current = u.data;
+        if (u.key === 'mckinsey') lastMcKinseyRef.current = u.data;
+        if (u.key === 'vrio') lastVrioRef.current = u.data;
+        if (u.key === 'vrioNotes') lastVrioNotesRef.current = u.data;
+        if (u.key === 'tows') lastTowsRef.current = u.data;
+        if (u.key === 'porter') lastPorterRef.current = u.data;
+        if (u.key === 'meta') lastMetaRef.current = u.data;
+      });
     } else {
       console.log("DEBUG: No changes detected to save");
     }
