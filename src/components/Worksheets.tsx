@@ -1213,8 +1213,7 @@ export const PortersFiveForces = ({
         'Will a new competitor have any difficulty acquiring/obtaining customers? If current distribution channels make it difficult for a new business to acquire/obtain new customers, you will enjoy a barrier to entry.',
         'Would it be difficult for a new entrant to have enough resources to compete efficiently? For every product, there is a cost-efficient level of production. If challengers can’t achieve that level of production, they won’t be competitive and therefore won’t enter the industry.',
       ],
-      tableHeaders: ['Questions to Consider', 'Strategic Response'],
-      customRows: [
+      tableHeaders: [
         'How would a new entrant affect your business?',
         'What will your competitors do if there is a new entrant into your marketplace?',
         'How will you respond to a new competitor?',
@@ -1385,7 +1384,7 @@ export const PortersFiveForces = ({
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-black">
-                {[0, 1, 2, 3, 4].map((idx) => (
+                {(activeForce === 'newEntrants' ? [0] : [0, 1, 2, 3, 4]).map((idx) => (
                   <tr key={idx} className="group h-32">
                     {(['col1', 'col2', 'col3', 'col4'] as const)
                       .slice(0, currentConfig.tableHeaders.length)
@@ -1398,9 +1397,9 @@ export const PortersFiveForces = ({
                             value={currentData.further[idx]?.[col as keyof (typeof currentData.further)[0]] || ''}
                             onChange={(e) => updateFurther(idx, col, e.target.value)}
                             className="h-full w-full resize-none border-none bg-transparent p-6 pt-8 text-xs leading-relaxed font-semibold transition-all outline-none focus:bg-indigo-50/20"
-                            placeholder={cIdx === 0 ? 'Identify...' : 'Analysis...'}
+                            placeholder={activeForce === 'newEntrants' ? '' : cIdx === 0 ? 'Identify...' : 'Analysis...'}
                           />
-                          {cIdx === 0 && (
+                          {cIdx === 0 && activeForce !== 'newEntrants' && (
                             <span className="absolute top-2 left-3 text-[10px] font-black text-gray-200 uppercase transition-colors group-hover:text-gray-400">
                               #{idx + 1}
                             </span>
