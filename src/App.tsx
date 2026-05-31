@@ -14,6 +14,8 @@ import {
   Users,
   WifiOff,
   CloudCheck,
+  Upload,
+  Download,
 } from 'lucide-react';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { motion, AnimatePresence } from 'motion/react';
@@ -1197,6 +1199,53 @@ function AppContent({
     }
   };
 
+  const exportData = () => {
+    const data = {
+      pestel: pestelData,
+      mckinsey: mckinseyData,
+      vrio: vrioAnalysisData,
+      vrioNotes: vrioNotes,
+      tows: towsData,
+      porters: portersData,
+      meta: meta,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sdp_data_${selectedGroup}_${new Date().toISOString()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importData = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = JSON.parse(e.target?.result as string);
+          if (content.pestel) setPestelData(content.pestel);
+          if (content.mckinsey) setMckinseyData(content.mckinsey);
+          if (content.vrio) setVrioAnalysisData(content.vrio);
+          if (content.vrioNotes !== undefined) setVrioNotes(content.vrioNotes);
+          if (content.tows) setTowsData(content.tows);
+          if (content.porters) setPortersData(content.porters);
+          if (content.meta) setMeta(content.meta);
+          alert('Data imported successfully!');
+        } catch (err) {
+          alert('Failed to import data. Please ensure the file is a valid JSON.');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
   const clearData = () => {
     if (confirm('Clear all data for this worksheet?')) {
       if (activeTab === 'PESTEL') {
@@ -1326,6 +1375,14 @@ function AppContent({
                     <div className="flex items-center gap-1.5 rounded-full border border-green-100 bg-green-50 px-2 py-1 text-[9px] font-black tracking-tighter text-green-600 uppercase">
                       <CloudCheck size={12} /> Cloud Saved
                     </div>
+                    <div className="flex gap-1 mt-1">
+                      <button onClick={exportData} title="Export Data" className="text-gray-400 hover:text-blue-600">
+                        <Download size={14} />
+                      </button>
+                      <button onClick={importData} title="Import Data" className="text-gray-400 hover:text-green-600">
+                        <Upload size={14} />
+                      </button>
+                    </div>
                     {lastSaved && (
                       <span className="mt-0.5 ml-1 text-[8px] font-bold text-gray-400">
                         {lastSaved.toLocaleTimeString([], {
@@ -1337,13 +1394,33 @@ function AppContent({
                     )}
                   </div>
                 ) : syncStatus === 'syncing' ? (
-                  <div className="flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] font-black tracking-tighter text-blue-600 uppercase">
-                    <div className="h-2 w-2 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />{' '}
-                    Saving...
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-[9px] font-black tracking-tighter text-blue-600 uppercase">
+                      <div className="h-2 w-2 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />{' '}
+                      Saving...
+                    </div>
+                    <div className="flex gap-1 mt-1">
+                      <button onClick={exportData} title="Export Data" className="text-gray-400 hover:text-blue-600">
+                        <Download size={14} />
+                      </button>
+                      <button onClick={importData} title="Import Data" className="text-gray-400 hover:text-green-600">
+                        <Upload size={14} />
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="flex animate-pulse items-center gap-1.5 rounded-full border border-amber-100 bg-amber-50 px-2 py-1 text-[9px] font-black tracking-tighter text-amber-600 uppercase">
-                    <WifiOff size={12} /> Offline Mode
+                  <div className="flex flex-col items-start">
+                    <div className="flex animate-pulse items-center gap-1.5 rounded-full border border-amber-100 bg-amber-50 px-2 py-1 text-[9px] font-black tracking-tighter text-amber-600 uppercase">
+                      <WifiOff size={12} /> Offline Mode
+                    </div>
+                    <div className="flex gap-1 mt-1">
+                      <button onClick={exportData} title="Export Data" className="text-gray-400 hover:text-blue-600">
+                        <Download size={14} />
+                      </button>
+                      <button onClick={importData} title="Import Data" className="text-gray-400 hover:text-green-600">
+                        <Upload size={14} />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
