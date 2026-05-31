@@ -498,34 +498,16 @@ function AppContent({
       if (saved) {
         try {
           const local = JSON.parse(saved);
-          if (local.pestel) {
-            setPestelData(local.pestel);
-            lastPestelRef.current = local.pestel;
-          }
-          if (local.mckinsey) {
-            setMckinseyData(local.mckinsey);
-            lastMcKinseyRef.current = local.mckinsey;
-          }
-          if (local.vrio) {
-            setVrioAnalysisData(local.vrio);
-            lastVrioRef.current = local.vrio;
-          }
-          if (local.vrioNotes) {
-            setVrioNotes(local.vrioNotes || '');
-            lastVrioNotesRef.current = local.vrioNotes || '';
-          }
-          if (local.tows) {
-            setTowsData(local.tows);
-            lastTowsRef.current = local.tows;
-          }
-          if (local.porters) {
-            setPortersData(local.porters);
-            lastPorterRef.current = local.porters;
-          }
-          if (local.meta) {
-            setMeta(local.meta);
-            lastMetaRef.current = local.meta;
-          }
+          if (local.pestel) setPestelData(local.pestel);
+          if (local.mckinsey) setMckinseyData(local.mckinsey);
+          if (local.vrio) setVrioAnalysisData(local.vrio);
+          if (local.vrioNotes) setVrioNotes(local.vrioNotes || '');
+          if (local.tows) setTowsData(local.tows);
+          if (local.porters) setPortersData(local.porters);
+          if (local.meta) setMeta(local.meta);
+          
+          // Note: We don't update last*Refs here yet because we want 
+          // to compare this local data with cloud data later.
         } catch (e) {
           console.error('Failed to parse local backup', e);
         }
@@ -538,11 +520,6 @@ function AppContent({
             id: cat, category: cat as PESTELRow['category'], description: '', impact: '', probability: '', potential: ''
           }));
           return defaults.map(d => fetched.find(f => f.id === d.id) || d);
-        };
-
-        const mergeVRIO = (fetched: VRIORow[]) => {
-          // VRIO has 8 rows normally based on the app logic
-          return fetched; // VRIO rows are dynamic, just ensure we don't overwrite with empty
         };
 
         const mergeTOWS = (fetched: TOWSRow[]) => {
@@ -563,7 +540,7 @@ function AppContent({
           { data: tows, error: towsErr },
           { data: porter, error: porterErr },
           { data: mckinsey, error: mckinseyErr },
-          { data: meta, error: metaErr },
+          { data: metaRes, error: metaErr },
         ] = await Promise.all([
           supabase.from('pestel_rows').select('content').eq('group_id', selectedGroup),
           supabase.from('vrio_rows').select('content').eq('group_id', selectedGroup),
@@ -577,39 +554,48 @@ function AppContent({
           throw new Error('Supabase fetch error');
         }
 
-        if (pestel) {
+        // Only update state if cloud data actually exists for each category
+        // This prevents wiping out local data with defaults if cloud is empty
+        if (pestel && pestel.length > 0) {
           const fetchedData = pestel.map((r: { content: PESTELRow }) => r.content);
           const merged = mergePestel(fetchedData);
           setPestelData(merged);
           lastPestelRef.current = merged;
         }
-        if (vrio) {
+        
+        if (vrio && vrio.length > 0) {
           const fetchedData = vrio.map((r: { content: VRIORow }) => r.content);
-          if (fetchedData.length > 0) {
-            setVrioAnalysisData(fetchedData);
-            lastVrioRef.current = fetchedData;
-          }
+          setVrioAnalysisData(fetchedData);
+          lastVrioRef.current = fetchedData;
         }
-        if (tows) {
+        
+        if (tows && tows.length > 0) {
           const fetchedData = tows.map((r: { content: TOWSRow }) => r.content);
           const merged = mergeTOWS(fetchedData);
           setTowsData(merged);
           lastTowsRef.current = merged;
         }
-        if (porter) {
+        
+        if (porter && porter.length > 0) {
           const fetchedData = porter.map((r: { content: PorterRow }) => r.content);
           const merged = mergePorter(fetchedData);
           setPortersData(merged);
           lastPorterRef.current = merged;
         }
+        
         if (mckinsey && mckinsey.length > 0) {
           const data = mckinsey[0].content;
           setMckinseyData(data);
           lastMcKinseyRef.current = data;
         }
-        if (meta?.content) {
-          setMeta(meta.content);
-          lastMetaRef.current = meta.content;
+        
+        if (metaRes?.content) {
+          setMeta(metaRes.content);
+          lastMetaRef.current = metaRes.content;
+          if (metaRes.content.vrioNotes) {
+            setVrioNotes(metaRes.content.vrioNotes);
+            lastVrioNotesRef.current = metaRes.content.vrioNotes;
+          }
         }
 
         setSyncStatus('synced');
