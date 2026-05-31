@@ -712,7 +712,10 @@ function AppContent({
     const tasks = [];
 
     // Compare and prepare upserts
-    if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
+    const pestelChanged = JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current);
+    console.log("DEBUG: Comparison Pestel", pestelChanged, JSON.stringify(pestelData), JSON.stringify(lastPestelRef.current));
+    
+    if (pestelChanged) {
       console.log("DEBUG: Pestel data changed, queuing upsert");
       tasks.push(
         supabase
