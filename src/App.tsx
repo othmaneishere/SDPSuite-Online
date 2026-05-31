@@ -486,6 +486,7 @@ function AppContent({
   }, []);
 
   const roomChannelRef = useRef<RealtimeChannel | null>(null);
+  const isInitialized = useRef(false);
 
   // 1. Initial Load: Hybrid Strategy
   useEffect(() => {
@@ -589,6 +590,7 @@ function AppContent({
         console.warn(`Supabase fetch failed (${errorMsg}) - entering offline mode.`, err);
         setSyncStatus('offline');
       } finally {
+        isInitialized.current = true;
         setIsLoading(false);
       }
     };
@@ -779,7 +781,7 @@ function AppContent({
 
   // 3. Auto-save and Broadcast
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !isInitialized.current) return;
     // ... rest of useEffect
 
     // A. LocalStorage (Immediate safety)
