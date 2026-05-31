@@ -720,85 +720,109 @@ function AppContent({
     const tasks = [];
     const updates: { key: string, data: any }[] = [];
 
-    // Compare and prepare upserts
-    if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
-      tasks.push(
-        supabase
-          .from('pestel_rows')
-          .upsert(pestelData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d })), { onConflict: 'group_id,row_key' }),
-      );
-      updates.push({ key: 'pestel', data: pestelData });
-    }
-    if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
-      tasks.push(
-        supabase.from('mckinsey_rows').upsert({ group_id: selectedGroup, content: mckinseyData }, { onConflict: 'group_id' }),
-      );
-      updates.push({ key: 'mckinsey', data: mckinseyData });
-    }
-    if (
-      JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) ||
-      vrioNotes !== lastVrioNotesRef.current
-    ) {
-      tasks.push(
-        supabase
-          .from('vrio_rows')
-          .upsert(
-            vrioAnalysisData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d })),
-            { onConflict: 'group_id,row_key' }
-          ),
-      );
-      tasks.push(
-        supabase
-          .from('meta_data')
-          .upsert({ group_id: selectedGroup, content: { ...meta, vrioNotes } }, { onConflict: 'group_id' }),
-      );
-      updates.push({ key: 'vrio', data: vrioAnalysisData }, { key: 'vrioNotes', data: vrioNotes });
-    }
-    if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
-      tasks.push(
-        supabase
-          .from('tows_rows')
-          .upsert(
-            towsData.map((d) => ({ group_id: selectedGroup, row_key: d.section, content: d })),
-            { onConflict: 'group_id,row_key' }
-          ),
-      );
-      updates.push({ key: 'tows', data: towsData });
-    }
-    if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
-      tasks.push(
-        supabase
-          .from('porter_rows')
-          .upsert(
-            portersData.map((d) => ({ group_id: selectedGroup, row_key: d.force, content: d })),
-            { onConflict: 'group_id,row_key' }
-          ),
-      );
-      updates.push({ key: 'porter', data: portersData });
-    }
-    if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
-      tasks.push(supabase.from('meta_data').upsert({ group_id: selectedGroup, content: meta }, { onConflict: 'group_id' }));
-      updates.push({ key: 'meta', data: meta });
-    }
-
-    if (tasks.length > 0) {
-      await Promise.all(tasks);
+    try {
+      // Compare and prepare upserts
+      if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
+        tasks.push(
+          supabase
+            .from('pestel_rows')
+            .upsert(pestelData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d })), { onConflict: 'group_id,row_key' })
+            .then(r => { if (r.error) throw r.error; return r; })
+        );
+        updates.push({ key: 'pestel', data: pestelData });
+      }
       
-      // Update refs ONLY after successful save
-      updates.forEach(u => {
-        if (u.key === 'pestel') lastPestelRef.current = u.data;
-        if (u.key === 'mckinsey') lastMcKinseyRef.current = u.data;
-        if (u.key === 'vrio') lastVrioRef.current = u.data;
-        if (u.key === 'vrioNotes') lastVrioNotesRef.current = u.data;
-        if (u.key === 'tows') lastTowsRef.current = u.data;
-        if (u.key === 'porter') lastPorterRef.current = u.data;
-        if (u.key === 'meta') lastMetaRef.current = u.data;
-      });
-    }
+      if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
+        tasks.push(
+          supabase
+            .from('mckinsey_rows')
+            .upsert({ group_id: selectedGroup, content: mckinseyData }, { onConflict: 'group_id' })
+            .then(r => { if (r.error) throw r.error; return r; })
+        );
+        updates.push({ key: 'mckinsey', data: mckinseyData });
+      }
+      
+      if (
+        JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) ||
+        vrioNotes !== lastVrioNotesRef.current
+      ) {
+        tasks.push(
+          supabase
+            .from('vrio_rows')
+            .upsert(
+              vrioAnalysisData.map((d) => ({ group_id: selectedGroup, row_key: d.id, content: d })),
+              { onConflict: 'group_id,row_key' }
+            )
+            .then(r => { if (r.error) throw r.error; return r; })
+        );
+        // We sync vrioNotes into meta_data to keep it unified
+        tasks.push(
+          supabase
+            .from('meta_data')
+            .upsert({ group_id: selectedGroup, content: { ...meta, vrioNotes, group: selectedGroup } }, { onConflict: 'group_id' })
+            .then(r => { if (r.error) throw r.error; return r; })
+        );
+        updates.push({ key: 'vrio', data: vrioAnalysisData }, { key: 'vrioNotes', data: vrioNotes });
+      }
+      
+      if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
+        tasks.push(
+          supabase
+            .from('tows_rows')
+            .upsert(
+              towsData.map((d) => ({ group_id: selectedGroup, row_key: d.section, content: d })),
+              { onConflict: 'group_id,row_key' }
+            )
+            .then(r => { if (r.error) throw r.error; return r; })
+        );
+        updates.push({ key: 'tows', data: towsData });
+      }
+      
+      if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
+        tasks.push(
+          supabase
+            .from('porter_rows')
+            .upsert(
+              portersData.map((d) => ({ group_id: selectedGroup, row_key: d.force, content: d })),
+              { onConflict: 'group_id,row_key' }
+            )
+            .then(r => { if (r.error) throw r.error; return r; })
+        );
+        updates.push({ key: 'porter', data: portersData });
+      }
+      
+      if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
+        tasks.push(
+          supabase
+            .from('meta_data')
+            .upsert({ group_id: selectedGroup, content: { ...meta, group: selectedGroup } }, { onConflict: 'group_id' })
+            .then(r => { if (r.error) throw r.error; return r; })
+        );
+        updates.push({ key: 'meta', data: meta });
+      }
 
-    setSyncStatus('synced');
-    setIsSyncing(false);
-    setLastSaved(new Date());
+      if (tasks.length > 0) {
+        await Promise.all(tasks);
+        
+        // Update refs ONLY after successful save
+        updates.forEach(u => {
+          if (u.key === 'pestel') lastPestelRef.current = u.data;
+          if (u.key === 'mckinsey') lastMcKinseyRef.current = u.data;
+          if (u.key === 'vrio') lastVrioRef.current = u.data;
+          if (u.key === 'vrioNotes') lastVrioNotesRef.current = u.data;
+          if (u.key === 'tows') lastTowsRef.current = u.data;
+          if (u.key === 'porter') lastPorterRef.current = u.data;
+          if (u.key === 'meta') lastMetaRef.current = u.data;
+        });
+        setLastSaved(new Date());
+      }
+      setSyncStatus('synced');
+    } catch (err) {
+      console.error('Manual/Auto save failed:', err);
+      setSyncStatus('offline');
+    } finally {
+      setIsSyncing(false);
+    }
   }, [
     pestelData,
     mckinseyData,
