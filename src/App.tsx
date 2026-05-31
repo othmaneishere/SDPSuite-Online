@@ -540,6 +540,23 @@ function AppContent({
           return defaults.map(d => fetched.find(f => f.id === d.id) || d);
         };
 
+        const mergeVRIO = (fetched: VRIORow[]) => {
+          // VRIO has 8 rows normally based on the app logic
+          return fetched; // VRIO rows are dynamic, just ensure we don't overwrite with empty
+        };
+
+        const mergeTOWS = (fetched: TOWSRow[]) => {
+          const sections = ['opportunities', 'threats', 'strengths', 'weaknesses'] as const;
+          const defaults = sections.map(s => ({ section: s, data: ['', '', ''], scores: {}, notes: {} } as TOWSRow));
+          return defaults.map(d => fetched.find(f => f.section === d.section) || d);
+        };
+
+        const mergePorter = (fetched: PorterRow[]) => {
+          const forces = ['newEntrants', 'buyers', 'suppliers', 'substitutes', 'rivalry'] as const;
+          const defaults = forces.map(f => ({ force: f, analysis: '', impact: 'Low', scorecard: {}, further: [] } as PorterRow));
+          return defaults.map(d => fetched.find(f => f.force === d.force) || d);
+        };
+
         const [
           { data: pestel, error: pestelErr },
           { data: vrio, error: vrioErr },
@@ -560,26 +577,30 @@ function AppContent({
           throw new Error('Supabase fetch error');
         }
 
-        if (pestel && pestel.length > 0) {
+        if (pestel) {
           const fetchedData = pestel.map((r: { content: PESTELRow }) => r.content);
           const merged = mergePestel(fetchedData);
           setPestelData(merged);
           lastPestelRef.current = merged;
         }
-        if (vrio && vrio.length > 0) {
-          const data = vrio.map((r: { content: VRIORow }) => r.content);
-          setVrioAnalysisData(data);
-          lastVrioRef.current = data;
+        if (vrio) {
+          const fetchedData = vrio.map((r: { content: VRIORow }) => r.content);
+          if (fetchedData.length > 0) {
+            setVrioAnalysisData(fetchedData);
+            lastVrioRef.current = fetchedData;
+          }
         }
-        if (tows && tows.length > 0) {
-          const data = tows.map((r: { content: TOWSRow }) => r.content);
-          setTowsData(data);
-          lastTowsRef.current = data;
+        if (tows) {
+          const fetchedData = tows.map((r: { content: TOWSRow }) => r.content);
+          const merged = mergeTOWS(fetchedData);
+          setTowsData(merged);
+          lastTowsRef.current = merged;
         }
-        if (porter && porter.length > 0) {
-          const data = porter.map((r: { content: PorterRow }) => r.content);
-          setPortersData(data);
-          lastPorterRef.current = data;
+        if (porter) {
+          const fetchedData = porter.map((r: { content: PorterRow }) => r.content);
+          const merged = mergePorter(fetchedData);
+          setPortersData(merged);
+          lastPorterRef.current = merged;
         }
         if (mckinsey && mckinsey.length > 0) {
           const data = mckinsey[0].content;
