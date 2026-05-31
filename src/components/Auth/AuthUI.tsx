@@ -23,7 +23,7 @@ export const AuthLayout = ({
       <div className="flex w-full flex-col justify-center border-b border-slate-100 bg-slate-50/50 p-8 md:p-16 lg:w-[45%] lg:border-r lg:border-b-0 lg:p-24">
         <div className="animate-in fade-in slide-in-from-left-4 flex flex-col items-start gap-12 duration-1000 lg:gap-20">
           <img
-            src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png"
+            src="https://i.ibb.co/WWxYzvmx/pbs-logo.png"
             alt="SDP Suite Logo"
             className="h-32 w-32 object-contain md:h-44 md:w-44"
           />
@@ -33,9 +33,6 @@ export const AuthLayout = ({
               Strategic Suite <br /> Access
             </h1>
             <div className="h-2 w-20 rounded-full bg-blue-600" />
-            <p className="max-w-sm text-lg leading-relaxed font-medium text-slate-500">
-              Empowering professional strategic development through collaborative frameworks.
-            </p>
           </div>
         </div>
 

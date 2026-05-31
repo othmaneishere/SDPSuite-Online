@@ -105,7 +105,7 @@ const CorporateHeader = ({
       <div className="flex items-start gap-4">
         <div className="flex items-center">
           <img
-            src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png"
+            src="https://i.ibb.co/WWxYzvmx/pbs-logo.png"
             alt="Business School Logo"
             className="h-16 object-contain"
             crossOrigin="anonymous"
@@ -486,7 +486,6 @@ function AppContent({
   }, []);
 
   const roomChannelRef = useRef<RealtimeChannel | null>(null);
-  const lastReceivedRef = useRef<string>('');
 
   // 1. Initial Load: Hybrid Strategy
   useEffect(() => {
@@ -627,29 +626,38 @@ function AppContent({
           console.error('Presence parse error', err);
         }
       })
-      .on(
-        'broadcast',
-        { event: 'update_data' },
-        ({ payload }: { payload: { senderId: string; data: GroupData } }) => {
-          try {
-            if (!payload || payload.senderId === clientIdRef.current) return;
-            const payloadStr = JSON.stringify(payload.data || {});
-            if (payloadStr === lastReceivedRef.current) return;
-            lastReceivedRef.current = payloadStr;
-
-            const remote: GroupData = payload.data;
-            if (remote.pestel) setPestelData(remote.pestel);
-            if (remote.mckinsey) setMckinseyData(remote.mckinsey);
-            if (remote.vrio) setVrioAnalysisData(remote.vrio);
-            if (remote.vrioNotes) setVrioNotes(remote.vrioNotes || '');
-            if (remote.tows) setTowsData(remote.tows);
-            if (remote.porters) setPortersData(remote.porters);
-            if (remote.meta) setMeta(remote.meta);
-          } catch (err) {
-            console.error('Failed applying remote update', err);
-          }
-        },
-      )
+      .on('broadcast', { event: 'update_pestel' }, ({ payload }) => {
+        if (payload?.senderId === clientIdRef.current) return;
+        setPestelData(payload.data);
+        lastPestelRef.current = payload.data;
+      })
+      .on('broadcast', { event: 'update_mckinsey' }, ({ payload }) => {
+        if (payload?.senderId === clientIdRef.current) return;
+        setMckinseyData(payload.data);
+        lastMcKinseyRef.current = payload.data;
+      })
+      .on('broadcast', { event: 'update_vrio' }, ({ payload }) => {
+        if (payload?.senderId === clientIdRef.current) return;
+        setVrioAnalysisData(payload.data.data);
+        setVrioNotes(payload.data.notes || '');
+        lastVrioRef.current = payload.data.data;
+        lastVrioNotesRef.current = payload.data.notes || '';
+      })
+      .on('broadcast', { event: 'update_tows' }, ({ payload }) => {
+        if (payload?.senderId === clientIdRef.current) return;
+        setTowsData(payload.data);
+        lastTowsRef.current = payload.data;
+      })
+      .on('broadcast', { event: 'update_porter' }, ({ payload }) => {
+        if (payload?.senderId === clientIdRef.current) return;
+        setPortersData(payload.data);
+        lastPorterRef.current = payload.data;
+      })
+      .on('broadcast', { event: 'update_meta' }, ({ payload }) => {
+        if (payload?.senderId === clientIdRef.current) return;
+        setMeta(payload.data);
+        lastMetaRef.current = payload.data;
+      })
       .on('broadcast', { event: 'kick_user' }, ({ payload }) => {
         if (
           payload.userName === displayNameRef.current ||
@@ -774,32 +782,54 @@ function AppContent({
     if (isLoading) return;
     // ... rest of useEffect
 
-    const dataToSave = {
+    // A. LocalStorage (Immediate safety)
+    localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify({
       pestel: pestelData,
       mckinsey: mckinseyData,
       vrio: vrioAnalysisData,
-      vrioNotes: vrioNotes,
+      vrioNotes,
       tows: towsData,
       porters: portersData,
-      meta: meta,
-    };
-
-    // A. LocalStorage (Immediate safety)
-    localStorage.setItem(`sdp_group_${selectedGroup}`, JSON.stringify(dataToSave));
+      meta,
+    }));
 
     // B. Realtime Broadcast
     const ch = roomChannelRef.current;
-    if (ch) {
-      if (updateTimeout.current) clearTimeout(updateTimeout.current);
-      updateTimeout.current = setTimeout(() => {
-        ch.send({
-          type: 'broadcast',
-          event: 'update_data',
-          payload: { senderId: clientIdRef.current, data: dataToSave },
-        });
-        updateTimeout.current = null;
-      }, 300);
-    }
+    if (ch && updateTimeout.current) clearTimeout(updateTimeout.current);
+    updateTimeout.current = setTimeout(() => {
+      if (!ch) return;
+      
+      const broadcast = (event: string, data: any) => {
+        ch.send({ type: 'broadcast', event, payload: { senderId: clientIdRef.current, data } });
+      };
+
+      if (JSON.stringify(pestelData) !== JSON.stringify(lastPestelRef.current)) {
+        broadcast('update_pestel', pestelData);
+        lastPestelRef.current = pestelData;
+      }
+      if (JSON.stringify(mckinseyData) !== JSON.stringify(lastMcKinseyRef.current)) {
+        broadcast('update_mckinsey', mckinseyData);
+        lastMcKinseyRef.current = mckinseyData;
+      }
+      if (JSON.stringify(vrioAnalysisData) !== JSON.stringify(lastVrioRef.current) || vrioNotes !== lastVrioNotesRef.current) {
+        broadcast('update_vrio', { data: vrioAnalysisData, notes: vrioNotes });
+        lastVrioRef.current = vrioAnalysisData;
+        lastVrioNotesRef.current = vrioNotes;
+      }
+      if (JSON.stringify(towsData) !== JSON.stringify(lastTowsRef.current)) {
+        broadcast('update_tows', towsData);
+        lastTowsRef.current = towsData;
+      }
+      if (JSON.stringify(portersData) !== JSON.stringify(lastPorterRef.current)) {
+        broadcast('update_porter', portersData);
+        lastPorterRef.current = portersData;
+      }
+      if (JSON.stringify(meta) !== JSON.stringify(lastMetaRef.current)) {
+        broadcast('update_meta', meta);
+        lastMetaRef.current = meta;
+      }
+      updateTimeout.current = null;
+    }, 300);
 
     // C. Database Sync (Persistent Cloud)
     if (dbUpdateTimeout.current) clearTimeout(dbUpdateTimeout.current);
@@ -1094,7 +1124,7 @@ function AppContent({
         <div className="flex items-center justify-between border-b border-gray-100 bg-white p-6">
           <div className="flex items-center gap-4">
             <img
-              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png"
+              src="https://i.ibb.co/WWxYzvmx/pbs-logo.png"
               alt="SDP Suite Logo"
               className="h-16 w-auto object-contain"
               crossOrigin="anonymous"

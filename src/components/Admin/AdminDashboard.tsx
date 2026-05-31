@@ -242,7 +242,7 @@ export const AdminDashboard = ({ onLogout }: { onLogout: () => void }) => {
         <div className="flex items-center justify-between border-b border-gray-100 bg-white p-6">
           <div className="flex items-center gap-4">
             <img
-              src="https://i.ibb.co/FqgQzNPw/LOGO-BLEU.png"
+              src="https://i.ibb.co/WWxYzvmx/pbs-logo.png"
               alt="SDP Suite Logo"
               className="h-16 w-auto object-contain"
             />

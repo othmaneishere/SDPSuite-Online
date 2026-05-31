@@ -1333,14 +1333,6 @@ export const PortersFiveForces = ({
         </h3>
         <p className="mb-6 text-sm text-gray-600">{currentConfig.info}</p>
 
-        {/* Analysis textarea */}
-        <textarea
-          value={currentData.analysis}
-          onChange={(e) => updateData({ ...currentData, analysis: e.target.value })}
-          className="mb-6 h-24 w-full rounded-xl border border-gray-200 bg-white p-4 text-sm"
-          placeholder="Enter your analysis here..."
-        />
-
         {/* Scorecard table */}
         <div className="mb-6 space-y-3">
           {currentConfig.questions.map((q, idx) => (
