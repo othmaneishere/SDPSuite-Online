@@ -560,7 +560,7 @@ function AppContent({
           throw new Error('Supabase fetch error');
         }
 
-        if (pestel) {
+        if (pestel && pestel.length > 0) {
           const fetchedData = pestel.map((r: { content: PESTELRow }) => r.content);
           const merged = mergePestel(fetchedData);
           setPestelData(merged);
